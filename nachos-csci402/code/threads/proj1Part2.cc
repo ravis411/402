@@ -56,7 +56,7 @@ std::vector<Lock*> cashierLock; */
 Lock* applicationClerkLock[MAXCLERKS];
 Lock* pictureClerkLock[MAXCLERKS];
 Lock* passportClerkLock[MAXCLERKS];
-Lock* cashierClerkLock[MAXCLERKS];
+Lock* cashierLock[MAXCLERKS];
 
 /* //CVS */
 Condition *passportOfficeOutsideLineCV; /* //This can be the outside line for when senators are present */
@@ -113,16 +113,6 @@ int applicationClerkState[MAXCLERKS];	/* //applicationClerkState */
 int pictureClerkState[MAXCLERKS];  /* //applicationClerkState */
 int passportClerkState[MAXCLERKS];	/* //applicationClerkState */
 int cashierState[MAXCLERKS];	/* //applicationClerkState */
-
-int setup = 0;
-for (int setup = 0; setup < MAXCLERKS; setup++)
-{
-	applicationClerkState[setup] = 2;
-	pictureClerkState[setup] = 2;
-	passportClerkState[setup] = 2;
-	cashierState[setup] = 2;
-}
-
  
 /* //LineCounts */
 /*
@@ -145,18 +135,6 @@ int passportClerkBribeLineCount[MAXCLERKS];		/* //passportClerkBribeLineCount */
 int cashierLineCount[MAXCLERKS];			/* //cashierLineCount */
 int cashierBribeLineCount[MAXCLERKS];		/* //cashierBribeLineCount */
 
-int lineSetup = 0;
-for (int lineSetup = 0; lineSetup < MAXCLERKS; lineSetup++)
-{
-	applicationClerkLineCount[lineSetup] = 0;			
-	applicationClerkBribeLineCount[lineSetup] = 0;		
-	pictureClerkLineCount[lineSetup] = 0;			
-    pictureClerkBribeLineCount[lineSetup] = 0;		
-	passportClerkLineCount[lineSetup] = 0;			
-	passportClerkBribeLineCount[lineSetup] = 0;		
-	cashierLineCount[lineSetup] = 0;			
-	cashierBribeLineCount[lineSetup] = 0;
-}
 
 /* //Shared Data //Should only be accessed with the corresponding lock / cv */
 /*
@@ -178,14 +156,7 @@ int pictureClerkSharedDataSSN[MAXCLERKS]; /* //This can be used by the customer 
 int pictureClerkSharedDataPicture[MAXCLERKS]; /* // This can be used by the customer to pass acceptance of the picture */
 int passportClerkSharedDataSSN[MAXCLERKS]; /* //This can be used by the customer to pass SSN */
 
-int sharedSetup = 0;
-for (int sharedSetup = 0; sharedSetup < MAXCLERKS; sharedSetup++)
-{
-	applicationClerkSharedData[sharedSetup] = 0;			
-	pictureClerkSharedDataSSN[sharedSetup] = 0;		
-	pictureClerkSharedDataPicture[sharedSetup] = 0;			
-    passportClerkSharedDataSSN[sharedSetup] = 0;		
-}
+
 
 bool applicationCompletion[MAXCUSTOMERS]; /* //Used by passportCerkto verify that application has been completed */
 bool pictureCompletion[MAXCUSTOMERS]; /* //Used by passportClerk to verify that picture has beeen completed */
@@ -195,18 +166,6 @@ int cashierSharedDataSSN[MAXCUSTOMERS]; /* //This can be used by the customer to
 int cashierRejection[MAXCUSTOMERS]; /* //Used by the cashier to reject customers. */
 int doneCompletely[MAXCUSTOMERS]; /* //Used by customer to tell when done. */
 
-int otherSetup = 0;
-for (int otherSetup = 0; otherSetup < MAXCUSTOMERS; otherSetup++)
-{
-	applicationCompletion[otherSetup] = 0;			
-	pictureCompletion[otherSetup] = 0;		
-	passportCompletion[otherSetup] = 0;			
-    passportPunishment[otherSetup] = 0;
-    cashierSharedDataSSN[otherSetup] = 0;		
-	cashierRejection[otherSetup] = 0;			
-    doneCompletely[otherSetup] = 0;	
-    	
-}
 
 int customersPresentCount = 0; /* //For telling the manager we're in the office */
 int senatorPresentCount = 0;
@@ -242,7 +201,7 @@ void PrintString(char cstring[], int charstringSize)
 	//clerkState: a vector of the clerkState
 */
 /* int pickShortestLine(std::vector<int>& pickShortestlineCount, std::vector<CLERKSTATE>& pickShortestclerkState){ */
-int pickShortestLine(int& pickShortestlineCount[], int& pickShortestclerkState[]){
+int pickShortestLine(int pickShortestlineCount[], int pickShortestclerkState[]){
 	int i;
 	int myLine = -1;
 	int lineSize = 1000;
@@ -1298,13 +1257,13 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
 	if(freeOrAvailable){
 		applicationClerkState[myLine] = ONBREAK;
 		/* printf("ApplicationClerk %i is going on break.\n", myLine); */
-		PrintString("ApplicationClerk ", sizeof("ApplicationClerk ");
+		PrintString("ApplicationClerk ", sizeof("ApplicationClerk "));
 		PrintInt(myLine);
 		PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 		applicationClerkBreakCV->Wait(applicationClerkLineLock);
 		applicationClerkState[myLine] = BUSY;
 		/* printf("ApplicationClerk %i is coming off break.\n", myLine); */
-		PrintString("ApplicationClerk ", sizeof("ApplicationClerk ");
+		PrintString("ApplicationClerk ", sizeof("ApplicationClerk "));
 		PrintInt(myLine);
 		PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
 	}else{
@@ -1444,13 +1403,13 @@ void pictureClerkcheckAndGoOnBreak(int myLine){
 	if(freeOrAvailable){
 		pictureClerkState[myLine] = ONBREAK;
 		printf("PictureClerk %i is going on break.\n", myLine);
-		PrintString("PictureClerk ", sizeof("PictureClerk ");
+		PrintString("PictureClerk ", sizeof("PictureClerk "));
 		PrintInt(myLine);
 		PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 		pictureClerkBreakCV->Wait(pictureClerkLineLock);
 		pictureClerkState[myLine] = BUSY;
 		printf("PictureClerk %i is coming off break.\n", myLine);
-		PrintString("PictureClerk ", sizeof("PictureClerk ");
+		PrintString("PictureClerk ", sizeof("PictureClerk "));
 		PrintInt(myLine);
 		PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));	
 	}else{
@@ -1566,11 +1525,11 @@ void PassportClerk(int id){
 	printf("PassportClerk %i is coming off break.\n", myLine);
 	*/
 	
-	PrintString("PassportClerk ", sizeof("PassportClerk ");
+	PrintString("PassportClerk ", sizeof("PassportClerk "));
 	PrintInt(myLine);
 	PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 	
-	PrintString("PassportClerk ", sizeof("PassportClerk ");
+	PrintString("PassportClerk ", sizeof("PassportClerk "));
 	PrintInt(myLine);
 	PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
 	}
@@ -1596,13 +1555,13 @@ void passportClerkcheckAndGoOnBreak(int myLine){
 	if(freeOrAvailable){
 		passportClerkState[myLine] = ONBREAK;
 		/* printf("PassportClerk %i is going on break.\n", myLine); */
-		PrintString("PassportClerk ", sizeof("PassportClerk ");
+		PrintString("PassportClerk ", sizeof("PassportClerk "));
 		PrintInt(myLine);
 		PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 		passportClerkBreakCV->Wait(passportClerkLineLock);
 		passportClerkState[myLine] = BUSY;
 		/* printf("PassportClerk %i is coming off break.\n", myLine); */
-		PrintString("PassportClerk ", sizeof("PassportClerk ");
+		PrintString("PassportClerk ", sizeof("PassportClerk "));
 		PrintInt(myLine);
 		PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
 	}else{
@@ -1679,7 +1638,10 @@ void Cashier(int id){
 
 		/* //Should only do this when we are BUSY? We have a customer... */
 		if (customerFromLine != 0){
-			printf("Cashier %i has signalled a Customer to come to their counter.\n", myLine);
+			/* printf("Cashier %i has signalled a Customer to come to their counter.\n", myLine); */
+			PrintString("Cashier ", sizeof("Cashier "));
+			PrintInt(myLine);
+			PrintString(" has signalled a Customer to come to their counter.\n", sizeof(" has signalled a Customer to come to their counter.\n"));
 			cashierLock[myLine]->Acquire();
 			cashierLineLock->Release();
 			/* //wait for customer data */
@@ -1692,27 +1654,59 @@ void Cashier(int id){
 			/* //Customer from bribe line? //maybe should be separate signalwait  ehh? */
 			if(customerFromLine == 1){
 				money += 500;
-				printf("Cashier %i has received $500 from Customer %i.\n", myLine, customerSSN);
+				/* printf("Cashier %i has received $500 from Customer %i.\n", myLine, customerSSN); */
+				PrintString("Cashier ", sizeof("Cashier "));
+				PrintInt(myLine);
+				PrintString(" has received the $500 from Customer ", sizeof(" has received the $500 from Customer "));
+				PrintInt(customerSSN);
+				PrintString(".\n", sizeof(".\n"));
 				currentThread->Yield();/* //Just to change things up a bit. */
 			}
 			
-			printf("Cashier %i has received SSN %i from Customer %i.\n", myLine, customerSSN, customerSSN);
+			/* printf("Cashier %i has received SSN %i from Customer %i.\n", myLine, customerSSN, customerSSN); */
+			PrintString("Cashier ", sizeof("Cashier "));
+			PrintInt(myLine);
+			PrintString(" has received SSN ", sizeof(" has received SSN "));
+			PrintInt(customerSSN);
+			PrintString(" from Customer ", sizeof(" from Customer "));
+			PrintInt(customerSSN);
+			PrintString(".\n", sizeof(".\n"));
 
 			/* //Do my job - customer waiting */
 			if (passportCompletion[customerSSN] == 0) {
-				printf("Cashier %i has received the $100 from Customer%i before certification. They are to go to the back of my line.\n", myLine, customerSSN);
+				/* printf("Cashier %i has received the $100 from Customer%i before certification. They are to go to the back of my line.\n", myLine, customerSSN); */
+				PrintString("Cashier ", sizeof("Cashier "));
+				PrintInt(myLine);
+				PrintString(" has recorded the $100 from Customer ", sizeof(" has recorded the $100 from Customer "));
+				PrintInt(customerSSN);
+				PrintString(" before certification. They are to go to the back of my line.\n", sizeof(" before certification. They are to go to the back of my line.\n"));
 				cashierRejection[customerSSN] = 1;
 			}
 			else {
 				cashierRejection[customerSSN] = 0;
-				printf("Cashier %i has verified that Customer %i has been certified by a PassportClerk.\n", myLine, customerSSN);
+				/*  printf("Cashier %i has verified that Customer %i has been certified by a PassportClerk.\n", myLine, customerSSN); */
+				PrintString("Cashier ", sizeof("Cashier "));
+				PrintInt(myLine);
+				PrintString(" has verified that Customer ", sizeof(" has verified that Customer "));
+				PrintInt(customerSSN);
+				PrintString(" has been certified by a PassportClerk.\n", sizeof(" has been certified by a PassportClerk.\n"));
 				/* //tell customer and wait to be paid */
 				cashierCV[myLine]->Signal(cashierLock[myLine]);
 				cashierCV[myLine]->Wait(cashierLock[myLine]);
-				printf("Cashier %i has received the $100 from Customer%i after certification.\n", myLine, customerSSN);
+				/* printf("Cashier %i has received the $100 from Customer%i after certification.\n", myLine, customerSSN); */
+				PrintString("Cashier ", sizeof("Cashier "));
+				PrintInt(myLine);
+				PrintString(" has received the $100 from Customer ", sizeof(" has received the $100 from Customer "));
+				PrintInt(customerSSN);
+				PrintString(" after certification.\n", sizeof(" after certification.\n"));
 				/* //Signal Customer that I'm Done. */
 				doneCompletely[customerSSN] = 1;
-				printf("Cashier %i has provided Customer %i their completed passport.\n", myLine, customerSSN);
+				/* printf("Cashier %i has provided Customer %i their completed passport.\n", myLine, customerSSN); */
+				PrintString("Cashier ", sizeof("Cashier "));
+				PrintInt(myLine);
+				PrintString(" has recorded that Customer ", sizeof(" has recorded that Customer "));
+				PrintInt(customerSSN);
+				PrintString(" has been given their completed passport.\n", sizeof(" has been given their completed passport.\n"));
 				cashierCV[myLine]->Signal(cashierLock[myLine]);
 		
 			}
@@ -1724,6 +1718,7 @@ void Cashier(int id){
 
 	/* //Here are the output Guidelines for the Cashier */
 	if(false){
+	/*
 	printf("Cashier %i has signalled a Customer to come to their counter.\n", myLine);
 	printf("Cashier %i has received SSN %i from Customer %i.\n", myLine, identifier, identifier);
 	printf("Cashier %i has verified that Customer %i has been certified by a PassportClerk.\n", myLine, identifier);
@@ -1733,6 +1728,59 @@ void Cashier(int id){
     printf("Cashier %i has recorded that Customer %i has been given their completed passport.\n", myLine, identifier);
 	printf("Cashier %i is going on break.\n", myLine);
 	printf("Cashier %i is coming off break.\n", myLine);
+	*/
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" has signalled a Customer to come to their counter.\n", sizeof(" has signalled a Customer to come to their counter.\n"));
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" has received SSN ", sizeof(" has received SSN "));
+	PrintInt(identifier);
+	PrintString(" from Customer ", sizeof(" from Customer "));
+	PrintInt(identifier);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" has verified that Customer ", sizeof(" has verified that Customer "));
+	PrintInt(identifier);
+	PrintString(" has been certified by a PassportClerk.\n", sizeof(" has been certified by a PassportClerk.\n"));
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" has received the $100 from Customer ", sizeof(" has received the $100 from Customer "));
+	PrintInt(identifier);
+	PrintString(" after certification.\n", sizeof(" after certification.\n"));
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" has recorded the $100 from Customer ", sizeof(" has recorded the $100 from Customer "));
+	PrintInt(identifier);
+	PrintString(" before certification. They are to go to the back of my line.\n", sizeof(" before certification. They are to go to the back of my line.\n"));
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" has provided Customer ", sizeof(" has provided Customer "));
+	PrintInt(identifier);
+	PrintString(" their completed passport.\n", sizeof(" their completed passport.\n"));
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" has recorded that Customer ", sizeof(" has recorded that Customer "));
+	PrintInt(identifier);
+	PrintString(" has been given their completed passport.\n", sizeof(" has been given their completed passport.\n"));
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
+	
+	PrintString("Cashier ", sizeof("Cashier "));
+	PrintInt(myLine);
+	PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
+	
+	
 	}
 
 
@@ -1759,13 +1807,13 @@ void cashiercheckAndGoOnBreak(int myLine){
 	if(freeOrAvailable){
 		cashierState[myLine] = ONBREAK;
 		/* printf("Cashier %i is going on break.\n", myLine); */
-		PrintString("Cashier ", sizeof("Cashier ");
+		PrintString("Cashier ", sizeof("Cashier "));
 		PrintInt(myLine);
 		PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 		cashierBreakCV->Wait(cashierLineLock);
 		cashierState[myLine] = BUSY;
 		/* printf("Cashier %i is coming off break.\n", myLine); */
-		PrintString("Cashier ", sizeof("Cashier ");
+		PrintString("Cashier ", sizeof("Cashier "));
 		PrintInt(myLine);
 		PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
 	}else{
@@ -1840,7 +1888,7 @@ void Manager(int id){
 
 /* //Wake up customers in all lines */
 /* void managerBroacastLine(std::vector<Condition*> &line, std::vector<Condition*> &bribeLine, Lock* lock, int count){ */
-void managerBroacastLine(Condition* &line[], Condition* &bribeLine[], Lock* lock, int count){
+void managerBroacastLine(Condition* line[], Condition* bribeLine[], Lock* lock, int count){
 	int i;
 	DEBUG('s', "DEBUG: MANAGER: BROADCAST acquiring lock %s.\n", lock->getName());
 	lock->Acquire();
@@ -1950,7 +1998,7 @@ void checkEndOfDay(){
 */
 
 /* bool managerCheckandWakeupCLERK(Lock* managerCWCLineLock, std::vector<int>& managerCWClineCount, std::vector<CLERKSTATE>& managerCWCState, Condition* managerCWCBreakCV, int managerCWCount){ */
-bool managerCheckandWakeupCLERK(Lock* managerCWCLineLock, int& managerCWClineCount[], int& managerCWCState[], Condition* managerCWCBreakCV, int managerCWCount){
+bool managerCheckandWakeupCLERK(Lock* managerCWCLineLock, int managerCWClineCount[], int managerCWCState[], Condition* managerCWCBreakCV, int managerCWCount){
 	int i;
 	bool wakeUp = false;/* //should we wake up a clerk? */
 	bool asleep = false;/* //is any clerk asleep? */
@@ -2035,6 +2083,10 @@ void Part2TestSuit(){
 	int j;
 	int k;
 	char p;
+	int setup;
+	int sharedSetup;
+	int lineSetup;
+	int otherSetup;
 	
 	while (true) {
 		THEEND = false;
@@ -2105,6 +2157,46 @@ void Part2TestSuit(){
 		printf("Number of PassportClerks = %i \n", CLERKCOUNT);
 		printf("Number of Cashiers = %i \n", CLERKCOUNT);
 		printf("Number of Senators = %i \n", SENATORCOUNT);
+		
+
+		for (setup = 0; setup < MAXCLERKS; setup++)
+		{
+			applicationClerkState[setup] = 2;
+			pictureClerkState[setup] = 2;
+			passportClerkState[setup] = 2;
+			cashierState[setup] = 2;
+		}
+
+		for (lineSetup = 0; lineSetup < MAXCLERKS; lineSetup++)
+		{
+			applicationClerkLineCount[lineSetup] = 0;			
+			applicationClerkBribeLineCount[lineSetup] = 0;		
+			pictureClerkLineCount[lineSetup] = 0;			
+		    pictureClerkBribeLineCount[lineSetup] = 0;		
+			passportClerkLineCount[lineSetup] = 0;			
+			passportClerkBribeLineCount[lineSetup] = 0;		
+			cashierLineCount[lineSetup] = 0;			
+			cashierBribeLineCount[lineSetup] = 0;
+		}
+
+		for (sharedSetup = 0; sharedSetup < MAXCLERKS; sharedSetup++)
+		{
+			applicationClerkSharedData[sharedSetup] = 0;			
+			pictureClerkSharedDataSSN[sharedSetup] = 0;		
+			pictureClerkSharedDataPicture[sharedSetup] = 0;			
+		    passportClerkSharedDataSSN[sharedSetup] = 0;		
+		}
+		
+		for (otherSetup = 0; otherSetup < MAXCUSTOMERS; otherSetup++)
+		{
+			applicationCompletion[otherSetup] = 0;			
+			pictureCompletion[otherSetup] = 0;		
+			passportCompletion[otherSetup] = 0;			
+   			passportPunishment[otherSetup] = 0;
+    		cashierSharedDataSSN[otherSetup] = 0;		
+			cashierRejection[otherSetup] = 0;			
+    		doneCompletely[otherSetup] = 0;	
+		}
 
 		
 		/*
@@ -2186,25 +2278,25 @@ void Part2TestSuit(){
 		*/
 		
 		for (n = 0; n < CLERKCOUNT; n++){			
-			applicationClerkLock[n] = new Lock("applicationClerkLock" + n));
-			applicationClerkLineCV[n] = new Lock("applicationClerkLineCV" + n));
-			applicationClerkBribeLineCV[n] = new Lock("applicationClerkBribeLineCV" + n));
-			applicationClerkCV[n] = new Lock("applicationClerkCV" + n));
+			applicationClerkLock[n] = new Lock("applicationClerkLock" + n);
+			applicationClerkLineCV[n] = new Condition("applicationClerkLineCV" + n);
+			applicationClerkBribeLineCV[n] = new Condition("applicationClerkBribeLineCV" + n);
+			applicationClerkCV[n] = new Condition("applicationClerkCV" + n);
 			
-			pictureClerkLock[n] = new Lock("pictureClerkLock" + n));
-			pictureClerkLineCV[n] = new Lock("pictureClerkLineCV" + n));
-			pictureClerkBribeLineCV[n] = new Lock("pictureClerkBribeLineCV" + n));
-			pictureClerkCV[n] = new Lock("pictureClerkCV" + n));
+			pictureClerkLock[n] = new Lock("pictureClerkLock" + n);
+			pictureClerkLineCV[n] = new Condition("pictureClerkLineCV" + n);
+			pictureClerkBribeLineCV[n] = new Condition("pictureClerkBribeLineCV" + n);
+			pictureClerkCV[n] = new Condition("pictureClerkCV" + n);
 			
-			passportClerkLock[n] = new Lock("passportClerkLock" + n));
-			passportClerkLineCV[n] = new Lock("passportClerkLineCV" + n));
-			passportClerkBribeLineCV[n] = new Lock("passportClerkBribeLineCV" + n));
-			passportClerkCV[n] = new Lock("passportClerkCV" + n));
+			passportClerkLock[n] = new Lock("passportClerkLock" + n);
+			passportClerkLineCV[n] = new Condition("passportClerkLineCV" + n);
+			passportClerkBribeLineCV[n] = new Condition("passportClerkBribeLineCV" + n);
+			passportClerkCV[n] = new Condition("passportClerkCV" + n);
 			
-			cashierLock[n] = new Lock("cashierLock" + n));
-			cashierLineCV[n] = new Lock("cashierLineCV" + n));
-			cashierBribeLineCV[n] = new Lock("cashierBribeLineCV" + n));
-			cashierCV[n] = new Lock("cashierCV" + n));
+			cashierLock[n] = new Lock("cashierLock" + n);
+			cashierLineCV[n] = new Condition("cashierLineCV" + n);
+			cashierBribeLineCV[n] = new Condition("cashierBribeLineCV" + n);
+			cashierCV[n] = new Condition("cashierCV" + n);
 		}
 
 		Thread *t;
