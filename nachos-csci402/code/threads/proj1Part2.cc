@@ -221,6 +221,15 @@ bool senatorPresentWaitOutSide = false; /* //Set by the manager to tell customer
 ///////////////////////////////// 
 */
 
+void PrintInt(int number)
+{
+	printf("%i", number);
+}
+
+void PrintString(char cstring[], int charstringSize)
+{
+	printf(cstring);
+}
 
 
 /* //Utility Functions */
@@ -333,6 +342,7 @@ void Customer(int id){
 
 	/* //Here are the output Guidelines for the Customer */
 	if(false){
+	/*
 	printf("Customer %i has gotten in regular line for PictureClerk %i.\n", SSN, myLine);
 	printf("Customer %i has gotten in regular line for PassportClerk %i.\n", SSN, myLine);
 	printf("Customer %i has gotten in regular line for Cashier %i.\n", SSN, myLine);
@@ -347,6 +357,90 @@ void Customer(int id){
 	printf("Customer %i has gone to PassportClerk %i too soon. They are going to the back of the line.\n", SSN, myLine);
 	printf("Customer %i has gone to Cashier %i too soon. They are going to the back of the line.\n", SSN, myLine);
 	printf("Customer %i has given Cashier %i $100.", SSN, myLine);
+	*/
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has gotten in regular line for PictureClerk ", sizeof(" has gotten in regular line for PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has gotten in regular line for PassportClerk ", sizeof(" has gotten in regular line for PassportClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has gotten in regular line for Cashier ", sizeof(" has gotten in regular line for Cashier "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has gotten in bribe line for PictureClerk ", sizeof(" has gotten in bribe line for PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has gotten in bribe line for PassportClerk ", sizeof(" has gotten in bribe line for PassportClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to PictureClerk ", sizeof(" to PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to PassportClerk ", sizeof(" to PassportClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to Cashier ", sizeof(" to Cashier "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" does not like their picture from PictureClerk ", sizeof(" does not like their picture from PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" does like their picture from PictureClerk ", sizeof(" does like their picture from PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has gone to PassportClerk ", sizeof(" has gone to PassportClerk "));
+	PrintInt(myLine);
+	PrintString(" too soon. They are going to the back of the line.\n", sizeof(" too soon. They are going to the back of the line.\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has gone to Cashier ", sizeof(" has gone to Cashier "));
+	PrintInt(myLine);
+	PrintString(" too soon. They are going to the back of the line.\n", sizeof(" too soon. They are going to the back of the line.\n"));
+	
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" has given Cashier ", sizeof(" has given Cashier "));
+	PrintInt(myLine);
+	PrintString(" $100.\n", sizeof(" $100.\n"));
 	}
 
 }/* //End Customer */
@@ -354,7 +448,10 @@ void Customer(int id){
 
 /* //Wait outside or something there's a Senator present */
 void customerSenatorPresentWaitOutside(int SSN){
-	printf("Customer %i is going outside the PassportOffice because there is a Senator present.\n", SSN);
+	/* printf("Customer %i is going outside the PassportOffice because there is a Senator present.\n", SSN); */
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" is going outside the PassportOffice because there is a Senator present.\n", sizeof(" is going outside the PassportOffice because there is a Senator present.\n"));
 
 	/* //Go outside. */
 	customersPresentCount--;
@@ -390,7 +487,10 @@ void customerCheckOut(int SSN){
 	customersPresentCount--;
 	checkedOutCount++;
 	managerLock->Release();
-	printf("Customer %i is leaving the Passport Office.\n", SSN);
+	/* printf("Customer %i is leaving Passport Office.\n", SSN); */
+	PrintString("Customer ", sizeof("Customer "));
+	PrintInt(SSN);
+	PrintString(" is leaving the Passport Office.\n", sizeof(" is leaving the Passport Office.\n"));
 	currentThread->Finish();
 }
 
@@ -445,7 +545,13 @@ bool customerApplicationClerkInteraction(int SSN, int &money, int VIP){
 	if(applicationClerkState[myLine] != AVAILABLE){
 		if(!bribe){
 			applicationClerkLineCount[myLine]++;
-			printf("%s %i has gotten in regular line for ApplicationClerk %i.\n", myType, SSN, myLine);
+			/* printf("%s %i has gotten in regular line for ApplicationClerk %i.\n", myType, SSN, myLine); */
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" has gotten in regular line for ApplicationClerk ", sizeof(" has gotten in regular line for ApplicationClerk "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
 			applicationClerkLineCV[myLine]->Wait(applicationClerkLineLock);
 			applicationClerkLineCount[myLine]--;
 			/* //See if the clerk for my line signalled me, otherwise check if a senator is here and go outside. */
@@ -456,7 +562,13 @@ bool customerApplicationClerkInteraction(int SSN, int &money, int VIP){
 			}
 		}else{
 			applicationClerkBribeLineCount[myLine]++;
-			printf("%s %i has gotten in bribe line for ApplicationClerk %i.\n", myType, SSN, myLine);
+			/* printf("%s %i has gotten in bribe line for ApplicationClerk %i.\n", myType, SSN, myLine); */
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" has gotten in bribe line for ApplicationClerk ", sizeof(" has gotten in bribe line for ApplicationClerk "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
 			applicationClerkBribeLineCV[myLine]->Wait(applicationClerkLineLock);
 			applicationClerkBribeLineCount[myLine]--;
 			/* //See if the clerk for my line signalled me, otherwise check if a senator is here and go outside. */
@@ -476,7 +588,15 @@ bool customerApplicationClerkInteraction(int SSN, int &money, int VIP){
 	/* //Give my data to my clerk */
 	/* //We already have a lock so put my SSN in applicationClerkSharedData */
 	applicationClerkSharedData[myLine] = SSN;
-	printf("%s %i has given SSN %i to ApplicationClerk %i.\n", myType, SSN, SSN, myLine);
+	/* printf("%s %i has given SSN %i to ApplicationClerk %i.\n", myType, SSN, SSN, myLine); */
+	PrintString(myType, sizeof(myType));
+	PrintString(" ", sizeof(" "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to ApplicationClerk ", sizeof(" to ApplicationClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
 	applicationClerkCV[myLine]->Signal(applicationClerkLock[myLine]);
 	/* //Wait for clerk to do their job */
 	applicationClerkCV[myLine]->Wait(applicationClerkLock[myLine]);
@@ -514,7 +634,13 @@ bool customerPictureClerkInteraction(int SSN, int &money, int VIP){
 	if(pictureClerkState[myLine] != AVAILABLE){
 		if(!bribe){
 			pictureClerkLineCount[myLine]++;
-			printf("%s %i has gotten in regular line for PictureClerk %i.\n", myType, SSN, myLine);
+			/* printf("%s %i has gotten in regular line for PictureClerk %i.\n", myType, SSN, myLine); */
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" has gotten in regular line for PictureClerk ", sizeof(" has gotten in regular line for PictureClerk "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
 			pictureClerkLineCV[myLine]->Wait(pictureClerkLineLock);
 			pictureClerkLineCount[myLine]--;
 			if(pictureClerkState[myLine] != SIGNALEDCUSTOMER){
@@ -524,7 +650,13 @@ bool customerPictureClerkInteraction(int SSN, int &money, int VIP){
 			}
 		}else{
 			pictureClerkBribeLineCount[myLine]++;
-			printf("%s %i has gotten in bribe line for PictureClerk %i.\n", myType, SSN, myLine);
+			/* printf("%s %i has gotten in bribe line for PictureClerk %i.\n", myType, SSN, myLine); */
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" has gotten in bribe line for PictureClerk ", sizeof(" has gotten in bribe line for PictureClerk "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
 			pictureClerkBribeLineCV[myLine]->Wait(pictureClerkLineLock);
 			pictureClerkBribeLineCount[myLine]--;
 			if(pictureClerkState[myLine] != SIGNALEDCUSTOMER){
@@ -545,22 +677,45 @@ bool customerPictureClerkInteraction(int SSN, int &money, int VIP){
 	//We already have a lock so put my SSN in pictureClerkSharedData
 	*/
 	pictureClerkSharedDataSSN[myLine] = SSN;
-	printf("%s %i has given SSN %i to PictureClerk %i.\n", myType, SSN, SSN, myLine);
-
+	/* printf("%s %i has given SSN %i to PictureClerk %i.\n", myType, SSN, SSN, myLine); */
+	PrintString(myType, sizeof(myType));
+	PrintString(" ", sizeof(" "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to PictureClerk ", sizeof(" to PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
 
 	pictureClerkCV[myLine]->Signal(pictureClerkLock[myLine]);
 	pictureClerkCV[myLine]->Wait(pictureClerkLock[myLine]);
 	/* //Wait for clerk to take the picture */
 	while(pictureClerkSharedDataPicture[myLine] == 0) {
 		if(rand()%10 > 7) {
-			printf("%s %i does not like their picture from PictureClerk %i.\n", myType, SSN, myLine);
+			/* printf("%s %i does not like their picture from PictureClerk %i.\n", myType, SSN, myLine); */
+			
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" does not like their picture from PictureClerk ", sizeof(" does not like their picture from PictureClerk "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
+	
 			pictureClerkSharedDataPicture[myLine] = 0;
 			pictureClerkCV[myLine]->Signal(pictureClerkLock[myLine]);
 			/* //Wait for clerk to take the picture */
 			pictureClerkCV[myLine]->Wait(pictureClerkLock[myLine]);
 		}
 		else {
-			printf("%s %i does like their picture from PictureClerk %i.\n", myType, SSN, myLine);
+			/* printf("%s %i does like their picture from PictureClerk %i.\n", myType, SSN, myLine); */
+			
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" does like their picture from PictureClerk ", sizeof(" does like their picture from PictureClerk "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
+			
 			pictureClerkSharedDataPicture[myLine] = 1;
 			pictureClerkCV[myLine]->Signal(pictureClerkLock[myLine]);
 			/* //Wait for clerk to take the picture */
@@ -593,7 +748,13 @@ bool customerPassportClerkInteraction(int SSN, int &money, int VIP){
 	if(passportClerkState[myLine] != AVAILABLE){
 		if(!bribe){
 			passportClerkLineCount[myLine]++;
-			printf("%s %i has gotten in regular line for PassportClerk %i.\n", myType, SSN, myLine);
+			/* printf("%s %i has gotten in regular line for PassportClerk %i.\n", myType, SSN, myLine); */
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" has gotten in regular line for PassportClerk ", sizeof(" has gotten in regular line for PassportClerk "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
 			passportClerkLineCV[myLine]->Wait(passportClerkLineLock);
 			passportClerkLineCount[myLine]--;
 			if(passportClerkState[myLine] != SIGNALEDCUSTOMER){
@@ -603,7 +764,13 @@ bool customerPassportClerkInteraction(int SSN, int &money, int VIP){
 			}
 		}else{
 			passportClerkBribeLineCount[myLine]++;
-			printf("%s %i has gotten in bribe line for PassportClerk %i.\n", myType, SSN, myLine);
+			/* printf("%s %i has gotten in bribe line for PassportClerk %i.\n", myType, SSN, myLine); */
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" has gotten in bribe line for PassportClerk ", sizeof(" has gotten in bribe line for PassportClerk "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
 			passportClerkBribeLineCV[myLine]->Wait(passportClerkLineLock);
 			passportClerkBribeLineCount[myLine]--;
 			if(passportClerkState[myLine] != SIGNALEDCUSTOMER){
@@ -625,12 +792,26 @@ bool customerPassportClerkInteraction(int SSN, int &money, int VIP){
 	//We already have a lock so put my SSN in passportClerkSharedData
 	*/
 	passportClerkSharedDataSSN[myLine] = SSN;
-	printf("%s %i has given SSN %i to PassportClerk %i.\n", myType, SSN, SSN, myLine);
+	/* printf("%s %i has given SSN %i to PassportClerk %i.\n", myType, SSN, SSN, myLine); */
+	PrintString(myType, sizeof(myType));
+	PrintString(" ", sizeof(" "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to PassportClerk ", sizeof(" to PassportClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
 	passportClerkCV[myLine]->Signal(passportClerkLock[myLine]);
 	/* //Wait for clerk to do their job */
 	passportClerkCV[myLine]->Wait(passportClerkLock[myLine]);
 	if(passportPunishment[SSN] == 1) {
-		printf("%s %i has gone to PassportClerk %i too soon. They are going to the back of the line.\n", myType, SSN, myLine);
+		/* printf("%s %i has gone to PassportClerk %i too soon. They are going to the back of the line.\n", myType, SSN, myLine); */
+		PrintString(myType, sizeof(myType));
+		PrintString(" ", sizeof(" "));
+		PrintInt(SSN);
+		PrintString(" has gone to PassportClerk ", sizeof(" has gone to PassportClerk "));
+		PrintInt(myLine);
+		PrintString(" too soon. They are going to the back of the line.\n", sizeof(" too soon. They are going to the back of the line.\n"));
 		passportClerkLock[myLine]->Release();
 		return false;
 	}
@@ -665,7 +846,13 @@ bool customerCashierInteraction(int SSN, int &money, int VIP){
 	if(cashierState[myLine] != AVAILABLE){
 		if(!bribe){
 			cashierLineCount[myLine]++;
-			printf("%s %i has gotten in regular line for Cashier %i.\n", myType, SSN, myLine);
+			/* printf("%s %i has gotten in regular line for Cashier %i.\n", myType, SSN, myLine); */
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" has gotten in regular line for Cashier ", sizeof(" has gotten in regular line for Cashier "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
 			cashierLineCV[myLine]->Wait(cashierLineLock);
 			cashierLineCount[myLine]--;
 			if(cashierState[myLine] != SIGNALEDCUSTOMER){
@@ -675,7 +862,13 @@ bool customerCashierInteraction(int SSN, int &money, int VIP){
 			}
 		}else{
 			cashierBribeLineCount[myLine]++;
-			printf("%s %i has gotten in bribe line for Cashier %i.\n", myType, SSN, myLine);
+			/* printf("%s %i has gotten in bribe line for Cashier %i.\n", myType, SSN, myLine); */
+			PrintString(myType, sizeof(myType));
+			PrintString(" ", sizeof(" "));
+			PrintInt(SSN);
+			PrintString(" has gotten in bribe line for Cashier ", sizeof(" has gotten in bribe line for Cashier "));
+			PrintInt(myLine);
+			PrintString(".\n", sizeof(".\n"));
 			cashierBribeLineCV[myLine]->Wait(cashierLineLock);
 			cashierBribeLineCount[myLine]--;
 			if(cashierState[myLine] != SIGNALEDCUSTOMER){
@@ -698,19 +891,39 @@ bool customerCashierInteraction(int SSN, int &money, int VIP){
 	//We already have a lock so put my SSN in cashierSharedData
 	*/
 	cashierSharedDataSSN[myLine] = SSN;
-	printf("%s %i has given SSN %i to Cashier %i.\n", myType, SSN, SSN, myLine);
+	/* printf("%s %i has given SSN %i to Cashier %i.\n", myType, SSN, SSN, myLine); */
+	PrintString(myType, sizeof(myType));
+	PrintString(" ", sizeof(" "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to Cashier ", sizeof(" to Cashier "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
 	cashierCV[myLine]->Signal(cashierLock[myLine]);
 	/* //Wait for clerk check completion */
 	cashierCV[myLine]->Wait(cashierLock[myLine]);
 
 	if (cashierRejection[SSN] == 1) {
-		printf("%s %i has gone to Cashier %i too soon. They are going to the back of the line.\n", myType, SSN, myLine);
+		/* printf("%s %i has gone to Cashier %i too soon. They are going to the back of the line.\n", myType, SSN, myLine); */
+		PrintString(myType, sizeof(myType));
+		PrintString(" ", sizeof(" "));
+		PrintInt(SSN);
+		PrintString(" has gone to Cashier ", sizeof(" has gone to Cashier "));
+		PrintInt(myLine);
+		PrintString(" too soon. They are going to the back of the line.\n", sizeof(" too soon. They are going to the back of the line.\n"));
 		cashierLock[myLine]->Release();
 		return false;
 	}
 	else {
 		money -= 100;
-		printf("%s %i has given Cashier %i $100.\n", myType, SSN, myLine);
+		/* printf("%s %i has given Cashier %i $100.\n", myType, SSN, myLine); */
+		PrintString(myType, sizeof(myType));
+		PrintString(" ", sizeof(" "));
+		PrintInt(SSN);
+		PrintString(" has given Cashier ", sizeof(" has given Cashier "));
+		PrintInt(myLine);
+		PrintString(" $100.\n", sizeof(" $100.\n"));
 		cashierCV[myLine]->Signal(cashierLock[myLine]);
 		/* //Wait for clerk to give passport */
 		cashierCV[myLine]->Wait(cashierLock[myLine]);
@@ -790,6 +1003,7 @@ void Senator(int id){
 
 /* //Here are the output Guidelines for the Senator */
 	if(false){
+	/*
 	printf("Senator %i has gotten in regular line for ApplicationClerk %i.\n", SSN, myLine);
 	printf("Senator %i has gotten in regular line for PictureClerk %i.\n", SSN, myLine);
 	printf("Senator %i has gotten in regular line for PassportClerk %i.\n", SSN, myLine);
@@ -803,6 +1017,91 @@ void Senator(int id){
 	printf("Senator %i has gone to PassportClerk %i too soon. They are going to the back of the line.\n", SSN, myLine);
 	printf("Senator %i has gone to Cashier %i too soon. They are going to the back of the line.\n", SSN, myLine);
 	printf("Senator %i has given Cashier %i $100.", SSN, myLine);
+	*/
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has gotten in regular line for PictureClerk ", sizeof(" has gotten in regular line for PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has gotten in regular line for PassportClerk ", sizeof(" has gotten in regular line for PassportClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has gotten in regular line for Cashier ", sizeof(" has gotten in regular line for Cashier "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has gotten in bribe line for PictureClerk ", sizeof(" has gotten in bribe line for PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has gotten in bribe line for PassportClerk ", sizeof(" has gotten in bribe line for PassportClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to PictureClerk ", sizeof(" to PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to PassportClerk ", sizeof(" to PassportClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has given SSN ", sizeof(" has given SSN "));
+	PrintInt(SSN);
+	PrintString(" to Cashier ", sizeof(" to Cashier "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" does not like their picture from PictureClerk ", sizeof(" does not like their picture from PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" does like their picture from PictureClerk ", sizeof(" does like their picture from PictureClerk "));
+	PrintInt(myLine);
+	PrintString(".\n", sizeof(".\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has gone to PassportClerk ", sizeof(" has gone to PassportClerk "));
+	PrintInt(myLine);
+	PrintString(" too soon. They are going to the back of the line.\n", sizeof(" too soon. They are going to the back of the line.\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has gone to Cashier ", sizeof(" has gone to Cashier "));
+	PrintInt(myLine);
+	PrintString(" too soon. They are going to the back of the line.\n", sizeof(" too soon. They are going to the back of the line.\n"));
+	
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" has given Cashier ", sizeof(" has given Cashier "));
+	PrintInt(myLine);
+	PrintString(" $100.\n", sizeof(" $100.\n"));
 	}
 
 } /* //End Senator */
@@ -833,7 +1132,11 @@ void senatorLeavePassportOffice(int SSN){
 	senatorPresentCount--;
 	checkedOutCount++;
 	managerLock->Release();
-	printf("Senator %i is leaving the Passport Office.\n", SSN);
+	/* printf("Senator %i is leaving the Passport Office.\n", SSN); */
+	PrintString("Senator ", sizeof("Senator "));
+	PrintInt(SSN);
+	PrintString(" is leaving the Passport Office.\n", sizeof(" is leaving the Passport Office.\n"));
+	currentThread->Finish();
 }
 
 
@@ -994,10 +1297,16 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
 	/* //There is at least one clerk...go on a break. */
 	if(freeOrAvailable){
 		applicationClerkState[myLine] = ONBREAK;
-		printf("ApplicationClerk %i is going on break.\n", myLine);
+		/* printf("ApplicationClerk %i is going on break.\n", myLine); */
+		PrintString("ApplicationClerk ", sizeof("ApplicationClerk ");
+		PrintInt(myLine);
+		PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 		applicationClerkBreakCV->Wait(applicationClerkLineLock);
 		applicationClerkState[myLine] = BUSY;
-		printf("ApplicationClerk %i is coming off break.\n", myLine);
+		/* printf("ApplicationClerk %i is coming off break.\n", myLine); */
+		PrintString("ApplicationClerk ", sizeof("ApplicationClerk ");
+		PrintInt(myLine);
+		PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
 	}else{
 		/*
 		//If everyone is on break...
@@ -1135,9 +1444,15 @@ void pictureClerkcheckAndGoOnBreak(int myLine){
 	if(freeOrAvailable){
 		pictureClerkState[myLine] = ONBREAK;
 		printf("PictureClerk %i is going on break.\n", myLine);
+		PrintString("PictureClerk ", sizeof("PictureClerk ");
+		PrintInt(myLine);
+		PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 		pictureClerkBreakCV->Wait(pictureClerkLineLock);
 		pictureClerkState[myLine] = BUSY;
 		printf("PictureClerk %i is coming off break.\n", myLine);
+		PrintString("PictureClerk ", sizeof("PictureClerk ");
+		PrintInt(myLine);
+		PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));	
 	}else{
 		/* //If everyone is on break... */
 		/* //applicationClerkState[myLine] = AVAILABLE; */
@@ -1246,8 +1561,18 @@ void PassportClerk(int id){
 
 	/* //Here are the output Guidelines for the PassportClerk */
 	if(false){
+	/*
 	printf("PassportClerk %i is going on break.\n", myLine);
 	printf("PassportClerk %i is coming off break.\n", myLine);
+	*/
+	
+	PrintString("PassportClerk ", sizeof("PassportClerk ");
+	PrintInt(myLine);
+	PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
+	
+	PrintString("PassportClerk ", sizeof("PassportClerk ");
+	PrintInt(myLine);
+	PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
 	}
 
 }/* //End PassportClerk */
@@ -1270,10 +1595,16 @@ void passportClerkcheckAndGoOnBreak(int myLine){
 	/* //There is at least one clerk...go on a break. */
 	if(freeOrAvailable){
 		passportClerkState[myLine] = ONBREAK;
-		printf("PassportClerk %i is going on break.\n", myLine);
+		/* printf("PassportClerk %i is going on break.\n", myLine); */
+		PrintString("PassportClerk ", sizeof("PassportClerk ");
+		PrintInt(myLine);
+		PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 		passportClerkBreakCV->Wait(passportClerkLineLock);
 		passportClerkState[myLine] = BUSY;
-		printf("PassportClerk %i is coming off break.\n", myLine);
+		/* printf("PassportClerk %i is coming off break.\n", myLine); */
+		PrintString("PassportClerk ", sizeof("PassportClerk ");
+		PrintInt(myLine);
+		PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
 	}else{
 		/*
 		//If everyone is on break...
@@ -1427,10 +1758,16 @@ void cashiercheckAndGoOnBreak(int myLine){
 	/* //There is at least one clerk...go on a break. */
 	if(freeOrAvailable){
 		cashierState[myLine] = ONBREAK;
-		printf("Cashier %i is going on break.\n", myLine);
+		/* printf("Cashier %i is going on break.\n", myLine); */
+		PrintString("Cashier ", sizeof("Cashier ");
+		PrintInt(myLine);
+		PrintString(" is going on break.\n", sizeof(" is going on break.\n"));
 		cashierBreakCV->Wait(cashierLineLock);
 		cashierState[myLine] = BUSY;
-		printf("Cashier %i is coming off break.\n", myLine);
+		/* printf("Cashier %i is coming off break.\n", myLine); */
+		PrintString("Cashier ", sizeof("Cashier ");
+		PrintInt(myLine);
+		PrintString(" is coming off break.\n", sizeof(" is coming off break.\n"));
 	}else{
 		/*
 		//If everyone is on break...
@@ -1635,22 +1972,26 @@ bool managerCheckandWakeupCLERK(Lock* managerCWCLineLock, int& managerCWClineCou
 void managerCheckandWakupClerks(){
 	/* //Check Application Clerks */
 	if(managerCheckandWakeupCLERK(applicationClerkLineLock, applicationClerkLineCount, applicationClerkState, applicationClerkBreakCV, CLERKCOUNT)){
-		printf("Manager has woken up an ApplicationClerk.\n");
+		/* printf("Manager has woken up an ApplicationClerk.\n"); */
+		PrintString("Manager has woken up an ApplicationClerk.\n", sizeof("Manager has woken up an ApplicationClerk.\n"));
 	}
 
 	/* //Check Picture Clerks */
 	if(managerCheckandWakeupCLERK(pictureClerkLineLock, pictureClerkLineCount, pictureClerkState, pictureClerkBreakCV, CLERKCOUNT)){
-		printf("Manager has woken up a PictureClerk.\n");
+		/* printf("Manager has woken up a PictureClerk.\n"); */
+		PrintString("Manager has woken up a PictureClerk.\n", sizeof("Manager has woken up a PictureClerk.\n"));
 	}
 	
 	/* //Check Passport Clerks */
 	if(managerCheckandWakeupCLERK(passportClerkLineLock, passportClerkLineCount, passportClerkState, passportClerkBreakCV, CLERKCOUNT)){
-		printf("Manager has woken up a PassportClerk.\n");
+		/* printf("Manager has woken up a PassportClerk.\n"); */
+		PrintString("Manager has woken up a PassportClerk.\n", sizeof("Manager has woken up a PassportClerk.\n"));
 	}
 
 	/* //Check Cashiers */
 	if(managerCheckandWakeupCLERK(cashierLineLock, cashierLineCount, cashierState, cashierBreakCV, CLERKCOUNT)){
-		printf("Manager has woken up a Cashier.\n");
+		/* printf("Manager has woken up a Cashier.\n"); */
+		PrintString("Manager has woken up a Cashier.\n", sizeof("Manager has woken up a Cashier.\n"));
 	}
 
 }
@@ -1665,7 +2006,10 @@ void managerCountMoney(){
 //	printf("Manager has counted a total of $%i for PassportClerks.\n", -1);
 //	printf("Manager has counted a total of $%i for Cashiers.\n", -1);
 */
-	printf("Manager has counted a total of $%i for the passport office.\n", total);
+	/* printf("Manager has counted a total of $%i for the passport office.\n", total); */
+	PrintString("Manager has counted a total of ", sizeof("Manager has counted a total of "));
+	PrintInt(total);
+	PrintString(" for the passport office.\n", sizeof(" for the passport office.\n"));
 }
 
 
@@ -1697,10 +2041,12 @@ void Part2TestSuit(){
 		checkedOutCount = 0;
 		valid = false;
 		while (valid == false) {
-			printf("How many customer threads?\n");
+			/* printf("How many customer threads?\n"); */
+			PrintString("How many customer threads?\n", sizeof("How many customer threads?\n"));
 			scanf("\n%i", &CUSTOMERCOUNT);
 			if (CUSTOMERCOUNT <= 0 || CUSTOMERCOUNT > 50) {
-				printf("That is not a valid value, must be between 1 and 50 \n");
+				/* printf("That is not a valid value, must be between 1 and 50 \n"); */
+				PrintString("That is not a valid value, must be between 1 and 50 \n", sizeof("That is not a valid value, must be between 1 and 50 \n"));
 			}
 			else {
 				valid = true;
@@ -1708,10 +2054,12 @@ void Part2TestSuit(){
 		}
 		valid = false;
 		while (valid == false) {		
-			printf("How many clerk threads?\n");
+			/* printf("How many clerk threads?\n"); */
+			PrintString("How many clerk threads?\n", sizeof("How many clerk threads?\n"));
 			scanf(" %i", &CLERKCOUNT);
 			if (CLERKCOUNT <= 0 || CLERKCOUNT > 5) {
-				printf("That is not a valid value, must be between 1 and 5 \n");
+				/* printf("That is not a valid value, must be between 1 and 5 \n"); */
+				PrintString("That is not a valid value, must be between 1 and 5 \n", sizeof("That is not a valid value, must be between 1 and 5 \n"));
 			}
 			else {
 				valid = true;
@@ -1719,10 +2067,12 @@ void Part2TestSuit(){
 		}
 		valid = false;
 		while (valid == false) {
-			printf("How many Senator threads?\n");
+			/* printf("How many Senator threads?\n"); */
+			PrintString("How many Senator threads?\n", sizeof("How many Senator threads?\n"));
 			scanf("%i", &SENATORCOUNT);
 			if (SENATORCOUNT <= 0 || SENATORCOUNT > 10) {
-				printf("That is not a valid value, must be between 1 and 10\n");
+				/* printf("That is not a valid value, must be between 1 and 10\n"); */
+				PrintString("That is not a valid value, must be between 1 and 10\n", sizeof("That is not a valid value, must be between 1 and 10\n"));
 			}
 			else {
 				valid = true;
@@ -1757,6 +2107,7 @@ void Part2TestSuit(){
 		printf("Number of Senators = %i \n", SENATORCOUNT);
 
 		
+		/*
 		//States
 		applicationClerkState.clear();
 		applicationClerkState.resize(CLERKCOUNT, BUSY);
@@ -1806,6 +2157,7 @@ void Part2TestSuit(){
 		cashierRejection.resize(CUSTOMERCOUNT + SENATORCOUNT, 0);
 		doneCompletely.clear();
 		doneCompletely.resize(CUSTOMERCOUNT + SENATORCOUNT, 0);
+		*/
 
 
 		/* //Initialize dynamic variables */
@@ -1891,14 +2243,17 @@ void Part2TestSuit(){
 			currentThread->Yield();
 		}
 
-		printf("Type q to quit, type c to continue to another simulation.\n");
+		/* printf("Type q to quit, type c to continue to another simulation.\n"); */
+		PrintString("Type q to quit, type c to continue to another simulation.\n", sizeof("Type q to quit, type c to continue to another simulation.\n"));
 		scanf(" %c", &p);
 		if (p == 'q') {
-			printf("Have a nice day! \n");
+			/* printf("Have a nice day! \n"); */
+			PrintString("Have a nice day! \n", sizeof("Have a nice day! \n"));
 			return;
 		}
 		else if (p == 'c') {
-			printf("Starting a new simulation. \n");
+			/* printf("Starting a new simulation. \n"); */
+			PrintString("Starting a new simulation. \n", sizeof("Starting a new simulation. \n"));
 		}
 
 		/*
