@@ -371,7 +371,7 @@ void Exit_Syscall(int status){
 	else if(p->getNumThreads() == 1 && ProcessTable->getNumProcesses() == 1 && !execCalled){
 		DEBUG('E', "LAST THREAD LAST PROCESS\n");
 		#ifdef USE_TLB
-			printf("\nExit status: %i\n", status);
+			printf("\nExit status: %i\n\n", status);
 		#endif
 		interrupt->Halt();
 	}
@@ -392,7 +392,7 @@ void Exit_Syscall(int status){
 	kernel_threadLock.Release();
 
 	#ifdef USE_TLB
-	printf("\nExit status: %i\n", status);
+	printf("\nExit status: %i\n\n", status);
 	#endif
 
 	currentThread->Finish();
