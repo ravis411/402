@@ -405,7 +405,7 @@ void AddrSpace::Exit(){
 
 
 
-PageTableEntry*AddrSpace::getPageTableEntry(unsigned int VP){
+PageTableEntry AddrSpace::getPageTableEntry(unsigned int VP){
     ASSERT(VP >= 0 && VP < numPages);
     
     PageTableEntry entry;
