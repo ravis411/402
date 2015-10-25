@@ -388,6 +388,10 @@ void Exit_Syscall(int status){
 	execLock.Release();
 	kernel_threadLock.Release();
 
+	#ifdef USE_TLB
+	printf("Exit output: %i\n", status);
+	#endif
+
 	currentThread->Finish();
 }
 
