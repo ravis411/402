@@ -64,6 +64,8 @@ class AddrSpace {
     void Fork(int nextInstruction);//Can be called to add a stack
     void Exit();//Deletes 8 pages of stack for current thread.
 
+    PageTableEntry* getPageTableEntry(int VP);
+
  private:
     PageTableEntry *pageTable;	// Assume linear page table translation
     #ifdef THREADTABLE

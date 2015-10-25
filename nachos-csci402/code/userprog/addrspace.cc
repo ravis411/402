@@ -399,6 +399,32 @@ void AddrSpace::Exit(){
 
 
 
+
+
+
+
+
+
+PageTableEntry* getPageTableEntry(int VP){
+    ASSERT(VP >= 0 && VP < numPages);
+    
+    PageTableEntry* entry;
+
+    entry = pageTable[i];
+    return entry;
+}  
+
+
+
+
+
+
+
+
+
+
+
+
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 // 	Set the initial values for the user-level register set.

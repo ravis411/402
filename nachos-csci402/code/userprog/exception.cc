@@ -716,12 +716,20 @@ int Rand_Syscall(){
 
 
 
-
+int currentTLB = 0; //To keep track of which TLB entry to replace
 
 //Handles a TLB miss / PageFaultException
 void handleTLBMiss(){
-	DEBUG('T', "Need virtual address %i \n", machine->ReadRegister(BadVAddrReg));
-	interrupt->Halt();
+	int VA = machine->ReadRegister(BadVAddrReg);
+	int VP = divRoundUp(VA, PageSize);
+	DEBUG('T', "Need virtual address %i in virtual page %i\n", );
+
+
+	machine->tlb[currentTLB] = currentThread->space->getPageTableEntry(VP);
+
+
+	currentTLB = (currentTLB + 1) % TLBSize;
+
 }
 
 
@@ -889,6 +897,7 @@ void ExceptionHandler(ExceptionType which) {
 		} else if(which == PageFaultException){
 			DEBUG('T', "PageFaultException\n");
 			handleTLBMiss();
+			return;
 		}else {
 			cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
 			interrupt->Halt();
