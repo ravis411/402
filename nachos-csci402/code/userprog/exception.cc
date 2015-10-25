@@ -722,7 +722,7 @@ int currentTLB = 0; //To keep track of which TLB entry to replace
 void handleTLBMiss(){
 	unsigned int VA = machine->ReadRegister(BadVAddrReg);
 	unsigned int VP = divRoundUp(VA, PageSize);
-	DEBUG('T', "Need virtual address %i in virtual page %i\n", );
+	DEBUG('T', "Need virtual address %i in virtual page %i\n", VA, VP);
 
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
