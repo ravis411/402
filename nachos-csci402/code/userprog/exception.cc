@@ -720,7 +720,7 @@ int Rand_Syscall(){
 
 //Handles a TLB miss / PageFaultException
 void handleTLBMiss(){
-	DEBUG('T', "Need virtual address %i \n", registers[BadVAddrReg]);
+	DEBUG('T', "Need virtual address %i \n", machine->ReadRegister(BadVAddrReg));
 	interrupt->Halt();
 }
 
