@@ -410,7 +410,7 @@ PageTableEntry*AddrSpace::getPageTableEntry(int VP){
     
     PageTableEntry* entry;
 
-    entry = pageTable[i];
+    entry = pageTable[VP];
     return entry;
 }  
 
