@@ -717,6 +717,50 @@ int Rand_Syscall(){
 
 
 
+
+//Handles a TLB miss / PageFaultException
+void handleTLBMiss(){
+	DEBUG('T', "Need virtual address %i \n", registers[BadVAddrReg]);
+	interrupt->Halt();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void ExceptionHandler(ExceptionType which) {
 		int type = machine->ReadRegister(2); // Which syscall?
 		int rv=0; 	// the return value from a syscall
@@ -842,7 +886,10 @@ void ExceptionHandler(ExceptionType which) {
 	machine->WriteRegister(PCReg,machine->ReadRegister(NextPCReg));
 	machine->WriteRegister(NextPCReg,machine->ReadRegister(PCReg)+4);
 	return;
-		} else {
+		} else if(which == PageFaultException){
+			DEBUG('T', "PageFaultException\n");
+			handleTLBMiss();
+		}else {
 			cout<<"Unexpected user mode exception - which:"<<which<<"  type:"<< type<<endl;
 			interrupt->Halt();
 		}
