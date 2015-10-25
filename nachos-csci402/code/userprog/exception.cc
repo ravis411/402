@@ -720,14 +720,14 @@ int currentTLB = 0; //To keep track of which TLB entry to replace
 
 //Handles a TLB miss / PageFaultException
 void handleTLBMiss(){
-	int VA = machine->ReadRegister(BadVAddrReg);
-	int VP = divRoundUp(VA, PageSize);
+	unsigned int VA = machine->ReadRegister(BadVAddrReg);
+	unsigned int VP = divRoundUp(VA, PageSize);
 	DEBUG('T', "Need virtual address %i in virtual page %i\n", );
 
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
 	machine->tlb[currentTLB] = currentThread->space->getPageTableEntry(VP);
-	
+
 	currentTLB = (currentTLB + 1) % TLBSize;
 
 	(void) interrupt->SetLevel(oldLevel);   // restore interrupts
