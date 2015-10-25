@@ -724,12 +724,13 @@ void handleTLBMiss(){
 	int VP = divRoundUp(VA, PageSize);
 	DEBUG('T', "Need virtual address %i in virtual page %i\n", );
 
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
 	machine->tlb[currentTLB] = currentThread->space->getPageTableEntry(VP);
-
-
+	
 	currentTLB = (currentTLB + 1) % TLBSize;
 
+	(void) interrupt->SetLevel(oldLevel);   // restore interrupts
 }
 
 
