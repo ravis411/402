@@ -728,9 +728,9 @@ void handleTLBMiss(){
 	DEBUG('T', "Need virtual address %i in virtual page %i\n", VA, VP);
 
 	//Print the contents of the TLB...
-	if(true){
+	if(TRUE){
 		for(int i = 0; i < 4; i++){
-			if(machine->tlb[i] == null){
+			if(machine->tlb[i] == NULL){
 				printf("\nTLB[%i] is null.\n", i);
 			}else{
 				printf("\nTLB[%i]\n", i);
