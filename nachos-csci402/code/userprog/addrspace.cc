@@ -466,7 +466,12 @@ AddrSpace::InitRegisters()
 //----------------------------------------------------------------------
 
 void AddrSpace::SaveState() 
-{}
+{
+    //Invalidate the TLB on a context switch
+    for(int i = 0; i < 4; i++){
+        machine->tlb[i].valid = FALSE;
+    }
+}
 
 //----------------------------------------------------------------------
 // AddrSpace::RestoreState
