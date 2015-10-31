@@ -730,9 +730,9 @@ void handleTLBMiss(){
 	//Print the contents of the TLB...
 	if(TRUE){
 		for(int i = 0; i < 4; i++){
-			if(machine->tlb[i] == NULL){
+			/*if(machine->tlb[i] == NULL){
 				printf("\nTLB[%i] is null.\n", i);
-			}else{
+			}else*/{
 				printf("\nTLB[%i]\n", i);
 				printf("\t virtualPage: %i\n", machine->tlb[i].virtualPage);
 				printf("\t physicalPage: %i\n", machine->tlb[i].physicalPage);
