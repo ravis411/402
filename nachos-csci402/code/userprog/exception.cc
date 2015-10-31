@@ -721,6 +721,21 @@ int Rand_Syscall(){
 
 int currentTLB = 0; //To keep track of which TLB entry to replace
 
+
+void populateTLBFromIPTEntry(int ppn){
+	machine->tlb[currentTLB].virtualPage = IPT[ppn].virtualPage;
+	machine->tlb[currentTLB].physicalPage = IPT[ppn].physicalPage;
+	machine->tlb[currentTLB].valid = IPT[ppn].valid;
+	machine->tlb[currentTLB].use = IPT[ppn].use;
+	machine->tlb[currentTLB].dirty = IPT[ppn].dirty;
+	machine->tlb[currentTLB].readOnly = IPT[ppn].readOnly;
+
+	currentTLB = (currentTLB + 1) % TLBSize;
+}
+
+
+
+
 //Handles a TLB miss / PageFaultException
 void handleTLBMiss(){
 	unsigned int VA = machine->ReadRegister(BadVAddrReg);
@@ -735,7 +750,7 @@ void handleTLBMiss(){
 	//Populate TLB from IPT
 	int ppn = -1;
 	//Look for the needed VP in the IPT
-	for(int i = 0; i < numPhysPages; i++){
+	for(int i = 0; i < NumPhysPages; i++){
 		if(IPT[i].valid == TRUE && IPT[i].PID == currentThread->space && IPT[i].virtualPage == VP){
 			//Found needed entry in IPT
 			ppn = i;
@@ -755,16 +770,6 @@ void handleTLBMiss(){
 }//End TLB miss
 
 
-void populateTLBFromIPTEntry(int ppn){
-	machine->tlb[currentTLB].virtualPage = TLB[ppn].virtualPage;
-	machine->tlb[currentTLB].physicalPage = TLB[ppn].physicalPage;
-	machine->tlb[currentTLB].valid = TLB[ppn].valid;
-	machine->tlb[currentTLB].use = TLB[ppn].use;
-	machine->tlb[currentTLB].dirty = TLB[ppn].dirty;
-	machine->tlb[currentTLB].readOnly = TLB[ppn].readOnly;
-
-	currentTLB = (currentTLB + 1) % TLBSize;
-}
 
 
 
