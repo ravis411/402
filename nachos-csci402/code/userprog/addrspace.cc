@@ -467,10 +467,12 @@ AddrSpace::InitRegisters()
 
 void AddrSpace::SaveState() 
 {
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
     //Invalidate the TLB on a context switch
-    for(int i = 0; i < 4; i++){
+    for(int i = 0; i < TLBSize; i++){
         machine->tlb[i].valid = FALSE;
     }
+    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }
 
 //----------------------------------------------------------------------
