@@ -727,8 +727,8 @@ void handleTLBMiss(){
 	unsigned int VP = VA / PageSize;
 	DEBUG('T', "Need virtual address %i in virtual page %i\n", VA, VP);
 
-	//Print the contents of the TLB...
-	if(TRUE){
+	//Print the contents of the TLB...for debugging purposes...
+	if(FALSE){
 		for(int i = 0; i < 4; i++){
 			/*if(machine->tlb[i] == NULL){
 				printf("\nTLB[%i] is null.\n", i);
@@ -742,7 +742,7 @@ void handleTLBMiss(){
 				printf("\t readOnly: %i\n", machine->tlb[i].readOnly);
 			}
 		}
-	}
+	}//End print TLB contents...
 
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
