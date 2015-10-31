@@ -84,6 +84,41 @@ bool ProcessTableClass::deleteProcess(AddrSpace* spc){
 ProcessTableClass* ProcessTable;
 #endif
 
+
+
+//IPTEntry Implementation
+IPTEntry& IPTEntry::operator=(const IPTEntry& entry){
+    
+    if(&entry != this) // check for self assignment
+    {
+        PID = entry.PID;
+        virtualPage = entry.virtualPage;
+        physicalPage = entry.physicalPage;
+        valid = entry.valid;
+        use = entry.use;
+        dirty = entry.dirty;
+        readOnly = entry.readOnly;
+    }
+    return *this;
+}
+
+IPTEntry& IPTEntry::operator=(const TranslationEntry& entry){
+    if(&entry != this) // check for self assignment
+    {
+        virtualPage = entry.virtualPage;
+        physicalPage = entry.physicalPage;
+        valid = entry.valid;
+        use = entry.use;
+        dirty = entry.dirty;
+        readOnly = entry.readOnly;
+    }
+    return *this;
+}
+
+IPTEntry* IPT;
+
+
+
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
 #endif
@@ -213,6 +248,7 @@ Initialize(int argc, char **argv)
     pageTableBitMap = new BitMap(NumPhysPages);
     ProcessTable = new ProcessTableClass;
 #endif
+    IPT = new IPTEntry[NumPhysPages];   //init IPT
     interrupt->Enable();
     CallOnUserAbort(Cleanup);			// if user hits ctl-C
     

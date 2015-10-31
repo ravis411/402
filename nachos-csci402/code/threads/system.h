@@ -64,6 +64,22 @@ private:
 
 extern ProcessTableClass* ProcessTable;
 
+/*****************
+* IPT
+*****************/
+#include "translate.h"
+//an entry for the IPT
+class IPTEntry : public TranslationEntry{
+	public:
+		AddrSpace* PID;
+		IPTEntry &operator=(const IPTEntry& entry);
+		IPTEntry &operator=(const TranslationEntry& entry);
+};
+
+extern IPTEntry* IPT;
+
+
+
 //extern std::map<AddrSpace*, ProcessTableEntry*> processTable;	//The ProcessTable
 
 #include "machine.h"

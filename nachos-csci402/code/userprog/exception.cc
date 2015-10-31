@@ -728,17 +728,43 @@ void handleTLBMiss(){
 	DEBUG('T', "Need virtual address %i in virtual page %i\n", VA, VP);
 
 	
-
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
-	machine->tlb[currentTLB] = currentThread->space->getPageTableEntry(VP);
+	//machine->tlb[currentTLB] = currentThread->space->getPageTableEntry(VP);
 
-	currentTLB = (currentTLB + 1) % TLBSize;
+	//Populate TLB from IPT
+	int ppn = -1;
+	//Look for the needed VP in the IPT
+	for(int i = 0; i < numPhysPages; i++){
+		if(IPT[i].valid == TRUE && IPT[i].PID == currentThread->space && IPT[i].virtualPage == VP){
+			//Found needed entry in IPT
+			ppn = i;
+			break;
+		}
+	}
+
+	if(ppn == -1){
+		//IPT miss
+		ASSERT(FALSE);
+	}else{
+		//Populate TLB
+		populateTLBFromIPTEntry(ppn);
+	}
 
 	(void) interrupt->SetLevel(oldLevel);   // restore interrupts
 }//End TLB miss
 
 
+void populateTLBFromIPTEntry(int ppn){
+	machine->tlb[currentTLB].virtualPage = TLB[ppn].virtualPage;
+	machine->tlb[currentTLB].physicalPage = TLB[ppn].physicalPage;
+	machine->tlb[currentTLB].valid = TLB[ppn].valid;
+	machine->tlb[currentTLB].use = TLB[ppn].use;
+	machine->tlb[currentTLB].dirty = TLB[ppn].dirty;
+	machine->tlb[currentTLB].readOnly = TLB[ppn].readOnly;
+
+	currentTLB = (currentTLB + 1) % TLBSize;
+}
 
 
 

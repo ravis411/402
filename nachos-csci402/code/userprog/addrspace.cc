@@ -182,7 +182,8 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
     
     for (i = 0; i < numPages; i++) {
         int ppn = FindPPN();//The PPN of an unused page.
-    	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+
+       	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
     	pageTable[i].physicalPage = ppn;
     	pageTable[i].valid = TRUE;
     	pageTable[i].use = FALSE;
@@ -190,6 +191,14 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
     	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
 					// a separate page, we could set its 
 					// pages to be read-only
+        
+        /*************
+        * Populate IPT
+        ****************/
+        IPT[ppn] = pageTable[i];
+        IPT[ppn].PID = *this;
+        /***End IPT */
+
         if(i < numNonStackPages){//Not stack
             executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, noffH.code.inFileAddr + (i * PageSize) );
             #ifdef PAGETABLEMEMBERS
@@ -309,8 +318,9 @@ AddrSpace::Fork(int nextInstruction)
 
     //Add 8 pages for stack
     for(unsigned int i = numPages; i < newNumPages; i++){
+        int ppn = FindPPN();
         pageTable[i].virtualPage = i;
-        pageTable[i].physicalPage = FindPPN();
+        pageTable[i].physicalPage = ppn;
         pageTable[i].valid = TRUE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
@@ -323,6 +333,14 @@ AddrSpace::Fork(int nextInstruction)
             DEBUG('E', "Initializing stack page threadtable, vpn: %i, for threadID: %i\n", i, currentThread->getThreadID());
             threadTable[currentThread->getThreadID()]->stackPages.push_back(i);
         #endif
+
+        /*************
+        * Populate IPT
+        ****************/
+        IPT[ppn] = pageTable[i];
+        IPT[ppn].PID = *this;
+        /***End IPT */
+
     }
 
     numPages = newNumPages;
@@ -362,11 +380,19 @@ void AddrSpace::Exit(){
     #ifdef THREADTABLE
         for(int i = 0; i < 8; i++){//There are 8 pages of stack...hope this dosen't change...
             int vpn = threadTable[currentThread->getThreadID()]->stackPages[i];
+            int ppn = pageTable[vpn].physicalPage;
             DEBUG('E', "Clearing stack page, vpn: %i, for threadID: %i\n", vpn, currentThread->getThreadID());
             pageTable[vpn].valid = FALSE;
-            pageTableBitMap->Clear(pageTable[vpn].physicalPage);
+            pageTableBitMap->Clear( ppn );
             pageTable[vpn].physicalPage = -1;
             stackPagesCleared++;
+
+            /*************
+            * Invalidate Entry in IPT
+            ****************/
+            IPT[ppn].valid = FALSE;
+            IPT[ppn].PID = NULL;
+            /***End IPT */
         }
         
     #endif
