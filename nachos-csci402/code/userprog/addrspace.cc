@@ -141,13 +141,22 @@ SwapHeader (NoffHeader *noffH)
 //      constructed set to false.
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
+AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
     NoffHeader noffH;
     unsigned int i, size;
 
     // Don't allocate the input or output to disk files
     fileTable.Put(0);
     fileTable.Put(0);
+
+    //Open the executable...
+    executable = fileSystem->Open(filename);
+    if (executable == NULL) {
+        printf("Unable to open file %s\n", filename);
+        ASSERT(FALSE);//If we can't open the file...we need to quit since this AddrSpace will be broken.
+        return;
+    }
+
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) && 
@@ -264,6 +273,7 @@ AddrSpace::~AddrSpace()
         }
     }
     delete pageTable;
+    delete executable;
 }
 
 

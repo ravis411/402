@@ -49,7 +49,7 @@ class ThreadTableEntry{
 
 class AddrSpace {
   public:
-    AddrSpace(OpenFile *executable);	// Create an address space,
+    AddrSpace(char* filename);	// Create an address space,
 					// initializing it with the program
 					// stored in the file "executable"
     ~AddrSpace();			// De-allocate an address space
@@ -68,6 +68,7 @@ class AddrSpace {
 
  private:
     PageTableEntry *pageTable;	// Assume linear page table translation
+    OpenFile *executable;   //The executable file.
     #ifdef THREADTABLE
     //vector<ThreadTableEntry*> threadTable;
     map<int, ThreadTableEntry*> threadTable;

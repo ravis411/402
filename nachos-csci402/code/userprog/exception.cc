@@ -286,24 +286,24 @@ void kernel_exec(int intName){
 	char* name = (char*)intName;
 	DEBUG('e', "Kernel_exec system call: FileName: %s \n\n", name);
 
-	OpenFile *executable = fileSystem->Open(name);
-	AddrSpace *space;
+	/*OpenFile *executable = fileSystem->Open(name);
+	
 
 	if (executable == NULL) {
 		printf("Unable to open file %s\n", name);
 		return;
-	}
-	 
-		space = new AddrSpace(executable);
+	}*/
+	AddrSpace *space; 
+		space = new AddrSpace(name);
 
 		currentThread->space = space;
 		//processTable.insert(space, (new ProcessTableEntry(space)));
 		ProcessTable->addProcess(space);
-		delete executable;      // close file
+		
 
 		space->InitRegisters();   // set the initial register values
 		space->RestoreState();    // load page table register
-		delete[] name;
+		
 		execLock.Acquire();
 		execCalled--;
 		execLock.Release();
