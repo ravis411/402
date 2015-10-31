@@ -196,7 +196,7 @@ AddrSpace::AddrSpace(OpenFile *executable) : fileTable(MaxOpenFiles) {
         * Populate IPT
         ****************/
         IPT[ppn] = pageTable[i];
-        IPT[ppn].PID = *this;
+        IPT[ppn].PID = this;
         /***End IPT */
 
         if(i < numNonStackPages){//Not stack
@@ -338,7 +338,7 @@ AddrSpace::Fork(int nextInstruction)
         * Populate IPT
         ****************/
         IPT[ppn] = pageTable[i];
-        IPT[ppn].PID = *this;
+        IPT[ppn].PID = this;
         /***End IPT */
 
     }
