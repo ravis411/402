@@ -727,6 +727,23 @@ void handleTLBMiss(){
 	unsigned int VP = VA / PageSize;
 	DEBUG('T', "Need virtual address %i in virtual page %i\n", VA, VP);
 
+	//Print the contents of the TLB...
+	if(true){
+		for(int i = 0; i < 4; i++){
+			if(machine->tlb[i] == null){
+				printf("\nTLB[%i] is null.\n", i);
+			}else{
+				printf("\nTLB[%i]\n", i);
+				printf("\t virtualPage: %i\n", machine->tlb[i].virtualPage);
+				printf("\t physicalPage: %i\n", machine->tlb[i].physicalPage);
+				printf("\t Valid: %i\n", machine->tlb[i].valid);
+				printf("\t use: %i\n", machine->tlb[i].use);
+				printf("\t dirty: %i\n", machine->tlb[i].dirty);
+				printf("\t readOnly: %i\n", machine->tlb[i].readOnly);
+			}
+		}
+	}
+
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
 	machine->tlb[currentTLB] = currentThread->space->getPageTableEntry(VP);

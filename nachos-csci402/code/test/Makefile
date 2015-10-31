@@ -31,7 +31,7 @@ CPP = $(GCCDIR)cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition passportOffice twoPassportOffices
+all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition passportOffice twoPassportOffices proj3TestSuite
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -103,5 +103,14 @@ twoPassportOffices.o: twoPassportOffices.c
 twoPassportOffices: twoPassportOffices.o start.o
 	$(LD) $(LDFLAGS) start.o twoPassportOffices.o -o twoPassportOffices.coff
 	../bin/coff2noff twoPassportOffices.coff twoPassportOffices
+
+
+
+proj3TestSuite.o: proj3TestSuite.c
+	$(CC) $(CFLAGS) -c proj3TestSuite.c
+proj3TestSuite: proj3TestSuite.o start.o
+	$(LD) $(LDFLAGS) start.o proj3TestSuite.o -o proj3TestSuite.coff
+	../bin/coff2noff proj3TestSuite.coff proj3TestSuite
+
 clean:
 	rm -f *.o *.coff
