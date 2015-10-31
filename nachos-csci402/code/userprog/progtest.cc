@@ -26,13 +26,14 @@ void
 StartProcess(char *filename)
 {
     /*//OpenFile *executable = fileSystem->Open(filename);
-    AddrSpace *space;
+    
 
     if (executable == NULL) {
 	printf("Unable to open file %s\n", filename);
 	return;
     }
    */
+    AddrSpace *space;
     space = new AddrSpace(filename);
 
     currentThread->space = space;
