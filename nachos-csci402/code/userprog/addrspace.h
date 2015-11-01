@@ -25,7 +25,7 @@
 #define THREADTABLE
 
 
-enum PAGELOCATION {NONE, EXEC, MAIN, SWAP };
+enum PAGELOCATION {VOID, EXEC, MAIN, SWAP };
 
 class PageTableEntry: public TranslationEntry{
     public:

@@ -745,7 +745,7 @@ int handleIPTmiss(int vpn){
 	//Read page from executable
 	if(space->pageTable[vpn].location == EXEC){
 		space->executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, space->pageTable[vpn].byteOffset );
-	}else if(space->pageTable[vpn].location == NONE){
+	}else if(space->pageTable[vpn].location == VOID){
 		//its nowhere...don't need to do anything...
 	}
 
