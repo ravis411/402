@@ -723,6 +723,7 @@ int currentTLB = 0; //To keep track of which TLB entry to replace
 
 
 void populateTLBFromIPTEntry(int ppn){
+	DEBUG('T', "Populating TLB ppn %i\n", ppn);
 	machine->tlb[currentTLB].virtualPage = IPT[ppn].virtualPage;
 	machine->tlb[currentTLB].physicalPage = IPT[ppn].physicalPage;
 	machine->tlb[currentTLB].valid = IPT[ppn].valid;
@@ -792,6 +793,7 @@ void handleTLBMiss(){
 		//IPT miss
 		ppn = handleIPTmiss(VP);
 		if(ppn == -1){printf("IPT miss failed!!\n"); ASSERT(FALSE);}
+		else{DEBUG('P', "IPTmiss returned ppn %i\n", ppn);}
 	}
 
 	//Populate TLB
