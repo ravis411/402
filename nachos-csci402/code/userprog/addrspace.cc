@@ -326,7 +326,7 @@ AddrSpace::Fork(int nextInstruction)
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;
 
-        pageTable[i].location = NONE;   //Stack pages are nowhere.
+        pageTable[i].location = VOID;   //Stack pages are nowhere. They're in the void.
 
         #ifdef THREADTABLE
             DEBUG('E', "Initializing stack page threadtable, vpn: %i, for threadID: %i\n", i, currentThread->getThreadID());
