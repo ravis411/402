@@ -743,19 +743,21 @@ int handleIPTmiss(int vpn){
 		ASSERT(FALSE);
 	}
 
-	//Read page from executable
-	if(space->pageTable[vpn].location == EXEC){
+	
+	if(space->pageTable[vpn].location == EXEC){//Read page from executable
+		DEBUG('P', "IPT miss vpn %i reading from executable.\n", vpn);
 		space->executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, space->pageTable[vpn].byteOffset );
 	}else if(space->pageTable[vpn].location == VOID){
+		DEBUG('P', "IPT miss vpn %i its nowhere.\n", vpn);
 		//its nowhere...don't need to do anything...
 	}
 
-
+	DEBUG('P', "IPT miss vpn %i updating pageTable.\n", vpn);
    	space->pageTable[vpn].physicalPage = ppn;
     space->pageTable[vpn].valid = TRUE;
     space->pageTable[vpn].location = MAIN;
         
-
+	DEBUG('P', "IPT miss vpn %i updating IPT.\n", vpn);
     //Populate IPT
 	IPT[ppn] = space->pageTable[vpn];
     IPT[ppn].PID = space;
