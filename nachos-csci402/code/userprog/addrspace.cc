@@ -141,6 +141,7 @@ SwapHeader (NoffHeader *noffH)
 //----------------------------------------------------------------------
 
 AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
     NoffHeader noffH;
     unsigned int i, size;
 
@@ -242,6 +243,7 @@ AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
     */
+    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
     DEBUG('a', "Address space, initialized with with threadID: %i\n", currentThread->getThreadID()); 
 }//End AddrSpace Constructor
 

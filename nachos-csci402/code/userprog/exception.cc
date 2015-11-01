@@ -283,6 +283,7 @@ int execCalled = 0;
 //Lock* kernel_exec_lock = new Lock("Kernel Exec lock for filename...");
 //char *kernel_execBUF = null;
 void kernel_exec(int intName){
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 	char* name = (char*)intName;
 	DEBUG('e', "Kernel_exec system call: FileName: %s \n\n", name);
 
@@ -307,6 +308,7 @@ void kernel_exec(int intName){
 		execLock.Acquire();
 		execCalled--;
 		execLock.Release();
+		(void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 		machine->Run();     // jump to the user progam
 		ASSERT(FALSE);      // machine->Run never returns;
 					// the address space exits
