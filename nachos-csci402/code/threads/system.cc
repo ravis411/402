@@ -103,6 +103,7 @@ IPTEntry& IPTEntry::operator=(const IPTEntry& entry){
 }
 
 IPTEntry& IPTEntry::operator=(const TranslationEntry& entry){
+    DEBUG('D', "IPTEntry operator=(TranslationEntry)\n");
     if(&entry != this) // check for self assignment
     {
         virtualPage = entry.virtualPage;
