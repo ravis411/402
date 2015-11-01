@@ -23,14 +23,14 @@
 #define MaxChildSpaces 256
 
 #define THREADTABLE
-//#ifdef PAGETABLEMEMBERS//This would be better...?
+
+
+enum PAGELOCATION {NONE, EXEC, MAIN, SWAP };
 
 class PageTableEntry: public TranslationEntry{
     public:
-    #ifdef PAGETABLEMEMBERS
-    bool stackPage; //True if this is a stack page...Should be deleted when this thread is removed..?
-    int currentThreadID;    //The currentThreadID
-    #endif
+    PAGELOCATION location;
+    int byteOffset;
     // Assignment operator does a deep copy
     PageTableEntry &operator=(const PageTableEntry& entry);
 };
@@ -65,9 +65,12 @@ class AddrSpace {
     void Exit();//Deletes 8 pages of stack for current thread.
 
     PageTableEntry getPageTableEntry(unsigned int VP);
-
+    
+    PageTableEntry *pageTable;  // Assume linear page table translation
+    
+    unsigned int numNonStackPages;
+    unsigned int numCodePages; //Code pages are always up to date in the executable.
  private:
-    PageTableEntry *pageTable;	// Assume linear page table translation
     OpenFile *executable;   //The executable file.
     #ifdef THREADTABLE
     //vector<ThreadTableEntry*> threadTable;
@@ -75,7 +78,6 @@ class AddrSpace {
     #endif
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
-    unsigned int numNonStackPages;
 					// address space
     int FindPPN();  //Returns a ppn if found otherwise prints a message and halts nachos
 };

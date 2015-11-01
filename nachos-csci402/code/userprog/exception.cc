@@ -303,7 +303,7 @@ void kernel_exec(int intName){
 
 		space->InitRegisters();   // set the initial register values
 		space->RestoreState();    // load page table register
-		
+
 		execLock.Acquire();
 		execCalled--;
 		execLock.Release();
@@ -733,7 +733,35 @@ void populateTLBFromIPTEntry(int ppn){
 	currentTLB = (currentTLB + 1) % TLBSize;
 }
 
+int handleIPTmiss(int vpn){
+	int ppn = pageTableBitMap->Find();	//The PPN of an unused page.
+	AddrSpace* space = currentThread->space;
 
+	space->pageTable[vpn].
+
+    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+   	pageTable[i].physicalPage = -1;
+    	pageTable[i].valid = FALSE;//TRUE
+    	pageTable[i].use = FALSE;
+    	pageTable[i].dirty = FALSE;
+    	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
+					// a separate page, we could set its 
+					// pages to be read-only
+        
+        
+
+        if(i < numNonStackPages){//Not stack
+            pageTable[i].location = EXEC;//If its not stack its in the executable...
+            pageTable[i].byteOffset = ( noffH.code.inFileAddr + (i * PageSize) ); //This is where the page is in the executable.
+            //executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, noffH.code.inFileAddr + (i * PageSize) );
+        }else{//Stack
+
+	//executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, noffH.code.inFileAddr + (i * PageSize) );
+
+    //Populate IPT
+	IPT[ppn] = pageTable[i];
+    IPT[ppn].PID = this;
+}
 
 
 //Handles a TLB miss / PageFaultException
@@ -760,11 +788,12 @@ void handleTLBMiss(){
 
 	if(ppn == -1){
 		//IPT miss
-		ASSERT(FALSE);
-	}else{
-		//Populate TLB
-		populateTLBFromIPTEntry(ppn);
+		ppn = handleIPTmiss(VP);
+		if(ppn == -1){printf("IPT miss failed!!\n"); ASSERT(FALSE);}
 	}
+
+	//Populate TLB
+	populateTLBFromIPTEntry(ppn);
 
 	(void) interrupt->SetLevel(oldLevel);   // restore interrupts
 }//End TLB miss

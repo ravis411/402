@@ -92,10 +92,9 @@ PageTableEntry &PageTableEntry::operator=(const PageTableEntry& entry){
         use = entry.use;
         dirty = entry.dirty;
         readOnly = entry.readOnly;
-        #ifdef PAGETABLEMEMBERS
-        stackPage = entry.stackPage;
-        currentThreadID = entry.currentThreadID;
-        #endif
+
+        location = entry.location;
+        byteOffset = entry.byteOffset;
     }
     return *this;
 }
@@ -165,13 +164,14 @@ AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
     ASSERT(noffH.noffMagic == NOFFMAGIC);
 
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size ;
+    numCodePages = divRoundDown(noffH.code.size, PageSize); //Want to round down to be sure that only code is on the page.
     numNonStackPages = divRoundUp(size, PageSize);
     numPages = numNonStackPages + divRoundUp(UserStackSize,PageSize);
                                                 // we need to increase the size
 						// to leave room for the stack
     size = numPages * PageSize;
 
-    ASSERT(numPages <= NumPhysPages);		// check we're not trying
+    //ASSERT(numPages <= NumPhysPages);		// check we're not trying
 						// to run anything too big --
 						// at least until we have
 						// virtual memory
@@ -190,30 +190,26 @@ AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
     #endif
     
     for (i = 0; i < numPages; i++) {
-        int ppn = FindPPN();//The PPN of an unused page.
+        //int ppn = FindPPN();//The PPN of an unused page.
 
        	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-    	pageTable[i].physicalPage = ppn;
-    	pageTable[i].valid = TRUE;
+    	pageTable[i].physicalPage = -1;
+    	pageTable[i].valid = FALSE;//TRUE
     	pageTable[i].use = FALSE;
     	pageTable[i].dirty = FALSE;
     	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
 					// a separate page, we could set its 
 					// pages to be read-only
         
-        /*************
-        * Populate IPT
-        ****************/
-        IPT[ppn] = pageTable[i];
-        IPT[ppn].PID = this;
-        /***End IPT */
+        
 
         if(i < numNonStackPages){//Not stack
-            executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, noffH.code.inFileAddr + (i * PageSize) );
-            #ifdef PAGETABLEMEMBERS
-            pageTable[i].stackPage = FALSE;
-            #endif
+            pageTable[i].location = EXEC;//If its not stack its in the executable...
+            pageTable[i].byteOffset = ( noffH.code.inFileAddr + (i * PageSize) ); //This is where the page is in the executable.
+            //executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, noffH.code.inFileAddr + (i * PageSize) );
         }else{//Stack
+            pageTable[i].location = NONE;//Stack pages are nowhere...
+            pageTable[i].byteOffset = -1; //byteOffset is nowhere for stack untill it goes to swap...
             DEBUG('a', "Initializing stack page, vpn: %i\n", i);
             #ifdef PAGETABLEMEMBERS
                 pageTable[i].stackPage = TRUE;
@@ -328,17 +324,16 @@ AddrSpace::Fork(int nextInstruction)
 
     //Add 8 pages for stack
     for(unsigned int i = numPages; i < newNumPages; i++){
-        int ppn = FindPPN();
+        //int ppn = FindPPN();
         pageTable[i].virtualPage = i;
-        pageTable[i].physicalPage = ppn;
-        pageTable[i].valid = TRUE;
+        pageTable[i].physicalPage = -1;
+        pageTable[i].valid = FALSE; //TRUE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;
-        #ifdef PAGETABLEMEMBERS
-        pageTable[i].currentThreadID = currentThread->getThreadID();
-        pageTable[i].stackPage = TRUE;
-        #endif
+
+        pageTable[i].location = NONE;   //Stack pages are nowhere.
+
         #ifdef THREADTABLE
             DEBUG('E', "Initializing stack page threadtable, vpn: %i, for threadID: %i\n", i, currentThread->getThreadID());
             threadTable[currentThread->getThreadID()]->stackPages.push_back(i);
@@ -347,8 +342,8 @@ AddrSpace::Fork(int nextInstruction)
         /*************
         * Populate IPT
         ****************/
-        IPT[ppn] = pageTable[i];
-        IPT[ppn].PID = this;
+       // IPT[ppn] = pageTable[i];
+       // IPT[ppn].PID = this;
         /***End IPT */
 
     }
@@ -393,7 +388,7 @@ void AddrSpace::Exit(){
             int ppn = pageTable[vpn].physicalPage;
             DEBUG('E', "Clearing stack page, vpn: %i, for threadID: %i\n", vpn, currentThread->getThreadID());
             pageTable[vpn].valid = FALSE;
-            pageTableBitMap->Clear( ppn );
+           // pageTableBitMap->Clear( ppn );
             pageTable[vpn].physicalPage = -1;
             stackPagesCleared++;
 
@@ -406,22 +401,6 @@ void AddrSpace::Exit(){
         }
         
     #endif
-
-
-    #ifdef PAGETABLEMEMBERS
-    for(unsigned int i = numNonStackPages; i < numPages; i++){
-        if(pageTable[i].stackPage == TRUE && pageTable[i].currentThreadID == currentThreadID){
-            pageTable[i].valid = FALSE;
-            pageTableBitMap->Clear(pageTable[i].physicalPage);
-            pageTable[i].physicalPage = -1;
-            stackPagesCleared++;
-        }
-        if(stackPagesCleared == (UserStackSize * PageSize)){
-            break;
-        }
-    }
-    #endif
-
 
 
     (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
