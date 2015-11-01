@@ -70,8 +70,9 @@ class AddrSpace {
     
     unsigned int numNonStackPages;
     unsigned int numCodePages; //Code pages are always up to date in the executable.
- private:
     OpenFile *executable;   //The executable file.
+ private:
+    
     #ifdef THREADTABLE
     //vector<ThreadTableEntry*> threadTable;
     map<int, ThreadTableEntry*> threadTable;

@@ -766,7 +766,7 @@ int handleIPTmiss(int vpn){
 //Handles a TLB miss / PageFaultException
 void handleTLBMiss(){
 	unsigned int VA = machine->ReadRegister(BadVAddrReg);
-	unsigned int VP = VA / PageSize;
+	int VP = VA / PageSize;
 	DEBUG('T', "Need virtual address %i in virtual page %i\n", VA, VP);
 
 	
