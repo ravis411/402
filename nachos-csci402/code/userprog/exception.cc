@@ -737,30 +737,29 @@ int handleIPTmiss(int vpn){
 	int ppn = pageTableBitMap->Find();	//The PPN of an unused page.
 	AddrSpace* space = currentThread->space;
 
-	space->pageTable[vpn].
+	if(ppn == -1){
+		//Main Memory full...need to evict a page.
+		ASSERT(FALSE);
+	}
 
-    pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-   	pageTable[i].physicalPage = -1;
-    	pageTable[i].valid = FALSE;//TRUE
-    	pageTable[i].use = FALSE;
-    	pageTable[i].dirty = FALSE;
-    	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
-					// a separate page, we could set its 
-					// pages to be read-only
+	//Read page from executable
+	if(space->pageTable[vpn].location == EXEC){
+		space->executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, space->pageTable[vpn].byteOffset );
+	}else if(space->pageTable[vpn].location == NONE){
+		//its nowhere...don't need to do anything...
+	}
+
+
+   	space->pageTable[vpn].physicalPage = ppn;
+    space->pageTable[vpn].valid = TRUE;
+    space->pageTable[vpn].location = MAIN;
         
-        
-
-        if(i < numNonStackPages){//Not stack
-            pageTable[i].location = EXEC;//If its not stack its in the executable...
-            pageTable[i].byteOffset = ( noffH.code.inFileAddr + (i * PageSize) ); //This is where the page is in the executable.
-            //executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, noffH.code.inFileAddr + (i * PageSize) );
-        }else{//Stack
-
-	//executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, noffH.code.inFileAddr + (i * PageSize) );
 
     //Populate IPT
-	IPT[ppn] = pageTable[i];
-    IPT[ppn].PID = this;
+	IPT[ppn] = space->pageTable[vpn];
+    IPT[ppn].PID = space;
+
+    return ppn;
 }
 
 

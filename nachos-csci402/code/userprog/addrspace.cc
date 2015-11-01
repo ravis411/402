@@ -211,9 +211,6 @@ AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
             pageTable[i].location = NONE;//Stack pages are nowhere...
             pageTable[i].byteOffset = -1; //byteOffset is nowhere for stack untill it goes to swap...
             DEBUG('a', "Initializing stack page, vpn: %i\n", i);
-            #ifdef PAGETABLEMEMBERS
-                pageTable[i].stackPage = TRUE;
-            #endif
 
             #ifdef THREADTABLE
                 DEBUG('E', "Initializing stack page threadtable, vpn: %i, for threadID: %i\n", i, currentThread->getThreadID());
@@ -221,9 +218,6 @@ AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
             #endif
 
         }
-        #ifdef PAGETABLEMEMBERS
-        pageTable[i].currentThreadID = currentThread->getThreadID();
-        #endif
     }
 
     //We need to remember where this thread's stack is...
