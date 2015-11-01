@@ -723,7 +723,7 @@ int currentTLB = 0; //To keep track of which TLB entry to replace
 
 
 void populateTLBFromIPTEntry(int ppn){
-	DEBUG('T', "Populating TLB ppn %i\n", ppn);
+
 	machine->tlb[currentTLB].virtualPage = IPT[ppn].virtualPage;
 	machine->tlb[currentTLB].physicalPage = IPT[ppn].physicalPage;
 	machine->tlb[currentTLB].valid = IPT[ppn].valid;
@@ -732,6 +732,7 @@ void populateTLBFromIPTEntry(int ppn){
 	machine->tlb[currentTLB].readOnly = IPT[ppn].readOnly;
 
 	currentTLB = (currentTLB + 1) % TLBSize;
+	DEBUG('T', "Populated TLB[%i] with IPT[%i]\n", currentTLB, ppn);
 }
 
 int handleIPTmiss(int vpn){
@@ -753,12 +754,12 @@ int handleIPTmiss(int vpn){
 		//its nowhere...don't need to do anything...
 	}
 
-	DEBUG('P', "IPT miss vpn %i updating pageTable.\n", vpn);
+	//DEBUG('P', "IPT miss vpn %i updating pageTable.\n", vpn);
    	space->pageTable[vpn].physicalPage = ppn;
     space->pageTable[vpn].valid = TRUE;
     space->pageTable[vpn].location = MAIN;
         
-	DEBUG('P', "IPT miss vpn %i updating IPT.\n", vpn);
+	//DEBUG('P', "IPT miss vpn %i updating IPT.\n", vpn);
     //Populate IPT
 	IPT[ppn] = space->pageTable[vpn];
     IPT[ppn].PID = space;
@@ -771,7 +772,7 @@ int handleIPTmiss(int vpn){
 void handleTLBMiss(){
 	unsigned int VA = machine->ReadRegister(BadVAddrReg);
 	int VP = VA / PageSize;
-	DEBUG('T', "TLB Miss: Need virtual address %i in virtual page %i\n", VA, VP);
+	DEBUG('T', "TLB Miss: Need virtual address %i in virtual page %i for AddrSpace: %i\n", VA, VP, currentThread->space);
 
 	
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
