@@ -770,12 +770,13 @@ int handleIPTmiss(int vpn){
 
 //Handles a TLB miss / PageFaultException
 void handleTLBMiss(){
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 	unsigned int VA = machine->ReadRegister(BadVAddrReg);
 	int VP = VA / PageSize;
 	DEBUG('T', "TLB Miss: Need virtual address %i in virtual page %i for AddrSpace: %i\n", VA, VP, currentThread->space);
 
 	
-	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
+	
 
 	//machine->tlb[currentTLB] = currentThread->space->getPageTableEntry(VP);
 

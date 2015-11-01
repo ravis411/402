@@ -155,7 +155,7 @@ AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
         ASSERT(FALSE);//If we can't open the file...we need to quit since this AddrSpace will be broken.
         return;
     }
-
+    DEBUG('e', "AddrSpace filename: %s \n", filename);
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) && 
