@@ -352,6 +352,7 @@ SpaceId Exec_Syscall(unsigned int vaddr, int len){
 * Exit()
 *************************************************************************/
 void Exit_Syscall(int status){
+	DEBUG('e', "Exit: currentThread->space: %i\n", currentThread->space);
 	ProcessTableEntry* p = ProcessTable->getProcessEntry(currentThread->space);
 	execLock.Acquire();
 	kernel_threadLock.Acquire();//TODO: RACE CONDITION THIS WONT WORK!!!?
@@ -396,7 +397,6 @@ void Exit_Syscall(int status){
 	#ifdef USE_TLB
 	printf("\nExit status: %i\n\n", status);
 	#endif
-
 	currentThread->Finish();
 }
 
