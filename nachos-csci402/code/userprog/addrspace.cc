@@ -261,7 +261,7 @@ AddrSpace::~AddrSpace()
     for(unsigned int i = 0; i < numPages; i++){
         if(pageTable[i].valid){
             DEBUG('E', "~Addrspace: Clearing pageTableBitMap: %i\n", pageTable[i].physicalPage);
-            pageTableBitMap->Clear(pageTable[i].physicalPage);
+           //TODO: FIX THIS BEFORE PROJ 3 SUBMISSION... pageTableBitMap->Clear(pageTable[i].physicalPage);
         }
     }
     delete pageTable;
