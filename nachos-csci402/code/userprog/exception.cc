@@ -721,9 +721,36 @@ int Rand_Syscall(){
 
 
 
+
+
+
+
 int currentTLB = 0; //To keep track of which TLB entry to replace
 
 
+
+
+
+
+
+
+///////////////////
+// handleMemoryFull
+void handleMemoryFull(){
+	//Memory is full select a page to evict...
+
+
+
+}//end handleMemoryFull
+
+
+
+
+
+
+
+////////////////////
+// populate TLB from a given IPT entry
 void populateTLBFromIPTEntry(int ppn){
 
 	machine->tlb[currentTLB].virtualPage = IPT[ppn].virtualPage;
@@ -735,7 +762,12 @@ void populateTLBFromIPTEntry(int ppn){
 
 	currentTLB = (currentTLB + 1) % TLBSize;
 	DEBUG('T', "Populated TLB[%i] with IPT[%i]\n", currentTLB, ppn);
-}
+}//End pupulateTLB
+
+
+
+
+
 
 int handleIPTmiss(int vpn){
 	DEBUG('T', "IPT miss vpn %i\n", vpn);
@@ -744,7 +776,7 @@ int handleIPTmiss(int vpn){
 
 	if(ppn == -1){
 		//Main Memory full...need to evict a page.
-		ASSERT(FALSE);
+		ppn = handleMemoryFull();
 	}
 
 	
@@ -768,6 +800,9 @@ int handleIPTmiss(int vpn){
 
     return ppn;
 }
+
+
+
 
 
 //Handles a TLB miss / PageFaultException

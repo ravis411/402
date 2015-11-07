@@ -36,7 +36,13 @@ extern Timer *timer;				// the hardware alarm clock
 #ifdef USER_PROGRAM
 
 #include "bitmap.h"
+
 extern BitMap *pageTableBitMap;	//Bitmap to track unused pages
+
+#define NumSwapPages 512	//The size of the swap file for each instance of nachos
+extern string swapFileName;	//The name of the swap file
+extern BitMap *swapBitMap;	//The Bitmap for the swap file
+extern OpenFile *swapFile;	//The swap file.
 
 class ProcessTableEntry{
 public:

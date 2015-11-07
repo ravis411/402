@@ -19,8 +19,12 @@ Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
 #ifdef USER_PROGRAM
+
 BitMap *pageTableBitMap;    //Bitmap to track unused pages
-//std::map<AddrSpace*, ProcessTableEntry*> processTable;
+
+string swapFileName;
+BitMap *swapBitMap; //Bitmap for the swap file
+OpenFile *swapFile; //The swap file.
 
 
 ProcessTableEntry::ProcessTableEntry(AddrSpace* spc){
@@ -247,7 +251,23 @@ Initialize(int argc, char **argv)
 #ifdef USER_PROGRAM
     //Initialize the pageTableBitMap
     pageTableBitMap = new BitMap(NumPhysPages);
+    swapBitMap = new BitMap(NumSwapPages); //Init swap file bitmap
     ProcessTable = new ProcessTableClass;
+
+    //Open the swapFile
+    swapFile = NULL;
+    swapFileName = "nachosSwapFile"
+    while(swapFile == NULL){
+        swapFile = fileSystem->Open(swapFileName);
+        if (swapFile == NULL) {
+            //We need to create the swapFile
+            if( !( fileSystem->Create(swapFileName, NumSwapPages * PageSize ) ){
+                printf("\nFATAL ERROR: Unable to create the swap file...no free space?.\n");
+                ASSERT(FALSE);
+            }
+        }
+    }
+
 #endif
     IPT = new IPTEntry[NumPhysPages];   //init IPT
     interrupt->Enable();
@@ -284,6 +304,10 @@ Cleanup()
     
 #ifdef USER_PROGRAM
     delete machine;
+    delete pageTableBitMap;
+    delete swapBitMap;
+    delete swapFile;
+    fileSystem->Remove(swapFileName);
 delete pageTableBitMap;
 #endif
 
