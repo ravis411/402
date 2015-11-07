@@ -736,8 +736,16 @@ int currentTLB = 0; //To keep track of which TLB entry to replace
 
 ///////////////////
 // handleMemoryFull
-void handleMemoryFull(){
+int handleMemoryFull(){
 	//Memory is full select a page to evict...
+	int ppn = rand() % NumPhysPages;	//Random page to evict
+
+	//Check if this entry is in the TLB and invalidate it / propogate changes...
+	for(int i = 0; i < TLBSize; i++){
+		if(machine->tlb[i].valid && machine->tlb[i].physicalPage == ppn && machine->tlb[i].dirty){
+			printf("Dirty need to propogate changes.");
+		}
+	}
 
 
 
@@ -751,7 +759,16 @@ void handleMemoryFull(){
 
 ////////////////////
 // populate TLB from a given IPT entry
+// first propogate changes
 void populateTLBFromIPTEntry(int ppn){
+
+	//If TLB valid and dirty propogate changes...
+	TranslationEntry* curTLB;
+	curTLB = machine->tlb[currentTLB];
+	if(curTLB->valid && curTLB->dirty){
+		//Propogate dirty bit to IPT
+		IPT[curTLB.physicalPage].dirty = TRUE;
+	}
 
 	machine->tlb[currentTLB].virtualPage = IPT[ppn].virtualPage;
 	machine->tlb[currentTLB].physicalPage = IPT[ppn].physicalPage;
@@ -783,6 +800,9 @@ int handleIPTmiss(int vpn){
 	if(space->pageTable[vpn].location == EXEC){//Read page from executable
 		DEBUG('P', "IPT miss vpn %i reading from executable.\n", vpn);
 		space->executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, space->pageTable[vpn].byteOffset );
+	}else if(space->pageTable[vpn].location == SWAP){ //Its in the swap...
+		//Read from swap to mainmemory
+		//clear swapFileBitmap
 	}else if(space->pageTable[vpn].location == VOID){
 		DEBUG('P', "IPT miss vpn %i its nowhere.\n", vpn);
 		//its nowhere...don't need to do anything...
