@@ -748,7 +748,7 @@ int handleMemoryFull(){
 	}
 
 
-
+	return -1;
 }//end handleMemoryFull
 
 
@@ -764,10 +764,10 @@ void populateTLBFromIPTEntry(int ppn){
 
 	//If TLB valid and dirty propogate changes...
 	TranslationEntry* curTLB;
-	curTLB = machine->tlb[currentTLB];
+	curTLB = &(machine->tlb[currentTLB]);
 	if(curTLB->valid && curTLB->dirty){
 		//Propogate dirty bit to IPT
-		IPT[curTLB.physicalPage].dirty = TRUE;
+		IPT[curTLB->physicalPage].dirty = TRUE;
 	}
 
 	machine->tlb[currentTLB].virtualPage = IPT[ppn].virtualPage;
