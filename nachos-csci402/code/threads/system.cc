@@ -256,7 +256,12 @@ Initialize(int argc, char **argv)
 
     //Open the swapFile
     swapFile = NULL;
-    swapFileName = "nachosSwapFile"
+#ifdef NETWORK
+    swapFileName = "nachosSwapFile" + netname;  //If network defined append netname to swapfile name
+#endif
+#ifndef NETWORK
+    swapFileName = "nachosSwapFile";    //If network not defined
+#endif
     while(swapFile == NULL){
         swapFile = fileSystem->Open(swapFileName);
         if (swapFile == NULL) {
