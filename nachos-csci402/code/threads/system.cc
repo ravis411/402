@@ -263,10 +263,10 @@ Initialize(int argc, char **argv)
     swapFileName = "nachosSwapFile";    //If network not defined
 #endif
     while(swapFile == NULL){
-        swapFile = fileSystem->Open(swapFileName);
+        swapFile = fileSystem->Open(swapFileName.c_str());
         if (swapFile == NULL) {
             //We need to create the swapFile
-            if( !( fileSystem->Create(swapFileName, NumSwapPages * PageSize ) ){
+            if( !( fileSystem->Create(swapFileName.c_str(), NumSwapPages * PageSize ) ){
                 printf("\nFATAL ERROR: Unable to create the swap file...no free space?.\n");
                 ASSERT(FALSE);
             }
@@ -312,7 +312,7 @@ Cleanup()
     delete pageTableBitMap;
     delete swapBitMap;
     delete swapFile;
-    fileSystem->Remove(swapFileName);
+    fileSystem->Remove(swapFileName.c_str());
 delete pageTableBitMap;
 #endif
 
