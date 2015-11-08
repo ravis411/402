@@ -67,4 +67,6 @@ main()
 
    Fork(mat1);
    Fork(mat2);
+
+   Exit(0);
 }
