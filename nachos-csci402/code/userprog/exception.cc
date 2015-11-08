@@ -820,7 +820,7 @@ int handleMemoryFull(){
 
 	///If dirty write to swap & update pageTable for that page
 	if(IPT[ppn].dirty && IPT[ppn].valid){
-		DEBUG('M' ,"IPT[%i] dirty. Writing to swap...\n", i);
+		DEBUG('M' ,"IPT[%i] dirty. Writing to swap...\n", ppn);
 		AddrSpace* space = IPT[ppn].PID;
 		space->pageTable[IPT[ppn].virtualPage].location = SWAP;
 		space->pageTable[IPT[ppn].virtualPage].byteOffset = writePageToSwap(ppn);
