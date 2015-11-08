@@ -352,6 +352,7 @@ SpaceId Exec_Syscall(unsigned int vaddr, int len){
 * Exit()
 *************************************************************************/
 void Exit_Syscall(int status){
+	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 	DEBUG('e', "Exit: currentThread->space: %i\n", currentThread->space);
 	ProcessTableEntry* p = ProcessTable->getProcessEntry(currentThread->space);
 	execLock.Acquire();
@@ -397,6 +398,7 @@ void Exit_Syscall(int status){
 	#ifdef USE_TLB
 	printf("\nExit status: %i\n\n", status);
 	#endif
+	(void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 	currentThread->Finish();
 }
 
