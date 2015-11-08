@@ -275,9 +275,10 @@ AddrSpace::~AddrSpace()
            pageTable[i].valid = FALSE;
         }
     }
-    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
+    
     //For good measure (or maybe its excessive) save state to invalidate the TLB
     SaveState();
+    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
     delete pageTable;
     delete executable;
 }
