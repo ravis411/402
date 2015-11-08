@@ -775,7 +775,7 @@ void populateTLBFromIPTEntry(int ppn){
 int writePageToSwap(int ppn){
 	int byteOffset = -1;
 	if(IPT[ppn].valid && IPT[ppn].dirty){
-		int swapIndex = swapFileBitmap->Find();
+		int swapIndex = swapBitMap->Find();
 		
 		byteOffset = swapIndex * PageSize;
 
@@ -786,7 +786,7 @@ int writePageToSwap(int ppn){
 //////////////
 void readPageFromSwapToPPN(int byteOffset, int ppn){
 	int swapIndex = byteOffset / PageSize;
-	swapFileBitmap->Clear(swapIndex);
+	swapBitMap->Clear(swapIndex);
 	swapFile->ReadAt(&(machine->mainMemory[PageSize * ppn]), PageSize, byteOffset);
 }
 
