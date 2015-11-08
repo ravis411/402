@@ -268,7 +268,7 @@ AddrSpace::~AddrSpace()
                 DEBUG('S', "~Addrspace %i: Clearing VPN %i pageTableBitMap and IPT: %i\n", currentThread->space, i, pageTable[i].physicalPage);
                 pageTableBitMap->Clear(pageTable[i].physicalPage);
                 //Remove this page from the eviction Q
-                for(int ii = 0; ii < FIFOList.size(); ii++){
+                for(unsigned int ii = 0; ii < FIFOList.size(); ii++){
                     if(FIFOList[ii] == pageTable[ii].physicalPage){
                         FIFOList.erase(FIFOList.begin()+ii);
                         break;
@@ -415,7 +415,7 @@ void AddrSpace::Exit(){
                      DEBUG('S', "Addrspace::Exit %i: Clearing VPN %i pageTableBitMap and IPT: %i\n",vpn, pageTable[vpn].physicalPage);
                     pageTableBitMap->Clear(pageTable[vpn].physicalPage);
                     //Remove this page from the eviction Q
-                    for(int ii = 0; ii < FIFOList.size(); ii++){
+                    for(unsigned int ii = 0; ii < FIFOList.size(); ii++){
                         if(FIFOList[ii] == ppn){
                             FIFOList.erase(FIFOList.begin()+ii);
                             break;

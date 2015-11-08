@@ -234,6 +234,20 @@ Initialize(int argc, char **argv)
 	    argCount = 2;
 	}
 #endif
+#ifdef USE_TLB
+    if(!strcmp(*argv, "-P")){//This is for choosing the page replacement policy...
+        ASSERT(argc > 1);
+        if(*(argv + 1) == "FIFO"){
+
+        }else if(*(argv + 1) == "FIFO"){
+            USEFIFO = FALSE;
+        }else{
+            printf("Unrecognized argument for -P %s\n", *(argv + 1) );
+            ASSERT(FALSE);
+        }
+        argCount = 2;
+    }
+#endif
     }
 
     DebugInit(debugArgs);			// initialize DEBUG messages
