@@ -7,8 +7,8 @@
 #include "syscall.h"
 
 char welcomeString[] = "\nproj3TestSuite.\n\n";
-char matFileName[] = "testVirtualMemory.c";
-char sortFileName[] = "sort.c";
+char matFileName[] = "../test/testVirtualMemory.c";
+char sortFileName[] = "../test/sort";
 
 int
 main()
@@ -23,4 +23,5 @@ main()
 	Exec(matFileName, sizeof(matFileName));
 	Exec(sortFileName, sizeof(sortFileName));
 
+	Exit(0);
 }
