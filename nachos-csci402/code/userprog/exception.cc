@@ -870,7 +870,7 @@ int handleIPTmiss(int vpn){
 		//Read from swap to mainmemory
 		DEBUG('P', "IPT miss vpn %i reading from swap.\n", vpn);
 		readPageFromSwapToPPN(space->pageTable[vpn].byteOffset, ppn);
-		DEBUG('S', "IPTMiss for space %i vpn %i to ppn\n",space, vpn, ppn);
+		DEBUG('S', "IPTMiss for space %i vpn %i to ppn %i\n",space, vpn, ppn);
 		//clear swapFileBitmap
 	}else if(space->pageTable[vpn].location == VOID){
 		DEBUG('P', "IPT miss vpn %i its nowhere.\n", vpn);

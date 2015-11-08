@@ -515,6 +515,10 @@ void AddrSpace::SaveState()
     IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
     //Invalidate the TLB on a context switch
     for(int i = 0; i < TLBSize; i++){
+        if(machine->tlb[i].valid && machine->tlb[i].dirty){
+            //Propogate changes...
+            IPT[machine->tlb[i].physicalPage].dirty = TRUE;
+        }
         machine->tlb[i].valid = FALSE;
     }
     (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
