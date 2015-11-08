@@ -43,6 +43,8 @@ extern BitMap *pageTableBitMap;	//Bitmap to track unused pages
 extern string swapFileName;	//The name of the swap file
 extern BitMap *swapBitMap;	//The Bitmap for the swap file
 extern OpenFile *swapFile;	//The swap file.
+extern vector<int> FIFOList;	//Ordered list of used memory pages to be evicted.
+extern bool USEFIFO;
 
 class ProcessTableEntry{
 public:

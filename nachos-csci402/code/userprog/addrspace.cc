@@ -267,6 +267,13 @@ AddrSpace::~AddrSpace()
                 DEBUG('E', "~Addrspace: Clearing VPN %i pageTableBitMap and IPT: %i\n", i, pageTable[i].physicalPage);
                 DEBUG('S', "~Addrspace %i: Clearing VPN %i pageTableBitMap and IPT: %i\n", currentThread->space, i, pageTable[i].physicalPage);
                 pageTableBitMap->Clear(pageTable[i].physicalPage);
+                //Remove this page from the eviction Q
+                for(int ii = 0; ii < FIFOList.size(); ii++){
+                    if(FIFOList[ii] == pageTable[ii].physicalPage){
+                        FIFOList.erase(FIFOList.begin()+ii);
+                        break;
+                    }
+                }
                 IPT[pageTable[i].physicalPage].valid = FALSE;
            }else if(pageTable[i].location == SWAP){
                 int swapIndex = pageTable[i].byteOffset / PageSize;
@@ -407,6 +414,13 @@ void AddrSpace::Exit(){
                     DEBUG('E', "Addrspace::Exit: Clearing VPN %i pageTableBitMap and IPT: %i\n",vpn, pageTable[vpn].physicalPage);
                      DEBUG('S', "Addrspace::Exit %i: Clearing VPN %i pageTableBitMap and IPT: %i\n",vpn, pageTable[vpn].physicalPage);
                     pageTableBitMap->Clear(pageTable[vpn].physicalPage);
+                    //Remove this page from the eviction Q
+                    for(int ii = 0; ii < FIFOList.size(); ii++){
+                        if(FIFOList[ii] == ppn){
+                            FIFOList.erase(FIFOList.begin()+ii);
+                            break;
+                        }
+                    }
                     IPT[pageTable[vpn].physicalPage].valid = FALSE;
                 }else if(pageTable[vpn].location == SWAP){
                     int swapIndex = pageTable[vpn].byteOffset / PageSize;

@@ -799,13 +799,33 @@ void readPageFromSwapToPPN(int byteOffset, int ppn){
 }
 
 
+
+/////////////
+void removePageFromFIFOQ(int ppn){
+	//Remove this page from the eviction Q
+	for(int i = 0; i < FIFOList.size(); i++){
+		if(FIFOList[i] == ppn){
+			FIFOList.erase(FIFOList.begin()+i);
+			return;
+		}
+	}
+	printf("This should never be printed. Because this ppn should be in the Q if its in memory.\n");
+}
+
+
+
 ///////////////////
 // handleMemoryFull
 int handleMemoryFull(){
 	//Memory is full select a page to evict...
-	DEBUG('M' ,"handleMemoryFull: Using %s replacement policy.\n", "RAND");
-	int ppn = rand() % NumPhysPages;	//Random page to evict
-
+	int ppn = -1;
+	if(USEFIFO){
+		DEBUG('M' ,"handleMemoryFull: Using %s replacement policy.\n", "FIFO");
+		ppn = FIFOList[0];
+	}else{
+		DEBUG('M' ,"handleMemoryFull: Using %s replacement policy.\n", "RAND");
+		ppn = rand() % NumPhysPages;	//Random page to evict
+	}
 	ASSERT(ppn >= 0 && ppn < NumPhysPages);
 	ASSERT(IPT[ppn].valid);
 
@@ -844,6 +864,9 @@ int handleMemoryFull(){
 	}
 	IPT[ppn].valid = FALSE;
 	DEBUG('M' ,"Evicted page %i.\n", ppn);
+
+	removePageFromFIFOQ(ppn);
+
 	return ppn;
 }//end handleMemoryFull
 
@@ -886,6 +909,9 @@ int handleIPTmiss(int vpn){
     //Populate IPT
 	IPT[ppn] = space->pageTable[vpn];
     IPT[ppn].PID = space;
+
+    //Add this memory page to back of the eviction Q
+    FIFOList.push_back(ppn);
 
     return ppn;
 }

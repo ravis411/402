@@ -25,6 +25,8 @@ BitMap *pageTableBitMap;    //Bitmap to track unused pages
 string swapFileName;
 BitMap *swapBitMap; //Bitmap for the swap file
 OpenFile *swapFile; //The swap file.
+vector<int> FIFOList;   //The fifo list for evicting pages.
+bool USEFIFO = TRUE;
 
 
 ProcessTableEntry::ProcessTableEntry(AddrSpace* spc){
