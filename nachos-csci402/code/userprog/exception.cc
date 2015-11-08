@@ -821,7 +821,7 @@ int handleMemoryFull(){
 		}
 	}
 	//TLB changes have been propogated to IPT
-
+	DEBUG('M', "handleMemoryFull: TLB checked.\n");
 	///If dirty write to swap & update pageTable for that page
 	if(IPT[ppn].dirty && IPT[ppn].valid){
 		DEBUG('M' ,"IPT[%i] dirty. Writing to swap...\n", ppn);
