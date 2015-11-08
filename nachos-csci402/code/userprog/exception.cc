@@ -794,7 +794,6 @@ void readPageFromSwapToPPN(int byteOffset, int ppn){
 ///////////////////
 // handleMemoryFull
 int handleMemoryFull(){
-	DEBUG('M' ,"Memory full. Evicting a page.\n");
 	//Memory is full select a page to evict...
 	int ppn = rand() % NumPhysPages;	//Random page to evict
 
@@ -826,7 +825,7 @@ int handleMemoryFull(){
 			//no need to update byteOffset...and its not dirty so don't need to change anything else.
 	}
 	IPT[ppn].valid = FALSE;
-	
+	DEBUG('M' ,"Evicted page %i.\n", ppn);
 	return ppn;
 }//end handleMemoryFull
 
