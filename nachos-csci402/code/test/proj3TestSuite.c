@@ -7,7 +7,7 @@
 #include "syscall.h"
 
 char welcomeString[] = "\nproj3TestSuite.\n\n";
-char matFileName[] = "../test/matmult";
+char matFileName[] = "../test/testVirtualMemory";
 char sortFileName[] = "../test/sort";
 
 int
@@ -17,7 +17,7 @@ main()
 
     PrintString("Going to Exec 2 testVirtualMemory.c and 1 sort.c\n", sizeof("Going to Exec 2 testVirtualMemory.c and 1 sort.c\n"));
     PrintString("\ttestVirtualMemory forks 2 matmults.\n", sizeof("\ttestVirtualMemory forks 2 matmults.\n"));
-    PrintString("\tExpected output is 8 Exit statuses, 4 7220s and 1 1023\n", sizeof("\tExpected output is 8 Exit statuses, 4 7220s and 1 1023\n"));
+    PrintString("\tExpected output is 8 Exit statuses, 3 0s, 4 7220s and 1 1023\n", sizeof("\tExpected output is 8 Exit statuses, 3 0s, 4 7220s and 1 1023\n"));
     PrintString("\tPlease note: This may take some time.\n\n", sizeof("\tPlease note: This may take some time.\n\n"));
 
 	Exec(matFileName, sizeof(matFileName));
