@@ -7,7 +7,7 @@
 #include "syscall.h"
 
 char welcomeString[] = "\nproj3TestSuite.\n\n";
-char matFileName[] = "../test/testVirtualMemory.c";
+char matFileName[] = "../test/testVirtualMemory";
 char sortFileName[] = "../test/sort";
 
 int
