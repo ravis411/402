@@ -824,13 +824,14 @@ int handleMemoryFull(){
 	DEBUG('M', "handleMemoryFull: TLB checked.\n");
 	///If dirty write to swap & update pageTable for that page
 	if(IPT[ppn].dirty && IPT[ppn].valid){
-		DEBUG('M' ,"IPT[%i] dirty. Writing to swap...\n", ppn);
+		DEBUG('M' ,"IPT[%i] dirty. Writing to SWAP...\n", ppn);
 		AddrSpace* space = IPT[ppn].PID;
 		space->pageTable[IPT[ppn].virtualPage].location = SWAP;
 		space->pageTable[IPT[ppn].virtualPage].byteOffset = writePageToSwap(ppn);
 		space->pageTable[IPT[ppn].virtualPage].dirty = IPT[ppn].dirty;
 
 	}else{//If !dirty update pageTable...no need to save
+		DEBUG('M' ,"IPT[%i] NOT dirty. Let's say the page is in EXEC.\n", ppn);
 		IPT[ppn].PID->pageTable[IPT[ppn].virtualPage].location = EXEC;
 		//If its going to exec it was always in exec...
 			//no need to update byteOffset...and its not dirty so don't need to change anything else.
