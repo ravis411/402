@@ -257,13 +257,27 @@ AddrSpace::AddrSpace(char *filename) : fileTable(MaxOpenFiles) {
 
 AddrSpace::~AddrSpace()
 {
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
     //Clear used pages
     for(unsigned int i = 0; i < numPages; i++){
         if(pageTable[i].valid){
-            DEBUG('E', "~Addrspace: Clearing pageTableBitMap: %i\n", pageTable[i].physicalPage);
-           //TODO: FIX THIS BEFORE PROJ 3 SUBMISSION... pageTableBitMap->Clear(pageTable[i].physicalPage);
+            //Clear any valid pages from Memory
+            
+           if(pageTable[i].location == MAIN){
+                DEBUG('E', "~Addrspace: Clearing pageTableBitMap and IPT: %i\n", pageTable[i].physicalPage);
+                pageTableBitMap->Clear(pageTable[i].physicalPage);
+                IPT[pageTable[i].physicalPage].valid = FALSE;
+           }else if(pageTable[i].location == SWAP){
+                int swapIndex = pageTable[i].byteOffset / PageSize;
+                DEBUG('E', "~Addrspace: Clearing VPN %i from SWAP page %i.\n", i, swapIndex);
+                swapBitMap->Clear(swapIndex);
+           }
+           pageTable[i].valid = FALSE;
         }
     }
+    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
+    //For good measure (or maybe its excessive) save state to invalidate the TLB
+    SaveState();
     delete pageTable;
     delete executable;
 }
