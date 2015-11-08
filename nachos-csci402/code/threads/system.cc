@@ -237,9 +237,9 @@ Initialize(int argc, char **argv)
 #ifdef USE_TLB
     if(!strcmp(*argv, "-P")){//This is for choosing the page replacement policy...
         ASSERT(argc > 1);
-        if(*(argv + 1) == "FIFO"){
+        if( !strcmp(*(argv + 1), "FIFO") ){
 
-        }else if(*(argv + 1) == "FIFO"){
+        }else if( !strcmp(*(argv + 1), "RAND") ){
             USEFIFO = FALSE;
         }else{
             printf("Unrecognized argument for -P %s\n", *(argv + 1) );
