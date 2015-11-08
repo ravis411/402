@@ -795,18 +795,24 @@ void readPageFromSwapToPPN(int byteOffset, int ppn){
 // handleMemoryFull
 int handleMemoryFull(){
 	//Memory is full select a page to evict...
+	DEBUG('M' ,"handleMemoryFull: Using %s replacement policy.\n", "RAND");
 	int ppn = rand() % NumPhysPages;	//Random page to evict
 
 	ASSERT(ppn >= 0 && ppn < NumPhysPages);
 	ASSERT(IPT[ppn].valid);
 
+	DEBUG('M' ,"handleMemoryFull: Going to evict page %i.\n", ppn);
+
 	//Check if this IPT/memory entry is in the TLB and invalidate it / propogate changes to IPT
 	for(int i = 0; i < TLBSize; i++){
 		if(machine->tlb[i].valid && machine->tlb[i].physicalPage == ppn ){
+			DEBUG('M' ,"handleMemoryFull: TLB[%i] matched page %i. ", i, ppn);
 			if(machine->tlb[i].dirty){
 				IPT[ppn].dirty = TRUE;
+				DEBUG('M' ,"TLB[%i] dirty.", i);
 			}
 			machine->tlb[i].valid = FALSE;
+			DEBUG('M' ,"\n");
 			break;
 		}
 	}
@@ -814,6 +820,7 @@ int handleMemoryFull(){
 
 	///If dirty write to swap & update pageTable for that page
 	if(IPT[ppn].dirty && IPT[ppn].valid){
+		DEBUG('M' ,"IPT[%i] dirty. Writing to swap...\n", i);
 		AddrSpace* space = IPT[ppn].PID;
 		space->pageTable[IPT[ppn].virtualPage].location = SWAP;
 		space->pageTable[IPT[ppn].virtualPage].byteOffset = writePageToSwap(ppn);
@@ -840,14 +847,17 @@ int handleIPTmiss(int vpn){
 	if(ppn == -1){
 		//Main Memory (and IPT) are full...need to evict a page.
 		ppn = handleMemoryFull();
+		DEBUG('P', "IPT miss vpn %i memory full. Evicted page %i.\n", vpn, ppn);
 	}
 
 	
+	//Assumed ppn is a free page in memory and IPT is !valid and changes have been propogated from TLB
 	if(space->pageTable[vpn].location == EXEC){//Read page from executable
 		DEBUG('P', "IPT miss vpn %i reading from executable.\n", vpn);
 		space->executable->ReadAt( &(machine->mainMemory[PageSize * ppn]), PageSize, space->pageTable[vpn].byteOffset );
 	}else if(space->pageTable[vpn].location == SWAP){ //Its in the swap...
 		//Read from swap to mainmemory
+		DEBUG('P', "IPT miss vpn %i reading from swap.\n", vpn);
 		readPageFromSwapToPPN(space->pageTable[vpn].byteOffset, ppn);
 		//clear swapFileBitmap
 	}else if(space->pageTable[vpn].location == VOID){
@@ -905,6 +915,7 @@ void handleTLBMiss(){
 	//Populate TLB
 	populateTLBFromIPTEntry(ppn);
 
+	DEBUG('T', "TLB Miss: Completed.\n");
 	(void) interrupt->SetLevel(oldLevel);   // restore interrupts
 }//End TLB miss
 
