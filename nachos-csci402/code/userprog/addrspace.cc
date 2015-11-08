@@ -398,19 +398,18 @@ void AddrSpace::Exit(){
             int ppn = pageTable[vpn].physicalPage;
             DEBUG('E', "Clearing stack page, vpn: %i, for threadID: %i\n", vpn, currentThread->getThreadID());
 
-            if(pageTable[i].valid){
+            if(pageTable[vpn].valid){
                 //Clear any valid pages from Memory
-
-                if(pageTable[i].location == MAIN){
-                    DEBUG('E', "Addrspace::Exit: Clearing pageTableBitMap and IPT: %i\n", pageTable[i].physicalPage);
-                    pageTableBitMap->Clear(pageTable[i].physicalPage);
-                    IPT[pageTable[i].physicalPage].valid = FALSE;
-                }else if(pageTable[i].location == SWAP){
-                    int swapIndex = pageTable[i].byteOffset / PageSize;
-                    DEBUG('E', "Addrspace::Exit: Clearing VPN %i from SWAP page %i.\n", i, swapIndex);
+                if(pageTable[vpn].location == MAIN){
+                    DEBUG('E', "Addrspace::Exit: Clearing pageTableBitMap and IPT: %i\n", pageTable[vpn].physicalPage);
+                    pageTableBitMap->Clear(pageTable[vpn].physicalPage);
+                    IPT[pageTable[vpn].physicalPage].valid = FALSE;
+                }else if(pageTable[vpn].location == SWAP){
+                    int swapIndex = pageTable[vpn].byteOffset / PageSize;
+                    DEBUG('E', "Addrspace::Exit: Clearing VPN %i from SWAP page %i.\n", vpn, swapIndex);
                     swapBitMap->Clear(swapIndex);
                 }
-                pageTable[i].valid = FALSE;
+                pageTable[vpn].valid = FALSE;
             }
 
             pageTable[vpn].valid = FALSE;
@@ -421,8 +420,8 @@ void AddrSpace::Exit(){
             /*************
             * Invalidate Entry in IPT
             ****************/
-            IPT[ppn].valid = FALSE;
-            IPT[ppn].PID = NULL;
+           // IPT[ppn].valid = FALSE;
+           // IPT[ppn].PID = NULL;
             /***End IPT */
         }
         
