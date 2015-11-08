@@ -833,7 +833,7 @@ int handleMemoryFull(){
 	}else{//If !dirty update pageTable...no need to save
 		DEBUG('M' ,"handleMemoryFull: IPT[%i] NOT dirty. Let's say the page is in EXEC.\n", ppn);
 		AddrSpace* space = IPT[ppn].PID;
-		DEBUG('M' "handleMemoryFull: PID: %i PPN: %i VPN: %i\n" space, ppn, IPT[ppn].virtualPage);
+		DEBUG('M' "handleMemoryFull: PID: %i PPN: %i VPN: %i\n", space, ppn, IPT[ppn].virtualPage);
 		space->pageTable[ IPT[ppn].virtualPage ].location = EXEC;
 		//If its going to exec it was always in exec...
 			//no need to update byteOffset...and its not dirty so don't need to change anything else.
