@@ -264,12 +264,14 @@ AddrSpace::~AddrSpace()
             //Clear any valid pages from Memory
             
            if(pageTable[i].location == MAIN){
-                DEBUG('E', "~Addrspace: Clearing pageTableBitMap and IPT: %i\n", pageTable[i].physicalPage);
+                DEBUG('E', "~Addrspace: Clearing VPN %i pageTableBitMap and IPT: %i\n", i, pageTable[i].physicalPage);
+                DEBUG('S', "~Addrspace %i: Clearing VPN %i pageTableBitMap and IPT: %i\n", currentThread->space, i, pageTable[i].physicalPage);
                 pageTableBitMap->Clear(pageTable[i].physicalPage);
                 IPT[pageTable[i].physicalPage].valid = FALSE;
            }else if(pageTable[i].location == SWAP){
                 int swapIndex = pageTable[i].byteOffset / PageSize;
                 DEBUG('E', "~Addrspace: Clearing VPN %i from SWAP page %i.\n", i, swapIndex);
+                DEBUG('S', "~Addrspace %i: Clearing VPN %i from SWAP page %i.\n", currentThread->space, i, swapIndex);
                 swapBitMap->Clear(swapIndex);
            }
            pageTable[i].valid = FALSE;
@@ -402,12 +404,14 @@ void AddrSpace::Exit(){
             if(pageTable[vpn].valid){
                 //Clear any valid pages from Memory
                 if(pageTable[vpn].location == MAIN){
-                    DEBUG('E', "Addrspace::Exit: Clearing pageTableBitMap and IPT: %i\n", pageTable[vpn].physicalPage);
+                    DEBUG('E', "Addrspace::Exit: Clearing VPN %i pageTableBitMap and IPT: %i\n",vpn, pageTable[vpn].physicalPage);
+                     DEBUG('S', "Addrspace::Exit %i: Clearing VPN %i pageTableBitMap and IPT: %i\n",vpn, pageTable[vpn].physicalPage);
                     pageTableBitMap->Clear(pageTable[vpn].physicalPage);
                     IPT[pageTable[vpn].physicalPage].valid = FALSE;
                 }else if(pageTable[vpn].location == SWAP){
                     int swapIndex = pageTable[vpn].byteOffset / PageSize;
                     DEBUG('E', "Addrspace::Exit: Clearing VPN %i from SWAP page %i.\n", vpn, swapIndex);
+                    DEBUG('S', "~Addrspace::Exit %i: Clearing VPN %i from SWAP page %i.\n", vpn, swapIndex);
                     swapBitMap->Clear(swapIndex);
                 }
                 pageTable[vpn].valid = FALSE;
@@ -428,7 +432,7 @@ void AddrSpace::Exit(){
         
     #endif
 
-
+    SaveState();//Maybe clear the TLB...should just clear an entry if its there, this is simpler.
     (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 
     ASSERT( stackPagesCleared == (UserStackSize / PageSize) );

@@ -786,6 +786,7 @@ int writePageToSwap(int ppn){
 		byteOffset = swapIndex * PageSize;
 
 		swapFile->WriteAt(&(machine->mainMemory[PageSize * ppn]), PageSize, byteOffset);
+		DEBUG('S', "WritePageToSwap: Wrote space %i VPN %i from PPN %i to SWAP page %i\n",IPT[ppn].PID, IPT[ppn].virtualPage, ppn, swapIndex);
 	}
 	return byteOffset;
 }
@@ -794,6 +795,7 @@ void readPageFromSwapToPPN(int byteOffset, int ppn){
 	int swapIndex = byteOffset / PageSize;
 	swapBitMap->Clear(swapIndex);
 	swapFile->ReadAt(&(machine->mainMemory[PageSize * ppn]), PageSize, byteOffset);
+	 DEBUG('S', "readPageFromSwapToPPN swap %i to ppn %i\n", swapIndex, ppn);
 }
 
 
@@ -868,6 +870,7 @@ int handleIPTmiss(int vpn){
 		//Read from swap to mainmemory
 		DEBUG('P', "IPT miss vpn %i reading from swap.\n", vpn);
 		readPageFromSwapToPPN(space->pageTable[vpn].byteOffset, ppn);
+		DEBUG('S', "IPTMiss for space %i vpn %i to ppn\n",space, vpn, ppn);
 		//clear swapFileBitmap
 	}else if(space->pageTable[vpn].location == VOID){
 		DEBUG('P', "IPT miss vpn %i its nowhere.\n", vpn);
