@@ -776,6 +776,10 @@ int writePageToSwap(int ppn){
 	int byteOffset = -1;
 	if(IPT[ppn].valid && IPT[ppn].dirty){
 		int swapIndex = swapBitMap->Find();
+		if(swapIndex == -1){
+			printf("FATAL ERROR: SwapFile Full. Please increase the size of the swap file.\n");
+			interrupt->Halt();
+		}
 		
 		byteOffset = swapIndex * PageSize;
 
