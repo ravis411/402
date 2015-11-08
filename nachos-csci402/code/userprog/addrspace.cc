@@ -389,7 +389,7 @@ void AddrSpace::Exit(){
     //memoryBitMap->Clear(ppn)
     //valid = false
 
-    //We need to find where our 8 pages are...This should not be dont like this...but whatever for now...
+    //We need to find where our 8 pages are...This should not be done like this...but whatever for now...?
 
 
     #ifdef THREADTABLE
@@ -397,6 +397,22 @@ void AddrSpace::Exit(){
             int vpn = threadTable[currentThread->getThreadID()]->stackPages[i];
             int ppn = pageTable[vpn].physicalPage;
             DEBUG('E', "Clearing stack page, vpn: %i, for threadID: %i\n", vpn, currentThread->getThreadID());
+
+            if(pageTable[i].valid){
+                //Clear any valid pages from Memory
+
+                if(pageTable[i].location == MAIN){
+                    DEBUG('E', "Addrspace::Exit: Clearing pageTableBitMap and IPT: %i\n", pageTable[i].physicalPage);
+                    pageTableBitMap->Clear(pageTable[i].physicalPage);
+                    IPT[pageTable[i].physicalPage].valid = FALSE;
+                }else if(pageTable[i].location == SWAP){
+                    int swapIndex = pageTable[i].byteOffset / PageSize;
+                    DEBUG('E', "Addrspace::Exit: Clearing VPN %i from SWAP page %i.\n", i, swapIndex);
+                    swapBitMap->Clear(swapIndex);
+                }
+                pageTable[i].valid = FALSE;
+            }
+
             pageTable[vpn].valid = FALSE;
            // pageTableBitMap->Clear( ppn );
             pageTable[vpn].physicalPage = -1;
