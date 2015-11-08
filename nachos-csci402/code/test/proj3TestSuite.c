@@ -21,7 +21,7 @@ main()
     PrintString("\tPlease note: This may take some time.\n\n", sizeof("\tPlease note: This may take some time.\n\n"));
 
 	Exec(matFileName, sizeof(matFileName));
-	Exec(matFileName, sizeof(matFileName));
+	/*Exec(matFileName, sizeof(matFileName));*/
 	Exec(sortFileName, sizeof(sortFileName));
 
 	Exit(0);
