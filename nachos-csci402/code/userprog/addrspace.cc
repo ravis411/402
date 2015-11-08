@@ -301,7 +301,7 @@ AddrSpace::Fork(int nextInstruction)
     IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
     unsigned int newNumPages = numPages + divRoundUp(UserStackSize,PageSize);
-    ASSERT(newNumPages <= NumPhysPages);       // check we're not trying to run anything too big --
+    //ASSERT(newNumPages <= NumPhysPages);       // check we're not trying to run anything too big --
 
     //copy old table
     PageTableEntry* newPageTable = new PageTableEntry[newNumPages];
