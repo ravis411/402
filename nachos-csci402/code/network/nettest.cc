@@ -102,6 +102,8 @@ void Client(){
         printf("Client sending: %s\n", msg);
         postOffice->Send(outPktHdr, outMailHdr, msg);
     }
+
+    interrupt->Halt();
 }
 
 
@@ -128,7 +130,7 @@ void Server(){
         //Send reply
         outPktHdr.to = inPktHdr.from;
         outMailHdr.to = inMailHdr.from;
-        outMailHdr.length = 0;
+        outMailHdr.length = 1;
         success = postOffice->Send(outPktHdr, outMailHdr, "");
 
         if(!success){
