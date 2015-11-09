@@ -465,7 +465,7 @@ void clientSendMail(char* msg){
 //
 //	Lock Syscalls
 ///////////////////////////////////////////////////////////////////////////////////////////
-#define MaxNameLen 20;
+#define MaxNameLen 20
 
 ///////////////////////////////
 // Creates the Lock
@@ -565,6 +565,7 @@ void Acquire_Syscall(int lock){
 	stringstream rs;
 	rs << buffer;
 
+	bool success;
 	rs >> success;
 	if(!success){
 		printf("Acquire Error: Unable to Acquire Lock.\n");
@@ -631,9 +632,9 @@ ConditionTableEntry* ConditionTable[ConditionTableSize];
 
 bool Condition_Syscall_InputValidation(int cond, int lock){
 
-	if(!Lock_Syscall_InputValidation(lock)){
-	 return FALSE;
-	}
+	//if(!Lock_Syscall_InputValidation(lock)){
+	// return FALSE;
+	//}
 
 	if(cond < 0 || cond >= ConditionTableSize){
 		printf("Invalid Condition Identifier: %i ", cond);
@@ -654,7 +655,7 @@ bool Condition_Syscall_InputValidation(int cond, int lock){
 
 
 
-int CreateCondition_Syscall(){
+int CreateCondition_Syscall(){/*
 	DEBUG('C', "In CreateCondition_Syscall\n");
 	
 	int conID = ConditionTableBitMap.Find();
@@ -671,10 +672,10 @@ int CreateCondition_Syscall(){
 
 	ConditionTable[conID]	= ce;
 
-	return conID;
+	return conID;*/
 }
 
-void Wait_Syscall(int condition, int lock){
+void Wait_Syscall(int condition, int lock){/*
 	DEBUG('C', "In Wait_Syscall\n");
 
 	if(!Condition_Syscall_InputValidation(condition, lock)){
@@ -683,12 +684,12 @@ void Wait_Syscall(int condition, int lock){
 	}
 
 	ConditionTableEntry* ce = ConditionTable[condition];
-	LockTableEntry* le = lockTable[lock];
+	//LockTableEntry* le = lockTable[lock];
 
-	ce->condition->Wait(le->lock);
+	ce->condition->Wait(le->lock);*/
 }
 
-void Signal_Syscall(int condition, int lock){
+void Signal_Syscall(int condition, int lock){/*
 	DEBUG('C', "In Signal_Syscall\n");
 
 	if(!Condition_Syscall_InputValidation(condition, lock)){
@@ -697,7 +698,7 @@ void Signal_Syscall(int condition, int lock){
 	}
 
 	ConditionTableEntry* ce = ConditionTable[condition];
-	LockTableEntry* le = lockTable[lock];
+	//LockTableEntry* le = lockTable[lock];
 
 	ce->condition->Signal(le->lock);
 
@@ -709,11 +710,11 @@ void Signal_Syscall(int condition, int lock){
 		delete ce;
 		ConditionTableBitMap.Clear(condition);
 	}
-
+*/
 }
 
 void Broadcast_Syscall(int condition, int lock){
-	DEBUG('C', "In Broadcast_Syscall\n");
+	/*DEBUG('C', "In Broadcast_Syscall\n");
 
 	if(!Condition_Syscall_InputValidation(condition, lock)){
 		printf("Unable to Broadcast.\n");
@@ -721,7 +722,7 @@ void Broadcast_Syscall(int condition, int lock){
 	}
 
 	ConditionTableEntry* ce = ConditionTable[condition];
-	LockTableEntry* le = lockTable[lock];
+	//LockTableEntry* le = lockTable[lock];
 
 	ce->condition->Broadcast(le->lock);
 
@@ -733,10 +734,10 @@ void Broadcast_Syscall(int condition, int lock){
 		ce->condition = NULL;
 		delete ce;
 		ConditionTableBitMap.Clear(condition);
-	}
+	}*/
 }
 
-void DestroyCondition_Syscall(int condition){
+void DestroyCondition_Syscall(int condition){/*
 	DEBUG('C', "In DestroyCondition_Syscall\n");
 
 	ConditionTableEntry* ce = ConditionTable[condition];
@@ -752,7 +753,7 @@ void DestroyCondition_Syscall(int condition){
 		ConditionTableBitMap.Clear(condition);
 		DEBUG('C', "Condition %i deleted.\n", condition);
 	}
-
+*/
 }
 
 int Rand_Syscall(){
