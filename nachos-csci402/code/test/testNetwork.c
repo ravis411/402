@@ -35,6 +35,12 @@ int main() {
   PrintString("\n", 1);
 
   Acquire(lock1);
+
+  for(i = 0; i < Rand() %800 + 900){
+    Yield();
+  }
+
+
   for(i = 0; i < 20; i++){
     PrintInt(i);
     PrintString(" ", 1);
