@@ -87,29 +87,41 @@ MailTest(int farAddr)
     interrupt->Halt();
 }
 
-void Client(){
-    printf("Starting nachos client.\n");
-    char buffer[MaxMailSize];
-    PacketHeader outPktHdr, inPktHdr;
-    MailHeader outMailHdr, inMailHdr;
+
+
+
+
+
+
+
+
+
+
+/////////////
+//  sendMail
+// 
+//  Sends the given mail message prints an error on failure.
+///////////////////////////
+void sendMail(char* msg, int pktHdr, int mailHdr){
+    PacketHeader outPktHdr;
+    MailHeader outMailHdr;
     outMailHdr.from = 0;
 
-    for(int i = 0; i < 5; i++){
-        stringstream ss;
-        ss << "Hello # ";
-        ss << i;
-        
-        char *msg = (char*) ss.str().c_str();
+    outMailHdr.to = mailHdr;
+    outPktHdr.to = pktHdr;
+    outMailHdr.length = strlen(msg) + 1;
 
-        outPktHdr.to = 0;
-        outMailHdr.to = 0;
-        outMailHdr.length = strlen(msg) + 1;
-        printf("Client sending: %s\n", msg);
-        postOffice->Send(outPktHdr, outMailHdr, msg);
+    bool success = postOffice->Send(outPktHdr, outMailHdr, ack); 
+
+    if ( !success ) {
+      printf("Failed to send message to machine %i mailbox %i with message %s !\n", pktHdr, mailHdr, msg);
     }
-
-    interrupt->Halt();
 }
+
+
+
+
+
 
 
 //////////////////////LOCKS//////////////////
@@ -130,19 +142,37 @@ class ServerLock{
 public:
     SERVERLOCKSTATE state;
     string name;
-    int OwnerMachineID;
-    int OwnerMailboxNumber;
+    int ownerMachineID;
+    int ownerMailboxNumber;
     List *q;
+    bool isToBeDestroyed;
     ServerLock(){
         q = new List();
         state = FREE;
+        isToBeDestroyed = FALSE;
     }
     ~ServerLock(){
         delete q;
     }
+    bool isOwner(int machineID, int mailbox){
+        return (ownerMachineID == machineID) && (ownerMailboxNumber == mailbox) && state == BUSY;
+    }
 };
 
 vector<ServerLock*> serverLocks; //The table of locks
+
+
+bool checkIfLockIDExists(int lockID){
+    //Check if lock exists.
+    if(lockID >= (int)serverLocks.size() || lockID < 0){
+        printf("LockID %i does not exist.\n", lockID);
+        return FALSE;
+    }else if(serverLocks[lockID] == NULL){
+        printf("LockID %i no longer exists.\n", lockID);
+        return FALSE;
+    }
+    return TRUE;
+}
 
 ////////////
 // Trys to find a lock with the given name
@@ -180,6 +210,116 @@ int getLockNamed(string name){
     }
     return index;
 }
+
+void checkLockAndDestroy(int lockID){
+    ServerLock* l;
+
+    if(!checkIfLockIDExists(lockID)){return;}
+    
+    l = serverLocks[lockID];
+
+    if(l->isToBeDestroyed && l->state == FREE){
+        //Destroy the lock
+        serverLocks[i] = NULL;
+        delete l;
+        serverLockTableBitMap.Clear(lockID);
+        printf("Destroyed LockID: %i.\n", lockID);
+    }
+
+}
+
+
+void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
+    bool status;
+    char* msg;
+    ServerLock* l;
+    stringstream rs;
+
+    //Check if lock exists.
+    status = checkIfLockIDExists(lockID);
+
+    rs << status;
+    char* msg = (char*) rs.str().c_str();
+
+    if(!status){
+        sendMail(msg, pktHdr, mailHdr);
+        return;
+    }
+
+    l = serverLocks[lockID];
+
+    if(l->isOwner(pktHdr, mailHdr)){
+        //We already own the lock...
+        sendMail(msg, pktHdr, mailHdr);
+    }else if(l->state == BUSY){
+        //Lock busy add request to q
+        ServerReplyMsg* r = new ServerReplyMsg();
+        r->pktHdr = pktHdr;
+        r->mailHdr = mailHdr;
+        r->msg = msg;
+        l->q->Append((void*)r);
+    }else if(l->state == FREE){
+        l->state = BUSY;
+        l->ownerMachineID = pktHdr;
+        l->ownerMailboxNumber = mailHdr;
+
+        //Send reply
+        sendMail(msg, pktHdr, mailHdr);
+    }
+}
+
+
+
+void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
+    ServerLock* l;
+
+    //Check if lock exists.
+   if(!checkIfLockIDExists(lockID)){return;}
+
+    l = serverLocks[lockID];
+
+
+    if(! (l->isOwner(pktHdr, mailHdr)) ){
+        //Only the lock owner can release the lock
+        printf("Only the lock owner can release the lock.\n");
+        return;
+    }else if(! (l->q->IsEmpty()) ){//Someone else waiting to acquire the lock
+        ServerReplyMsg* r = (ServerReplyMsg*)(l->q->Remove());
+        l->ownerMachineID = r->pktHdr;
+        l->ownerMailboxNumber = r->mailHdr;
+        sendMail(r->msg, r->pktHdr, r->mailHdr);
+        delete r;
+    }else{//The lock is now free
+        l->state = FREE;
+        checkLockAndDestroy(lockID);
+    }
+}
+
+
+void serverDestroyLock(int lockID){
+     ServerLock* l;
+
+    if(!checkIfLockIDExists(lockID)){return;}
+
+    l = serverLocks[lockID];
+
+    //mark for deletion.
+    l->isToBeDestroyed = TRUE;
+    checkLockAndDestroy(lockID);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //////////////////////////////////////////////
@@ -253,7 +393,38 @@ void Server(){
             if(!success){
                 printf("Failed to reply to machine %d.\n", outPktHdr.to);
             }
+        
+
+
+        }//SC_Acquire
+        else if(which == SC_Acquire){
+
+            int lockID;
+            ss >> lockID;
+
+            serverAcquireLock(lockID, inPktHdr.from, inMailHdr.from);
+        
+
         }
+        else if(which == SC_Release){
+            int lockID;
+            ss >> lockID;
+
+            serverReleaseLock(lockID, inPktHdr.from, inMailHdr.from);
+        
+
+        }
+        else if (which == SC_DestroyLock){
+            int lockID;
+            ss >> lockID;
+
+            serverDestroyLock(lockID);
+
+
+        }
+
+
+
 
 
 

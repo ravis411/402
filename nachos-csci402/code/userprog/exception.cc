@@ -498,19 +498,27 @@ bool Lock_Syscall_InputValidation(int lock){
 
 	return lockTableIndex;
 }*/
+
+#define MaxNameLen 20;
+
 int CreateLock_Syscall(unsigned int vaddr, int len){
 	char *buf;		// Kernel buffer for input
 	char buffer[MaxMailSize];
 	PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     outMailHdr.from = 0;
+
+    if(len > MaxNameLen){
+    	printf("LockName greater than MaxNameLen %i. Use a shorter name.\n", MaxNameLen);
+    	return -1;
+    }
 	
 	if ( !(buf = new char[len]) ) {
-		printf("%s","Error allocating kernel buffer for write!\n");
+		printf("%s","Error allocating kernel buffer!\n");
 		return -1;
 	} else {
 		if ( copyin(vaddr,len,buf) == -1 ) {
-			printf("%s","Bad pointer passed to to PrintString: data not pinted.\n");
+			printf("%s","Bad pointer passed to to CreateLock.\n");
 			delete[] buf;
 			return -1;
 		}
@@ -533,7 +541,6 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	ss << name;
 
 	char *msg = (char*) ss.str().c_str();
-	printf("Sending message: %s\n", msg);
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
 	outMailHdr.length = strlen(msg) + 1;
@@ -563,16 +570,43 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 *	Acquire the lock
 */
 void Acquire_Syscall(int lock){
-	DEBUG('L', "In Acquire_Syscall\n");
+	char buffer[MaxMailSize];
+	PacketHeader outPktHdr, inPktHdr;
+    MailHeader outMailHdr, inMailHdr;
+    outMailHdr.from = 0;
 
-	if(!Lock_Syscall_InputValidation(lock)){
-	 printf("Unable to Acquire.\n");
-	 return;
+    if(lock < 0){
+    	printf("Invalid LockID %i. Unable to acquire.\n", lock);
+    	return;
+    }
+
+	stringstream ss;
+
+	ss << SC_Acquire;
+	ss << " ";
+	ss << lock;
+
+	char *msg = (char*) ss.str().c_str();
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if(!success){
+		printf("Failed to send message!!?!!\n");
+		interrupt->Halt();
 	}
 
-	DEBUG('L', "Acquiring lock.\n");
-	lockTable[lock]->lock->Acquire();
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
 
+	stringstream rs;
+	rs << buffer;
+
+	rs >> success;
+	if(!success){
+		printf("Acquire Error: Unable to Acquire Lock.\n");
+	}
+
+	return;
 }
 
 /*****************

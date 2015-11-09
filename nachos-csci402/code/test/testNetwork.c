@@ -27,6 +27,12 @@ int main() {
   PrintInt(lock1);
   PrintString("\n", 1);
 
+  lock2 = CreateLock("Lock2", sizeof("Lock2") );
+
+  PrintString("Got lockID: ", sizeof("Got lockID: "));
+  PrintInt(lock2);
+  PrintString("\n", 1);
+
 
 	PrintString("Done.\n", sizeof("Done.\n"));
   Exit(0);
