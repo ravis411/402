@@ -29,6 +29,9 @@
 #include <string>
 #include "synch.h"
 #include "bitmap.h"
+#include "network.h"
+#include "post.h"
+#include <sstream>
 using namespace std;
 
 int copyin(unsigned int vaddr, int len, char *buf) {
@@ -477,7 +480,7 @@ bool Lock_Syscall_InputValidation(int lock){
 ///////////////////////////////
 // Creates the Lock
 ///////////////////////////////
-int CreateLock_Syscall(){
+/*int CreateLock_Syscall(){
 	DEBUG('L', "In CreateLock_Syscall\n");
 
 	int lockTableIndex = lockTableBitMap.Find();
@@ -494,6 +497,42 @@ int CreateLock_Syscall(){
 	lockTable[lockTableIndex] = te;
 
 	return lockTableIndex;
+}*/
+int CreateLock_Syscall(unsigned int vaddr, int len){
+	char *buf;		// Kernel buffer for output
+	
+	if ( !(buf = new char[len]) ) {
+		printf("%s","Error allocating kernel buffer for write!\n");
+		return;
+	} else {
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed to to PrintString: data not pinted.\n");
+			delete[] buf;
+			return;
+		}
+	}
+
+	string name = "";
+	for(int i = 0; i < len; i++){
+		if(buf[i] == ' '){
+			printf("Invalid name passed to CreateLock. Aborting...\n");
+			ASSERT(FALSE);
+		}
+		name += buf[i];
+	}
+	delete[] buf;
+
+	stringstream ss;
+
+	ss << SC_CreateLock;
+	ss << " ";
+	ss << name;
+
+	char *msg = (char*) ss.str().c_str();
+	outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	postOffice->Send(outPktHdr, outMailHdr, msg);
 }
 
 
@@ -1073,7 +1112,7 @@ void ExceptionHandler(ExceptionType which) {
 
 		case SC_CreateLock:
 			DEBUG('a', "CreateLock syscall.\n");
-			rv = CreateLock_Syscall();
+			rv = CreateLock_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
 		break;
 
 		case SC_Acquire:

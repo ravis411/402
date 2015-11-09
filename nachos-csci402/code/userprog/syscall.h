@@ -150,7 +150,7 @@ void PrintString(char* vaddr, int size);
 /********************************
 *	Create lock...creates a lock and returns and integer representation.
 */
-int CreateLock();
+int CreateLock(char *name, int size);
 
 
 /***********************
@@ -169,7 +169,7 @@ void DestroyLock(int lock);
 *	Condition Syscalls
 *
 **************************/
-int CreateCondition();
+int CreateCondition(char* name, int size);
 void Wait(int condition, int lock);
 void Signal(int condition, int lock);
 void Broadcast(int condition, int lock);

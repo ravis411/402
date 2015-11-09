@@ -31,7 +31,7 @@ CPP = $(GCCDIR)cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition passportOffice twoPassportOffices proj3TestSuite testVirtualMemory
+all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition passportOffice twoPassportOffices proj3TestSuite testVirtualMemory testNetwork
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -117,6 +117,12 @@ testVirtualMemory.o: testVirtualMemory.c
 testVirtualMemory: testVirtualMemory.o start.o
 	$(LD) $(LDFLAGS) start.o testVirtualMemory.o -o testVirtualMemory.coff
 	../bin/coff2noff testVirtualMemory.coff testVirtualMemory
+
+testNetwork.o: testNetwork.c
+	$(CC) $(CFLAGS) -c testNetwork.c
+testNetwork: testNetwork.o start.o
+	$(LD) $(LDFLAGS) start.o testNetwork.o -o testNetwork.coff
+	../bin/coff2noff testNetwork.coff testNetwork
 
 
 clean:

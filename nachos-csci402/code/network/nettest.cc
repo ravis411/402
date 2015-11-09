@@ -23,6 +23,7 @@
 #include "post.h"
 #include "interrupt.h"
 #include <sstream>
+#include <string>
 using namespace std;
 
 // Test out message delivery, by doing the following:
@@ -109,6 +110,33 @@ void Client(){
 
 
 
+
+
+
+
+
+
+//////////////////////////////////////////////
+/// Server()
+///
+/// The nachos network server
+///
+/// Handles all network related syscalls
+///
+/// CreateLock, Acquire, Release, DestroyLock
+/// CreateCV, Wait, Signal, Broadcast, DestroyCV
+/// CreateMV, SetMV, GetMV, DestroyMV
+////////////////////////////////////////////////
+/*SC_CreateLock
+SC_Acquire
+SC_Release
+SC_DestroyLock
+SC_CreateCondition
+SC_Wait
+SC_Signal
+SC_Broadcast
+SC_DestroyCondition*/
+
 void Server(){
     printf("Starting nachos network server.\n");
     char buffer[MaxMailSize];
@@ -129,6 +157,39 @@ void Server(){
         ss << buffer;
         printf("Server: Received Message from %d: %s\n", inPktHdr.from, ss.str().c_str());
         fflush(stdout);
+
+
+        int which << ss;
+
+        switch(which){
+            case SC_CreateLock:
+                string lockName << ss;
+                printf("Attempting to create lock named %s\n", lockName);
+            break;
+            case SC_Acquire:
+
+            break;
+            case SC_Release:
+
+            break;
+            case SC_DestroyLock:
+
+            break;
+
+            case SC_CreateCondition:
+
+            break;
+            case SC_Wait:
+
+            break;
+            default:
+                printf("Unrecognized request.\n");
+            break;
+        }
+
+
+
+
 
         //Send reply
         outPktHdr.to = inPktHdr.from;
