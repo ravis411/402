@@ -673,6 +673,7 @@ int CreateCondition_Syscall(){/*
 	ConditionTable[conID]	= ce;
 
 	return conID;*/
+	return -1;
 }
 
 void Wait_Syscall(int condition, int lock){/*
@@ -1169,7 +1170,7 @@ void ExceptionHandler(ExceptionType which) {
 		break;
 
 		case SC_Sleep:
-			DEBUG('a' "Sleep/Delay syscall.\n");
+			DEBUG('a', "Sleep/Delay syscall.\n");
 			Sleep_Syscall(machine->ReadRegister(4));
 			break;
 
