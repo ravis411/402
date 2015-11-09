@@ -173,12 +173,12 @@ int getLockNamed(string name){
         printf("getLock: index = %i.\n", index);
         if(index == -1){
             printf("Max Number of locks created. lockTableSize: %i\n", lockTableSize);
-        }else{
-            printf("getLock: Got to assignment.\n");
-            serverLocks[index] = l;
-
+            return index;
         }
-
+        
+        printf("getLock: Got to assignment.\n");
+        serverLocks[index] = l;
+        
     }
     printf("getLock: Returning %i.\n", index);
     return index;
