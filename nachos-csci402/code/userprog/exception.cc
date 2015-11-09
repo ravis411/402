@@ -511,7 +511,7 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 		if ( copyin(vaddr,len,buf) == -1 ) {
 			printf("%s","Bad pointer passed to to PrintString: data not pinted.\n");
 			delete[] buf;
-			return;
+			return -1;
 		}
 	}
 
@@ -536,6 +536,8 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	outMailHdr.to = 0;
 	outMailHdr.length = strlen(msg) + 1;
 	postOffice->Send(outPktHdr, outMailHdr, msg);
+
+	return -1;
 }
 
 
