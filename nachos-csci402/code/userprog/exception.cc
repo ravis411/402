@@ -803,7 +803,7 @@ void readPageFromSwapToPPN(int byteOffset, int ppn){
 /////////////
 void removePageFromFIFOQ(int ppn){
 	//Remove this page from the eviction Q
-	for(int i = 0; i < FIFOList.size(); i++){
+	for(unsigned int i = 0; i < FIFOList.size(); i++){
 		if(FIFOList[i] == ppn){
 			FIFOList.erase(FIFOList.begin()+i);
 			return;

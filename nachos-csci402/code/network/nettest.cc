@@ -80,3 +80,47 @@ MailTest(int farAddr)
     // Then we're done!
     interrupt->Halt();
 }
+
+void Client(){
+    char buffer[MaxMailSize];
+    PacketHeader outPktHdr, inPktHdr;
+    MailHeader outMailHdr, inMailHdr;
+
+    for(int i = 0; i < 5; i++){
+        buffer = "Hello #" + i;
+        outPktHdr.to = 0;
+        outMailHdr.to = 0;
+        outMailHdr.length = strlen(buffer) + 1;
+        postOffice->Send(outPktHdr, outMailHdr, buffer);
+    }
+}
+
+
+
+void Server(){
+    char buffer[MaxMailSize];
+    PacketHeader outPktHdr, inPktHdr;
+    MailHeader outMailHdr, inMailHdr;
+
+    while(TRUE){
+        //Revieve a msg
+        //Parse msg
+        //Process msg
+        //Reply(maybe)
+
+        postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer)
+
+        printf("Server: Received Message from %d: %s\n", inPktHdr.from, buffer);
+        fflush(stdout);
+
+        //Send reply
+        outPktHdr.to = inPktHdr.from;
+        outMailHdr.to = inMailHdr.from;
+        outMailHdr.length = 0;
+        success = postOffice->Send(outPktHdr, outMailHdr, "");
+
+        if(!success){
+            printf("Failed to reply to machine %d\n", outPktHdr.to);
+        }
+    }//End whileLOOP
+}//End Server()

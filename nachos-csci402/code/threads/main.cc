@@ -139,6 +139,10 @@ main(int argc, char **argv)
 						// start up another nachos
             MailTest(atoi(*(argv + 1)));
             argCount = 2;
+        }else if(!strcmp(*argv, "-server")){
+        	Server();
+        }else if(!strcmp(*argv, "-client")){
+        	Client();
         }
 #endif // NETWORK
     }
