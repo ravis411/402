@@ -84,6 +84,7 @@ MailTest(int farAddr)
 }
 
 void Client(){
+    printf("Starting nachos client.\n");
     char buffer[MaxMailSize];
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
@@ -105,6 +106,7 @@ void Client(){
 
 
 void Server(){
+    printf("Starting nachos network server.\n");
     char buffer[MaxMailSize];
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
