@@ -101,6 +101,7 @@ void Server(){
     char buffer[MaxMailSize];
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
+    bool success;
 
     while(TRUE){
         //Revieve a msg
@@ -108,7 +109,7 @@ void Server(){
         //Process msg
         //Reply(maybe)
 
-        postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer)
+        postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
 
         printf("Server: Received Message from %d: %s\n", inPktHdr.from, buffer);
         fflush(stdout);
