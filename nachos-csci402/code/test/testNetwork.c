@@ -46,7 +46,7 @@ int main() {
 
   Release(lock1);
 
-  Release(lock2); //We don't own lock2...
+  Release(lock2); /*We don't own lock2...*/
 
   DestroyLock(lock1);
   DestroyLock(lock2);
