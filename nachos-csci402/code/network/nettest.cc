@@ -134,7 +134,6 @@ public:
     int OwnerMailboxNumber;
     List *q;
     ServerLock(){
-        printf("ServerLock Constructor.\n");
         q = new List();
         state = FREE;
     }
@@ -222,7 +221,7 @@ void Server(){
 
         postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
         ss << buffer;
-        printf("\nServer: Received Message from %d: %s\n", inPktHdr.from, ss.str().c_str());
+        printf("\nServer: Received Message from %d: %s.\n", inPktHdr.from, ss.str().c_str());
         fflush(stdout);
 
 
@@ -238,7 +237,7 @@ void Server(){
             
             int lockID = getLockNamed(lockName);//Find or create the lock
             
-            printf("CreateLock named %s lockID %i\n", lockName.c_str(), lockID);
+            printf("CreateLock named %s lockID %i.\n", lockName.c_str(), lockID);
             
             stringstream rs;
             rs << (lockID != -1);//status
@@ -252,7 +251,7 @@ void Server(){
             outMailHdr.length = strlen(msg) + 1;
             success = postOffice->Send(outPktHdr, outMailHdr, msg);
             if(!success){
-                printf("Failed to reply to machine %d\n", outPktHdr.to);
+                printf("Failed to reply to machine %d.\n", outPktHdr.to);
             }
         }
 
