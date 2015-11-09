@@ -160,11 +160,13 @@ void Server(){
         fflush(stdout);
 
 
-        int which << ss;
+        int which;
+        ss >> which;
 
-        switch(which){
+        switch (which){
             case SC_CreateLock:
-                string lockName << ss;
+                string lockName;
+                ss >> lockName;
                 printf("Attempting to create lock named %s\n", lockName);
             break;
             case SC_Acquire:
