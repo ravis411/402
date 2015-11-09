@@ -177,7 +177,12 @@ int getLockNamed(string name){
         }
         
         printf("getLock: Got to assignment.\n");
-        serverLocks[index] = l;
+        if(index == serverLocks.size()){
+            serverLocks.push_back(l);
+        }else if(index < serverLocks.size()){
+            serverLocks[index] = l;
+        }else{ASSERT(FALSE);}
+        
         
     }
     printf("getLock: Returning %i.\n", index);
