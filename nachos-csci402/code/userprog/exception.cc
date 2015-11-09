@@ -440,68 +440,38 @@ void PrintString_Syscall(unsigned int vaddr, int len){
 
 
 
+//Utility function to send a message to the server.
+void clientSendMail(char* msg){
+	PacketHeader outPktHdr;
+    MailHeader outMailHdr;
+    outMailHdr.from = 0;
+
+    outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+
+	if(!success){
+		printf("ERROR: Failed to send message to the server.\n");
+		interrupt->Halt();
+		ASSERT(FALSE);
+	}
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 //	Lock Syscalls
 ///////////////////////////////////////////////////////////////////////////////////////////
-class LockTableEntry{
-public:
-	Lock* lock;
-	AddrSpace* space;
-	bool isToBeDeleted;
-};
-#define lockTableSize 200
-BitMap lockTableBitMap(lockTableSize);
-LockTableEntry* lockTable[lockTableSize];
-
-
-bool Lock_Syscall_InputValidation(int lock){
-	if(lock < 0 || lock >= lockTableSize){
-		printf("Invalid Lock Identifier: %i ", lock);
-		return FALSE;
-	}
-
-	LockTableEntry* lockEntry = lockTable[lock];
-
-	if(lockEntry == NULL){
-		printf("Lock %i does not exist. ", lock);
-		return FALSE;
-	}
-	if(lockEntry->space != currentThread->space){
-		printf("Lock %i does not belong to this process. ", lock);
-		return FALSE;
-	}
-	return TRUE;
-}
-
+#define MaxNameLen 20;
 
 ///////////////////////////////
 // Creates the Lock
 ///////////////////////////////
-/*int CreateLock_Syscall(){
-	DEBUG('L', "In CreateLock_Syscall\n");
-
-	int lockTableIndex = lockTableBitMap.Find();
-	if(lockTableIndex == -1){
-		printf("Max Number of Locks created. Unable to CreateLock\n");
-		return -1;
-	}
-
-	LockTableEntry* te = new LockTableEntry();
-	te->lock = new Lock("Lock " + lockTableIndex);
-	te->space = currentThread->space;
-	te->isToBeDeleted = FALSE;
-
-	lockTable[lockTableIndex] = te;
-
-	return lockTableIndex;
-}*/
-
-#define MaxNameLen 20;
-
 int CreateLock_Syscall(unsigned int vaddr, int len){
+	DEBUG('L', "In CreateLock_Syscall\n");
 	char *buf;		// Kernel buffer for input
 	char buffer[MaxMailSize];
 	PacketHeader outPktHdr, inPktHdr;
@@ -587,14 +557,8 @@ void Acquire_Syscall(int lock){
 	ss << lock;
 
 	char *msg = (char*) ss.str().c_str();
-	outPktHdr.to = 0;
-	outMailHdr.to = 0;
-	outMailHdr.length = strlen(msg) + 1;
-	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
-	if(!success){
-		printf("Failed to send message!!?!!\n");
-		interrupt->Halt();
-	}
+	
+	clientSendMail(msg);
 
 	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
 
@@ -615,50 +579,34 @@ void Acquire_Syscall(int lock){
 void Release_Syscall(int lock){
 	DEBUG('L', "In Release_Syscall\n");
 
-	if(!Lock_Syscall_InputValidation(lock)){
-	 printf("Unable to Release.\n");
-	 return;
-	}
-	
-	LockTableEntry* le = lockTable[lock];
+	if(lock < 0){
+    	printf("Invalid LockID %i. Unable to release.\n", lock);
+    	return;
+    }
 
-	DEBUG('L', "Releasing lock.\n");
-	le->lock->Release();
+	stringstream ss;
+	ss << SC_Release;
+	ss << " ";
+	ss << lock;
 	
-	if(le->isToBeDeleted && !(le->lock->isBusy()) ){
-		DEBUG('L', "Lock %i no longer busy. Deleting.\n", lock);
-		delete le->lock;
-		le->lock = NULL;
-		delete le;
-		lockTable[lock] = NULL;
-		lockTableBitMap.Clear(lock);
-	}
+	clientSendMail( (char*)ss.str().c_str() );
 
 }
 
 void DestroyLock_Syscall(int lock){
 	DEBUG('L', "In DestroyLock_Syscall\n");
 
-	if(!Lock_Syscall_InputValidation(lock)){
-	 printf("Unable to DestroyLock.\n");
-	 return;
-	}
+	if(lock < 0){
+    	printf("Invalid LockID %i. Unable to destroy.\n", lock);
+    	return;
+    }
 
-	LockTableEntry* le = lockTable[lock];
-
-	if((le->lock->isBusy()) ){
-		le->isToBeDeleted = TRUE;
-		DEBUG('L', "Lock %i BUSY marking for deletion.\n", lock);
-	}else{
-		delete le->lock;
-		le->lock = NULL;
-		delete le;
-		lockTable[lock] = NULL;
-		lockTableBitMap.Clear(lock);
-		DEBUG('L', "Lock %i deleted.\n", lock);
-	}
-
-
+	stringstream ss;
+	ss << SC_DestroyLock;
+	ss << " ";
+	ss << lock;
+	
+	clientSendMail( (char*)ss.str().c_str() );
 }
 
 
