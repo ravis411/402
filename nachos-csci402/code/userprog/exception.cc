@@ -536,7 +536,10 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
 	outMailHdr.length = strlen(msg) + 1;
-	postOffice->Send(outPktHdr, outMailHdr, msg);
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	if(!success){
+		printf("Failed to send message!!?!!\n");
+	}
 
 	return -1;
 }
