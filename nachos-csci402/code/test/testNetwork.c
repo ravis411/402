@@ -37,7 +37,7 @@ int main() {
   Acquire(lock1);
   for(i = 0; i < 20; i++){
     PrintInt(i);
-    PrintString(" ", 1)
+    PrintString(" ", 1);
   }
 
   Release(lock1);

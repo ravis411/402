@@ -111,7 +111,7 @@ void sendMail(char* msg, int pktHdr, int mailHdr){
     outPktHdr.to = pktHdr;
     outMailHdr.length = strlen(msg) + 1;
 
-    bool success = postOffice->Send(outPktHdr, outMailHdr, ack); 
+    bool success = postOffice->Send(outPktHdr, outMailHdr, msg); 
 
     if ( !success ) {
       printf("Failed to send message to machine %i mailbox %i with message %s !\n", pktHdr, mailHdr, msg);
@@ -220,7 +220,7 @@ void checkLockAndDestroy(int lockID){
 
     if(l->isToBeDestroyed && l->state == FREE){
         //Destroy the lock
-        serverLocks[i] = NULL;
+        serverLocks[lockID] = NULL;
         delete l;
         serverLockTableBitMap.Clear(lockID);
         printf("Destroyed LockID: %i.\n", lockID);
@@ -239,7 +239,7 @@ void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
     status = checkIfLockIDExists(lockID);
 
     rs << status;
-    char* msg = (char*) rs.str().c_str();
+    msg = (char*) rs.str().c_str();
 
     if(!status){
         sendMail(msg, pktHdr, mailHdr);
