@@ -119,7 +119,7 @@ void Server(){
 
         postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
         ss << buffer;
-        printf("Server: Received Message from %d: %s\n", inPktHdr.from, ss.str());
+        printf("Server: Received Message from %d: %s\n", inPktHdr.from, ss.str().c_str());
         fflush(stdout);
 
         //Send reply
