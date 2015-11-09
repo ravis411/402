@@ -99,6 +99,7 @@ void Client(){
         outPktHdr.to = 0;
         outMailHdr.to = 0;
         outMailHdr.length = strlen(msg) + 1;
+        printf("Client sending: %s\n", msg);
         postOffice->Send(outPktHdr, outMailHdr, msg);
     }
 }
