@@ -167,7 +167,7 @@ void Server(){
             case SC_CreateLock:
                 string lockName;
                 ss >> lockName;
-                printf("Attempting to create lock named %s\n", lockName);
+                printf("Attempting to create lock named %s\n", lockName.c_str());
             break;
             case SC_Acquire:
 
@@ -178,7 +178,6 @@ void Server(){
             case SC_DestroyLock:
 
             break;
-
             case SC_CreateCondition:
 
             break;
