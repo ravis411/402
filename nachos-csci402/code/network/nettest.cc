@@ -25,6 +25,8 @@
 #include <sstream>
 #include <string>
 #include "syscall.h"    //For the SC_syscall defines
+#include "list.h"
+#include "bitmap.h"
 using namespace std;
 
 // Test out message delivery, by doing the following:
@@ -110,11 +112,67 @@ void Client(){
 }
 
 
+//////////////////////LOCKS//////////////////
+//////////
+#define lockTableSize 200
+BitMap serverLockTableBitMap(lockTableSize);
 
+class ServerReplyMsg{
+public:
+    int pktHdr;
+    int mailHdr;
+    char* msg;
+};
 
+enum SERVERLOCKSTATE {FREE, BUSY};
 
+class ServerLock{
+public:
+    SERVERLOCKSTATE state;
+    string name;
+    int OwnerMachineID;
+    int OwnerMailboxNumber;
+    List *q;
+    ServerLock(){
+        q = new List();
+        state = FREE;
+    }
+    ~ServerLock(){
+        delete q;
+    }
+};
 
+vector<ServerLock*> serverLocks; //The table of locks
 
+////////////
+// Trys to find a lock with the given name
+// Creates one if it doesn't exist.
+int getLockNamed(string name){
+    int index = -1;
+    for(unsigned int i = 0; i < serverLocks.size(); i++){
+        if(serverLocks[i] != NULL){
+            if(serverLocks[i]->name == name){
+                index = (int)i;
+                break;
+            }
+        }
+    }
+
+    if(index == -1){
+        //Lock doesn't exist yet...need to create it.
+        ServerLock* l = new ServerLock();
+        l->name = name;
+        index = serverLockTableBitMap.Find();
+        if(index == -1){
+            printf("Max Number of locks created. lockTableSize: %i\n", lockTableSize);
+        }else{
+            serverLocks[index] = l;
+        }
+
+    }
+
+    return index;
+}
 
 
 //////////////////////////////////////////////
@@ -164,20 +222,17 @@ void Server(){
         ss >> which;
 
 
+
         // SC_CreateLock
         if(which == SC_CreateLock){
             string lockName;
             ss >> lockName;
             printf("CreateLock named %s\n", lockName.c_str());
 
-
-
-            int lockID = 5;
-
-
+            int lockID = getLockNamed(lockName);//Find or create the lock
 
             stringstream rs;
-            rs << TRUE;
+            rs << (lockID != -1);//status
             rs << " ";
             rs << lockID;
 
@@ -191,8 +246,6 @@ void Server(){
                 printf("Failed to reply to machine %d\n", outPktHdr.to);
             }
         }
-        
-
 
 
 
