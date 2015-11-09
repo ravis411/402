@@ -134,6 +134,7 @@ public:
     int OwnerMailboxNumber;
     List *q;
     ServerLock(){
+        printf("ServerLock Constructor.\n");
         q = new List();
         state = FREE;
     }
