@@ -88,6 +88,7 @@ void Client(){
     char buffer[MaxMailSize];
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
+    outMailHdr.from = 0;
 
     for(int i = 0; i < 5; i++){
         stringstream ss;
@@ -114,6 +115,8 @@ void Server(){
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     bool success;
+
+    outMailHdr.from = 0;
 
     while(TRUE){
         //Revieve a msg
