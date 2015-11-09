@@ -168,7 +168,7 @@ int getLockNamed(string name){
         //Lock doesn't exist yet...need to create it.
         ServerLock* l = new ServerLock();
         l->name = name;
-        printf("getLock: ServerLock->name: %s.\n", l->name);
+        printf("getLock: ServerLock->name: %s.\n", l->name.c_str());
         index = serverLockTableBitMap.Find();
         printf("getLock: index = %i.\n", index);
         if(index == -1){
