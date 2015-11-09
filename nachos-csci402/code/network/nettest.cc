@@ -163,11 +163,13 @@ void Server(){
         int which;
         ss >> which;
 
+        string name;
+
         switch (which){
             case SC_CreateLock:
-                string lockName;
-                ss >> lockName;
-                printf("Attempting to create lock named %s\n", lockName.c_str());
+                name;
+                ss >> name;
+                printf("Attempting to create lock named %s\n", name.c_str());
             break;
             case SC_Acquire:
 
