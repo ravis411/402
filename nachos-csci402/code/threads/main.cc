@@ -143,8 +143,6 @@ main(int argc, char **argv)
             argCount = 2;
         }else if(!strcmp(*argv, "-server")){
         	Server();
-        }else if(!strcmp(*argv, "-client")){
-        	Client();
         }
 #endif // NETWORK
     }
