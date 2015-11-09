@@ -532,6 +532,7 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	ss << name;
 
 	char *msg = (char*) ss.str().c_str();
+	printf("Sending message: %s\n", msg);
 	outPktHdr.to = 0;
 	outMailHdr.to = 0;
 	outMailHdr.length = strlen(msg) + 1;

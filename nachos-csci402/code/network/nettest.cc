@@ -167,6 +167,7 @@ void Server(){
 
         switch (which){
             case SC_CreateLock:
+                printf("CreateLock Syscall.\n");
                 name;
                 ss >> name;
                 printf("Attempting to create lock named %s\n", name.c_str());
