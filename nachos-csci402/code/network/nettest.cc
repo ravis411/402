@@ -156,22 +156,42 @@ void Server(){
 
         postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
         ss << buffer;
-        printf("Server: Received Message from %d: %s\n", inPktHdr.from, ss.str().c_str());
+        printf("\nServer: Received Message from %d: %s\n", inPktHdr.from, ss.str().c_str());
         fflush(stdout);
 
 
         int which;
         ss >> which;
 
-        string name;
+
+
+        if(which == SC_CreateLock){
+            string lockName;
+            ss >> lockName;
+            printf("CreateLock named %s\n", lockName.c_str());
+
+
+
+            int lockID = 5;
+
+            stringstream rs;
+            rs << TRUE;
+            rs << " ";
+            rs << lockID;
+
+            char *msg = (char*) rs.str().c_str();
+
+            outPktHdr.to = inPktHdr.from;
+            outMailHdr.to = inMailHdr.from;
+            outMailHdr.length = strlen(msg) + 1;
+            success = postOffice->Send(outPktHdr, outMailHdr, msg);
+            if(!success){
+                printf("Failed to reply to machine %d\n", outPktHdr.to);
+            }
+        }
 
         switch (which){
-            case SC_CreateLock:
-                printf("CreateLock Syscall.\n");
-                name;
-                ss >> name;
-                printf("Attempting to create lock named %s\n", name.c_str());
-            break;
+            
             case SC_Acquire:
 
             break;
@@ -195,7 +215,7 @@ void Server(){
 
 
 
-
+        continue;
         //Send reply
         outPktHdr.to = inPktHdr.from;
         outMailHdr.to = inMailHdr.from;

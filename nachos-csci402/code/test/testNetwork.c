@@ -23,6 +23,10 @@ int main() {
 
   lock1 = CreateLock("Lock1", sizeof("Lock1") );
 
+  PrintString("Got lockID: ", sizeof("Got lockID: "));
+  PrintInt(lock1);
+  PrintString("\n", 1);
+
 
 	PrintString("Done.\n", sizeof("Done.\n"));
   Exit(0);

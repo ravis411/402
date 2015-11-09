@@ -500,6 +500,7 @@ bool Lock_Syscall_InputValidation(int lock){
 }*/
 int CreateLock_Syscall(unsigned int vaddr, int len){
 	char *buf;		// Kernel buffer for input
+	char buffer[MaxMailSize];
 	PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     outMailHdr.from = 0;
@@ -539,9 +540,22 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	if(!success){
 		printf("Failed to send message!!?!!\n");
+		interrupt->Halt();
 	}
 
-	return -1;
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+	stringstream rs;
+	rs << buffer;
+
+	rs >> success;
+	int lockID;
+	if(success){
+		rs >> lockID;
+	}
+
+
+	return lockID;
 }
 
 
