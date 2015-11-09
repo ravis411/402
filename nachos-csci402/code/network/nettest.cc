@@ -22,7 +22,7 @@
 #include "network.h"
 #include "post.h"
 #include "interrupt.h"
-#include <stringstream>
+#include <sstream>
 using namespace std;
 
 // Test out message delivery, by doing the following:
