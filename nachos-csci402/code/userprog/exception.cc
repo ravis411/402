@@ -506,7 +506,7 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	
 	if ( !(buf = new char[len]) ) {
 		printf("%s","Error allocating kernel buffer for write!\n");
-		return;
+		return -1;
 	} else {
 		if ( copyin(vaddr,len,buf) == -1 ) {
 			printf("%s","Bad pointer passed to to PrintString: data not pinted.\n");
