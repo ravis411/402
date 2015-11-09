@@ -24,6 +24,7 @@
 #include "interrupt.h"
 #include <sstream>
 #include <string>
+#include "syscall.h"    //For the SC_syscall defines
 using namespace std;
 
 // Test out message delivery, by doing the following:
