@@ -22,6 +22,8 @@
 #include "network.h"
 #include "post.h"
 #include "interrupt.h"
+#include <stringstream>
+using namespace std;
 
 // Test out message delivery, by doing the following:
 //	1. send a message to the machine with ID "farAddr", at mail box #0
@@ -87,11 +89,16 @@ void Client(){
     MailHeader outMailHdr, inMailHdr;
 
     for(int i = 0; i < 5; i++){
-        buffer = "Hello #" + i;
+        stringstream ss;
+        ss << "Hello # ";
+        ss << i;
+        
+        char *msg = (char*) ss.str().c_str();
+
         outPktHdr.to = 0;
         outMailHdr.to = 0;
-        outMailHdr.length = strlen(buffer) + 1;
-        postOffice->Send(outPktHdr, outMailHdr, buffer);
+        outMailHdr.length = strlen(msg) + 1;
+        postOffice->Send(outPktHdr, outMailHdr, msg);
     }
 }
 
@@ -108,10 +115,11 @@ void Server(){
         //Parse msg
         //Process msg
         //Reply(maybe)
+        stringstream ss;
 
         postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
-
-        printf("Server: Received Message from %d: %s\n", inPktHdr.from, buffer);
+        ss << buffer;
+        printf("Server: Received Message from %d: %s\n", inPktHdr.from, ss);
         fflush(stdout);
 
         //Send reply
