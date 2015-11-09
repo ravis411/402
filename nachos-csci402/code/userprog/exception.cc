@@ -499,7 +499,10 @@ bool Lock_Syscall_InputValidation(int lock){
 	return lockTableIndex;
 }*/
 int CreateLock_Syscall(unsigned int vaddr, int len){
-	char *buf;		// Kernel buffer for output
+	char *buf;		// Kernel buffer for input
+	PacketHeader outPktHdr, inPktHdr;
+    MailHeader outMailHdr, inMailHdr;
+    outMailHdr.from = 0;
 	
 	if ( !(buf = new char[len]) ) {
 		printf("%s","Error allocating kernel buffer for write!\n");
