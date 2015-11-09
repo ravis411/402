@@ -36,7 +36,7 @@ int main() {
 
   Acquire(lock1);
 
-  for(i = 0; i < Rand() %800 + 900){
+  for(i = 0; i < Rand() %800 + 900; i++){
     Yield();
   }
 
