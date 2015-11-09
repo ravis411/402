@@ -164,7 +164,7 @@ void Server(){
         ss >> which;
 
 
-
+        // SC_CreateLock
         if(which == SC_CreateLock){
             string lockName;
             ss >> lockName;
@@ -173,6 +173,8 @@ void Server(){
 
 
             int lockID = 5;
+
+
 
             stringstream rs;
             rs << TRUE;
@@ -189,6 +191,13 @@ void Server(){
                 printf("Failed to reply to machine %d\n", outPktHdr.to);
             }
         }
+        
+
+
+
+
+        continue;
+        
 
         switch (which){
             
@@ -215,7 +224,7 @@ void Server(){
 
 
 
-        continue;
+        
         //Send reply
         outPktHdr.to = inPktHdr.from;
         outMailHdr.to = inMailHdr.from;
