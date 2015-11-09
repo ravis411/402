@@ -62,6 +62,7 @@ extern void StartProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
 extern void Server();
 extern void Client();
+extern bool ISSERVER;
 
 //----------------------------------------------------------------------
 // main
@@ -143,6 +144,7 @@ main(int argc, char **argv)
             argCount = 2;
         }else if(!strcmp(*argv, "-server")){
         	Server();
+        	ISSERVER = TRUE;
         }
 #endif // NETWORK
     }

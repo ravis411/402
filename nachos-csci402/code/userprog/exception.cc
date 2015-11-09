@@ -761,7 +761,9 @@ int Rand_Syscall(){
 }
 
 
-
+void Sleep_Syscall(int sec){
+	Delay(sec);
+}
 
 
 
@@ -1165,6 +1167,11 @@ void ExceptionHandler(ExceptionType which) {
 			DEBUG('a', "Rand syscall.\n");
 			rv = Rand_Syscall();
 		break;
+
+		case SC_Sleep:
+			DEBUG('a' "Sleep/Delay syscall.\n");
+			Sleep_Syscall(machine->ReadRegister(4));
+			break;
 
 	}
 

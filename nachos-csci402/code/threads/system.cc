@@ -141,7 +141,7 @@ Machine *machine;	// user program memory and registers
 #ifdef NETWORK
 PostOffice *postOffice;
 #endif
-
+bool ISSERVER;
 
 // External definition, to allow us to take a pointer to this function
 extern void Cleanup();
@@ -307,6 +307,7 @@ Initialize(int argc, char **argv)
 #endif
 
 #ifdef NETWORK
+    if(!ISSERVER && netname == 0){printf("You MUST set -m to a unique non 0 / non server number.\n"); ASSERT(FALSE);}
     postOffice = new PostOffice(netname, rely, 10);
 #endif
 }

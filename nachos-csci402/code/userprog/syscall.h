@@ -41,6 +41,7 @@
 #define SC_Broadcast		20
 #define SC_DestroyCondition 	21
 #define SC_Rand 		22
+#define SC_Sleep		23
 
 #define MAXFILENAME 256
 
@@ -179,7 +180,7 @@ void DestroyCondition(int condition);
 /*rand()*/
 int Rand();
 
-
+void Sleep(int seconds);
 
 
 

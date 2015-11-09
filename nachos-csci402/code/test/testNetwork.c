@@ -35,11 +35,9 @@ int main() {
   PrintString("\n", 1);
 
   Acquire(lock1);
-
-  for(i = 0; i < Rand() %800 + 900; i++){
-    Yield();
-  }
-
+  Acquire(lock1);
+  /*Delay to give time to start another instance.*/
+  Sleep(5);
 
   for(i = 0; i < 20; i++){
     PrintInt(i);
@@ -47,6 +45,8 @@ int main() {
   }
 
   Release(lock1);
+
+  Release(lock2); //We don't own lock2...
 
   DestroyLock(lock1);
   DestroyLock(lock2);
