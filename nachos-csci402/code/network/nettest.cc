@@ -148,17 +148,22 @@ vector<ServerLock*> serverLocks; //The table of locks
 // Trys to find a lock with the given name
 // Creates one if it doesn't exist.
 int getLockNamed(string name){
+    printf("getLock\n");
     int index = -1;
     for(unsigned int i = 0; i < serverLocks.size(); i++){
+        printf("getLock: for i=%i\n", i);
         if(serverLocks[i] != NULL){
+            printf("getLock: serverLocks[%i]=%i\n", i, serverLocks[i]);
             if(serverLocks[i]->name == name){
                 index = (int)i;
+                printf("getLock: found at index %i\n", index);
                 break;
             }
         }
     }
 
     if(index == -1){
+        printf("getLock: Not Found.\n");
         //Lock doesn't exist yet...need to create it.
         ServerLock* l = new ServerLock();
         l->name = name;
