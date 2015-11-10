@@ -169,10 +169,10 @@ vector<ServerLock*> serverLocks; //The table of locks
 bool checkIfLockIDExists(int lockID){
     //Check if lock exists.
     if(lockID >= (int)serverLocks.size() || lockID < 0){
-        printf("LockID %i does not exist.\n", lockID);
+        printf("\t\tLockID %i does not exist.\n", lockID);
         return FALSE;
     }else if(serverLocks[lockID] == NULL){
-        printf("LockID %i no longer exists.\n", lockID);
+        printf("\t\tLockID %i no longer exists.\n", lockID);
         return FALSE;
     }
     return TRUE;
@@ -202,7 +202,7 @@ int getLockNamed(string name){
         index = serverLockTableBitMap.Find();
 
         if(index == -1){
-            printf("Max Number of locks created. lockTableSize: %i\n", lockTableSize);
+            printf("\t\tMax Number of locks created. lockTableSize: %i\n", lockTableSize);
             return index;
         }
         //Add lock to the table
@@ -211,9 +211,11 @@ int getLockNamed(string name){
         }else if(index < (int)serverLocks.size()){
             serverLocks[index] = l;
         }else{ASSERT(FALSE);}
+        printf("\t\tCreated Lock.\n");
     }else{
         //ock does exist ... increment create count
         serverLocks[index]->createLockCount++;
+        printf("\t\tLock Already Exists.\n");
     }
     return index;
 }
@@ -230,7 +232,9 @@ void checkLockAndDestroy(int lockID){
         serverLocks[lockID] = NULL;
         delete l;
         serverLockTableBitMap.Clear(lockID);
-        printf("Destroyed LockID: %i.\n", lockID);
+        printf("\t\tDestroyed LockID: %i.\n", lockID);
+    }else{
+        printf("\t\tNot ready to destroy lockID: %i\n", lockID);
     }
 }
 
@@ -257,6 +261,7 @@ void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
     if(l->isOwner(pktHdr, mailHdr)){
         //We already own the lock...
         sendMail(msg, pktHdr, mailHdr);
+        printf("\t\tAlready owned.\n");
     }else if(l->state == BUSY){
         //Lock busy add request to q
         ServerReplyMsg* r = new ServerReplyMsg();
@@ -264,13 +269,14 @@ void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
         r->mailHdr = mailHdr;
         r->msg = msg;
         l->q->Append((void*)r);
+        printf("\t\tAdded to lock queue.\n");
     }else if(l->state == FREE){
         l->state = BUSY;
         l->ownerMachineID = pktHdr;
         l->ownerMailboxNumber = mailHdr;
-
         //Send reply
         sendMail(msg, pktHdr, mailHdr);
+        printf("\t\tLock Free. Sent acquire message.\n");
     }
 }
 
@@ -287,7 +293,7 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
 
     if(! (l->isOwner(pktHdr, mailHdr)) ){
         //Only the lock owner can release the lock
-        printf("Only the lock owner can release the lock.\n");
+        printf("\t\tOnly the lock owner can release the lock.\n");
         return;
     }else if(! (l->q->IsEmpty()) ){//Someone else waiting to acquire the lock
         ServerReplyMsg* r = (ServerReplyMsg*)(l->q->Remove());
@@ -295,8 +301,10 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
         l->ownerMailboxNumber = r->mailHdr;
         sendMail(r->msg, r->pktHdr, r->mailHdr);
         delete r;
+        printf("\t\tSent acquire confirmation to sleeping thread.\n");
     }else{//The lock is now free
         l->state = FREE;
+        printf("\n\nLock is now Free.\n");
         checkLockAndDestroy(lockID);
     }
 }
@@ -379,12 +387,13 @@ void Server(){
 
         // SC_CreateLock
         if(which == SC_CreateLock){
+            printf("\tCreateLock\n");
             string lockName;
             ss >> lockName;
             
             int lockID = getLockNamed(lockName);//Find or create the lock
             
-            printf("CreateLock named %s lockID %i.\n", lockName.c_str(), lockID);
+            printf("\t\tCreateLock named %s lockID %i.\n", lockName.c_str(), lockID);
             
             stringstream rs;
             rs << (lockID != -1);//status
@@ -423,7 +432,7 @@ void Server(){
 
         }
         else if (which == SC_DestroyLock){
-            printf("Destroy\n");
+            printf("\tDestroyLock:\n");
             int lockID;
             ss >> lockID;
 
@@ -434,9 +443,7 @@ void Server(){
 
 
 
-
-
-
+        printf("\n");
         continue;
         
 
