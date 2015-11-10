@@ -116,6 +116,8 @@ void sendMail(char* msg, int pktHdr, int mailHdr){
     if ( !success ) {
       printf("Failed to send message to machine %i mailbox %i with message %s !\n", pktHdr, mailHdr, msg);
     }
+
+    DEBUG('n', "Sent mail to %i:%i message:\"%s\".\n", pktHdr, mailHdr, msg);
 }
 
 
@@ -146,10 +148,12 @@ public:
     int ownerMailboxNumber;
     List *q;
     bool isToBeDestroyed;
+    int createLockCount;
     ServerLock(){
         q = new List();
         state = FREE;
         isToBeDestroyed = FALSE;
+        createLockCount = 1;
     }
     ~ServerLock(){
         delete q;
@@ -207,6 +211,9 @@ int getLockNamed(string name){
         }else if(index < (int)serverLocks.size()){
             serverLocks[index] = l;
         }else{ASSERT(FALSE);}
+    }else{
+        //ock does exist ... increment create count
+        l->createLockCount++;
     }
     return index;
 }
@@ -218,14 +225,13 @@ void checkLockAndDestroy(int lockID){
     
     l = serverLocks[lockID];
 
-    if(l->isToBeDestroyed && l->state == FREE){
+    if(l->isToBeDestroyed && l->state == FREE && l->createLockCount == 0){
         //Destroy the lock
         serverLocks[lockID] = NULL;
         delete l;
         serverLockTableBitMap.Clear(lockID);
         printf("Destroyed LockID: %i.\n", lockID);
     }
-
 }
 
 
@@ -305,6 +311,7 @@ void serverDestroyLock(int lockID){
 
     //mark for deletion.
     l->isToBeDestroyed = TRUE;
+    l->createLockCount--;
     checkLockAndDestroy(lockID);
 }
 
@@ -398,7 +405,7 @@ void Server(){
 
         }//SC_Acquire
         else if(which == SC_Acquire){
-
+            printf("\tAcquire:\n");
             int lockID;
             ss >> lockID;
 
@@ -407,6 +414,7 @@ void Server(){
 
         }
         else if(which == SC_Release){
+            printf("\tRelease:\n");
             int lockID;
             ss >> lockID;
 
@@ -415,6 +423,7 @@ void Server(){
 
         }
         else if (which == SC_DestroyLock){
+            printf("Destroy\n");
             int lockID;
             ss >> lockID;
 
