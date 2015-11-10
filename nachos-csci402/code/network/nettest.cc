@@ -213,7 +213,7 @@ int getLockNamed(string name){
         }else{ASSERT(FALSE);}
     }else{
         //ock does exist ... increment create count
-        l->createLockCount++;
+        serverLocks[index]->createLockCount++;
     }
     return index;
 }
