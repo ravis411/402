@@ -235,6 +235,38 @@ Sleep:
 	.end Sleep
 
 
+	.globl CreateMV
+	.ent 	CreateMV
+CreateMV:
+	addiu $2,$0,SC_CreateMV
+	syscall
+	j	$31
+	.end CreateMV
+
+	.globl DestroyMV
+	.ent 	DestroyMV
+DestroyMV:
+	addiu $2,$0,SC_DestroyMV
+	syscall
+	j	$31
+	.end DestroyMV
+
+	.globl Get
+	.ent 	Get
+Get:
+	addiu $2,$0,SC_Get
+	syscall
+	j	$31
+	.end Get
+
+	.globl Set
+	.ent 	Set
+Set:
+	addiu $2,$0,SC_Set
+	syscall
+	j	$31
+	.end Set
+
 
 /* dummy function to keep gcc happy */
         .globl  __main

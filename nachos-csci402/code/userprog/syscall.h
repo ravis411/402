@@ -42,6 +42,10 @@
 #define SC_DestroyCondition 	21
 #define SC_Rand 		22
 #define SC_Sleep		23
+#define SC_CreateMV		24
+#define SC_DestroyMV	25
+#define SC_Get			26
+#define	SC_Set 			27
 
 #define MAXFILENAME 256
 
@@ -182,7 +186,15 @@ int Rand();
 
 void Sleep(int seconds);
 
-
+/***************************
+*
+*	Monitor Variable Syscalls
+*
+***************************/
+int CreateMV(char* name, int len, int size);
+void DestroyMV(int mv);
+int Get(int mv, int index);
+void Set(int mv, int index, int value);
 
 
 

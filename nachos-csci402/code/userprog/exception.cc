@@ -1264,7 +1264,27 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_Sleep:
 			DEBUG('a', "Sleep/Delay syscall.\n");
 			Sleep_Syscall(machine->ReadRegister(4));
-			break;
+		break;
+
+		case SC_CreateMV:
+			DEBUG('a', "CreateMV syscall.\n");
+			CreateMV_Syscall(machine->ReadRegister(4), machine->ReadRegister(5), machine->ReadRegister(6));
+		break;
+
+		case SC_Get:
+			DEBUG('a', "Get syscall.\n");
+			Get_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
+		break;
+
+		case SC_Sleep:
+			DEBUG('a', "Set syscall.\n");
+			Set_Syscall(machine->ReadRegister(4), machine->ReadRegister(5), machine->ReadRegister(6));
+		break;
+
+		case SC_DestroyMV:
+			DEBUG('a', "DestroyMV syscall.\n");
+			DestroyMV_Syscall(machine->ReadRegister(4));
+		break;
 
 	}
 
