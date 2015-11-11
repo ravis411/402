@@ -37,7 +37,7 @@ int main() {
   Acquire(lock1);
   Acquire(lock1);
   /*Delay to give time to start another instance.*/
-  Sleep(5);
+  Sleep(3);
 
   for(i = 0; i < 20; i++){
     PrintInt(i);
