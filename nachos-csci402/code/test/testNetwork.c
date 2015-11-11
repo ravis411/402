@@ -43,7 +43,7 @@ int main() {
     PrintInt(i);
     PrintString(" ", 1);
     /*Random Chance of Delay*/
-    if(true){
+    if(1){
       Sleep(1);
     }
   }
