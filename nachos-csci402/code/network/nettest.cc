@@ -428,7 +428,7 @@ void serverCreateCV(string name, int pktHdr, int mailHdr){
     stringstream rs;
     rs << index;
 
-    sendMail(rs.str().c_str(), pktHdr, mailHdr);
+    sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
 }
 
 
@@ -436,7 +436,7 @@ void serverCreateCV(string name, int pktHdr, int mailHdr){
 bool checkCVAndDestroy(int CVID){
     ServerCV* c;
 
-    if(!checkIfCVIDExists(CVID)){return;}
+    if(!checkIfCVIDExists(CVID)){return false;}
     
     c = serverCVs[CVID];
 
@@ -454,12 +454,11 @@ bool checkCVAndDestroy(int CVID){
 
 /////////////////
 void serverDestroyCV(int CVID){
-    ServerCV* c;
 
     if(!checkIfCVIDExists(CVID)){return;}
 
-    c = serverCVs[CVID]->createCVCount--;
-    if(!checkCVAndDestroy()){
+    serverCVs[CVID]->createCVCount--;
+    if(!checkCVAndDestroy(CVID)){
         printf("\t\tNot ready to destroy CVID %i.\n", CVID);
     }
 }
@@ -472,19 +471,35 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
     stringstream rs;
 
     if(!checkIfCVIDExists(CVID)){//Return error...
-        return;}else if(!checkIfLockIDExists(lockID)){//return error...
-        return;}
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }else if(!checkIfLockIDExists(lockID)){//return error...
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
 
     c = serverCVs[CVID];
     l = serverLocks[lockID];
+
+    if(!l->isOwner(pktHdr, mailHdr)){
+        printf("\t\tMust be lock owner to wait.\n");
+        //Return error....
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
 
     if(c->waitingLock == NULL){
         c->waitingLock = lockID;
     }
 
     if(c->waitingLock != lockID){
-        printf("CV lockID %i does not mach lockID %i passed to Wait.\n",c->waitingLock, lockID);
+        printf("CV lockID %i does not match lockID %i passed to Wait.\n",c->waitingLock, lockID);
         //return error
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
         return;
     }
 
@@ -494,7 +509,7 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
 
     r->pktHdr = pktHdr;
     r->mailHdr = mailHdr;
-    r->msg = rs.str().c_str();
+    r->msg = (char*)rs.str().c_str();
 
     c->q->Append((void*)r);
 
@@ -506,7 +521,63 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
 
 //////////////////////
 void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
+    ServerCV* c;
+    ServerLock* l;
+    stringstream rs;
 
+    if(!checkIfCVIDExists(CVID)){//Return error...
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }else if(!checkIfLockIDExists(lockID)){//return error...
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+    c = serverCVs[CVID];
+    l = serverLocks[lockID];
+
+    if(!l->isOwner(pktHdr, mailHdr)){
+        printf("\t\tMust be lock owner to signal.\n");
+        //Return error....
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+
+    if(c->waitingLock == NULL){ //if no thread waiting
+        printf("\t\tNo waiting threads.\n");
+        rs << TRUE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+    if(c->waitingLock != lockID){
+        printf("\t\tCV lockID %i != signal lockID %i\n", c->waitingLock, lockID);
+        //Return error....
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+
+    //Wakeup 1 waiting thread
+    ServerReplyMsg* r = (ServerReplyMsg *)c->q->Remove();
+
+    if(c->q->IsEmpty()){
+        c->waitingLock = NULL;
+    }
+
+    //We need to have the 'woken up' thread acquire the lock
+    serverAcquireLock(lockID, r->pktHdr, r->mailHdr);
+
+    printf("Signalled %i:%i.\n",r->pktHdr, r->mailHdr);
+    delete r;
+    
+    rs << TRUE;
+    sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+    return;
 }
 
 
