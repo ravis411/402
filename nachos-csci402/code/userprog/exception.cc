@@ -801,7 +801,7 @@ void Broadcast_Syscall(int condition, int lock){
 	PacketHeader inPktHdr;
     MailHeader inMailHdr;
 
-	if(condition < 0 || lock < 0)){
+	if(condition < 0 || lock < 0){
 		printf("Bad condition or lock IDs. Unable to Broadcast.\n");
 		return;
 	}
