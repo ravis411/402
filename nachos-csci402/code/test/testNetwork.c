@@ -49,7 +49,7 @@ int main() {
     PrintInt(i);
     PrintString(" ", 1);
     /*Delay*/
-    Sleep(.5);
+    Sleep(1);
   }
 
   Release(lock1);
