@@ -721,7 +721,7 @@ void Server(){
 
         postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
         ss << buffer;
-        printf("\nServer: Received Message from %d: %s.\n", inPktHdr.from, ss.str().c_str());
+        printf("\nServer: Received Message from machine %d, mailbox %d:\"%s\".\n", inPktHdr.from, inMailHdr.from, ss.str().c_str());
         fflush(stdout);
 
 
@@ -843,43 +843,5 @@ void Server(){
 
 
         printf("\n");
-        continue;
-        
-
-        switch (which){
-            
-            case SC_Acquire:
-
-            break;
-            case SC_Release:
-
-            break;
-            case SC_DestroyLock:
-
-            break;
-            case SC_CreateCondition:
-
-            break;
-            case SC_Wait:
-
-            break;
-            default:
-                printf("Unrecognized request.\n");
-            break;
-        }
-
-
-
-
-        
-        //Send reply
-        outPktHdr.to = inPktHdr.from;
-        outMailHdr.to = inMailHdr.from;
-        outMailHdr.length = 1;
-        success = postOffice->Send(outPktHdr, outMailHdr, "");
-
-        if(!success){
-            printf("Failed to reply to machine %d\n", outPktHdr.to);
-        }
     }//End whileLOOP
 }//End Server()
