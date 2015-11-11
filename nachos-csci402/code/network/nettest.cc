@@ -225,7 +225,7 @@ int getLockNamed(string name){
     return index;
 }
 
-void checkLockAndDestroy(int lockID){
+bool checkLockAndDestroy(int lockID){
     ServerLock* l;
 
     if(!checkIfLockIDExists(lockID)){return;}
@@ -238,8 +238,10 @@ void checkLockAndDestroy(int lockID){
         delete l;
         serverLockTableBitMap.Clear(lockID);
         printf("\t\tDestroyed LockID: %i.\n", lockID);
+        return TRUE;
     }else{
         //printf("\t\tNot ready to destroy lockID: %i\n", lockID);
+        return FALSE;
     }
 }
 
@@ -325,7 +327,9 @@ void serverDestroyLock(int lockID){
     //mark for deletion.
     l->isToBeDestroyed = TRUE;
     l->createLockCount--;
-    checkLockAndDestroy(lockID);
+    if(!checkLockAndDestroy(lockID)){
+        printf("\t\tNot ready to destroy lock.\n");
+    }
 }
 
 
@@ -626,7 +630,7 @@ void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
         serverAcquireLock(lockID, r->pktHdr, r->mailHdr);
     }
 
-    rs << FALSE;
+    rs << TRUE;
     sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
     return;
 }

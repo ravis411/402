@@ -34,17 +34,22 @@ int main() {
   PrintString("Got lockID2: ", sizeof("Got lockID: "));
   PrintInt(lock2);
   PrintString("\n", 1);
+    
+
+    /*Delay to give time to start another instance.*/
+    Sleep(3);
+  
 
   Acquire(lock1);
   Acquire(lock1); /*We already own this lock */
-  /*Delay to give time to start another instance.*/
-  Sleep(3);
+  
+
 
   for(i = 10; i >= 0; i--){
     PrintInt(i);
     PrintString(" ", 1);
     /*Delay*/
-    Sleep(1);
+    Sleep(.5);
   }
 
   Release(lock1);
@@ -83,6 +88,8 @@ int main() {
   Signal(CV1, lock2);
   Wait(CV1, lock2);
   Broadcast(CV1, lock2);
+
+  Release(lock2);
 
 
   DestroyLock(lock1);
