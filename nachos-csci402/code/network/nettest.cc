@@ -122,21 +122,26 @@ void sendMail(char* msg, int pktHdr, int mailHdr){
 
 
 
-
-
-
-
-//////////////////////LOCKS//////////////////
-//////////
-#define lockTableSize 200
-BitMap serverLockTableBitMap(lockTableSize);
-
 class ServerReplyMsg{
 public:
     int pktHdr;
     int mailHdr;
     char* msg;
 };
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////LOCKS//////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////
+#define lockTableSize 200
+BitMap serverLockTableBitMap(lockTableSize);
 
 enum SERVERLOCKSTATE {FREE, BUSY};
 
@@ -234,7 +239,7 @@ void checkLockAndDestroy(int lockID){
         serverLockTableBitMap.Clear(lockID);
         printf("\t\tDestroyed LockID: %i.\n", lockID);
     }else{
-        printf("\t\tNot ready to destroy lockID: %i\n", lockID);
+        //printf("\t\tNot ready to destroy lockID: %i\n", lockID);
     }
 }
 
@@ -304,7 +309,7 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
         printf("\t\tSent acquire confirmation to sleeping thread.\n");
     }else{//The lock is now free
         l->state = FREE;
-        printf("\n\nLock is now Free.\n");
+        printf("\t\tLock is now Free.\n");
         checkLockAndDestroy(lockID);
     }
 }
@@ -322,6 +327,227 @@ void serverDestroyLock(int lockID){
     l->createLockCount--;
     checkLockAndDestroy(lockID);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////   //////// //////////// ///////////////////////////////////
+////////////////   /////////// ////////// ////////////////////////////////////
+//////////////   ////////////// //////// /////////////////////////////////////
+/////////////  ///////////////// ////// //////////////////////////////////////
+//////////////   //////////////// //// ///////////////////////////////////////
+////////////////  //////////////// // ////////////////////////////////////////
+/////////////////   /////////////// //////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+#define CVTableSize 200
+BitMap serverCVTableBitMap(CVTableSize);
+
+class ServerCV{
+public:
+    string name;
+    List *q;
+    int waitingLock;
+    int createCVCount;
+    ServerCV(){
+        q = new List();
+        waitingLock = NULL;
+        createCVCount = 1;
+    }
+    ~ServerCV(){
+        delete q;
+    }
+};
+
+vector<ServerCV*> serverCVs; //The table of locks
+
+
+////////////////////
+bool checkIfCVIDExists(int CVID){
+    //Check if lock exists.
+    if(CVID >= (int)serverCVs.size() || CVID < 0){
+        printf("\t\tCVID %i does not exist.\n", CVID);
+        return FALSE;
+    }else if(serverCVs[CVID] == NULL){
+        printf("\t\tCVID %i no longer exists.\n", CVID);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+
+////////////////
+void serverCreateCV(string name, int pktHdr, int mailHdr){
+    int index = -1;
+
+    //See if CV name exists
+    for(unsigned int i = 0; i < serverCVs.size(); i++){
+        if(serverCVs[i] != NULL){
+            if(serverCVs[i]->name == name){
+                index = (int)i;
+                break;
+            }
+        }
+    }
+
+    if(index == -1){
+        //CV doesn't exist
+        ServerCV* c = new ServerCV();
+        c->name = name;
+
+        index = serverCVTableBitMap.Find();
+
+        if(index == -1){
+            printf("\t\tMax Number of locks created. lockTableSize: %i\n", lockTableSize);
+        }else{
+            if(index == (int)serverCVs.size()){
+                serverCVs.push_back(c);
+            }else if(index < (int)serverCVs.size()){
+                serverCVs[index] = c;
+            }else{ASSERT(FALSE);}
+            printf("\t\tCreated CV\n");
+        }
+    }else{
+        //CV exists
+        serverCVs[index]->createCVCount++;
+        printf("\t\tCV already Exists.\n");
+    }
+
+    stringstream rs;
+    rs << index;
+
+    sendMail(rs.str().c_str(), pktHdr, mailHdr);
+}
+
+
+
+bool checkCVAndDestroy(int CVID){
+    ServerCV* c;
+
+    if(!checkIfCVIDExists(CVID)){return;}
+    
+    c = serverCVs[CVID];
+
+    if(c->q->IsEmpty() && c->createCVCount == 0){
+        //Destroy the CV
+        serverCVs[CVID] = NULL;
+        delete c;
+        serverCVTableBitMap.Clear(CVID);
+        printf("\t\tDestroyed CVID: %i.\n", CVID);
+        return true;
+    }else{
+        return false;
+    }
+}
+
+/////////////////
+void serverDestroyCV(int CVID){
+    ServerCV* c;
+
+    if(!checkIfCVIDExists(CVID)){return;}
+
+    c = serverCVs[CVID]->createCVCount--;
+    if(!checkCVAndDestroy()){
+        printf("\t\tNot ready to destroy CVID %i.\n", CVID);
+    }
+}
+
+
+///////////////////
+void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
+    ServerCV* c;
+    ServerLock* l;
+    stringstream rs;
+
+    if(!checkIfCVIDExists(CVID)){//Return error...
+        return;}else if(!checkIfLockIDExists(lockID)){//return error...
+        return;}
+
+    c = serverCVs[CVID];
+    l = serverLocks[lockID];
+
+    if(c->waitingLock == NULL){
+        c->waitingLock = lockID;
+    }
+
+    if(c->waitingLock != lockID){
+        printf("CV lockID %i does not mach lockID %i passed to Wait.\n",c->waitingLock, lockID);
+        //return error
+        return;
+    }
+
+    rs << TRUE;
+
+    ServerReplyMsg* r = new ServerReplyMsg();
+
+    r->pktHdr = pktHdr;
+    r->mailHdr = mailHdr;
+    r->msg = rs.str().c_str();
+
+    c->q->Append((void*)r);
+
+    //Release waiting lock...
+    serverReleaseLock(lockID, pktHdr, mailHdr);
+}
+
+
+
+//////////////////////
+void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
+
+}
+
+
+
+//////////////////////
+void serverBroadcast(){
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

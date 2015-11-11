@@ -35,17 +35,15 @@ int main() {
   PrintString("\n", 1);
 
   Acquire(lock1);
-  Acquire(lock1);
+  Acquire(lock1); /*We already own this lock */
   /*Delay to give time to start another instance.*/
   Sleep(3);
 
-  for(i = 0; i < 20; i++){
+  for(i = 10; i >= 0; i--){
     PrintInt(i);
     PrintString(" ", 1);
-    /*Random Chance of Delay*/
-    if(1){
-      Sleep(1);
-    }
+    /*Delay*/
+    Sleep(1);
   }
 
   Release(lock1);
@@ -54,6 +52,12 @@ int main() {
 
   DestroyLock(lock1);
   DestroyLock(lock2);
+
+  PrintString("\n\nFinished Lock Tests\n\n");
+
+
+
+
 
 
 	PrintString("Done.\n", sizeof("Done.\n"));
