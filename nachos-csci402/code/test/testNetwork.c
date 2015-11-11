@@ -63,7 +63,7 @@ int main() {
   PrintString("\n", 1);
 
 
-  //Acquire CV lock
+  /*Acquire CV lock*/
   Acquire(lock2);
 
   PrintString("First.\n", sizeof("First.\n"));
