@@ -18,6 +18,7 @@ int lock1;
 
 int main() {
   int lock2;
+  int CV1;
   int i;
 
   Write(welcomeString, sizeof(welcomeString), ConsoleOutput);
@@ -50,15 +51,43 @@ int main() {
 
   Release(lock2); /*We don't own lock2...*/
 
+  PrintString("\n\nFinished Lock Tests\n\n", sizeof("\n\nFinished Lock Tests\n\n"));
+
+
+  PrintString("\n\nGoing to test CVs\n\n", sizeof("\n\nGoing to test CVs\n\n"));
+
+  CV1 = CreateCondition("CV1", sizeof("CV1"));
+
+  PrintString("Got CVID: ", sizeof("Got CVID: "));
+  PrintInt(CVID);
+  PrintString("\n", 1);
+
+
+  //Acquire CV lock
+  Acquire(lock2);
+
+  PrintString("First.\n", sizeof("First.\n"));
+  Sleep(1);
+  Signal(CV1, lock2);
+  Wait(CV1, lock2);
+
+  PrintString("Second.\n", sizeof("Second.\n"));
+  Sleep(1);
+
+  Signal(CV1, lock2);
+  Wait(CV1, lock2);
+
+  PrintString("Third.\n", sizeof("Third.\n"));
+  Sleep(1);
+
+  Signal(CV1, lock2);
+  Wait(CV1, lock2);
+  Broadcast(CV1, lock2);
+
+
   DestroyLock(lock1);
   DestroyLock(lock2);
-
-  PrintString("\n\nFinished Lock Tests\n\n");
-
-
-
-
-
+  DestroyCondition(CV1);
 
 	PrintString("Done.\n", sizeof("Done.\n"));
   Exit(0);

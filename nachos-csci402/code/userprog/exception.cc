@@ -530,6 +530,8 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	int lockID;
 	if(success){
 		rs >> lockID;
+	}else{
+		return -1;
 	}
 
 
@@ -542,9 +544,8 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 */
 void Acquire_Syscall(int lock){
 	char buffer[MaxMailSize];
-	PacketHeader outPktHdr, inPktHdr;
-    MailHeader outMailHdr, inMailHdr;
-    outMailHdr.from = 0;
+	PacketHeader inPktHdr;
+    MailHeader inMailHdr;
 
     if(lock < 0){
     	printf("Invalid LockID %i. Unable to acquire.\n", lock);
@@ -618,7 +619,8 @@ void DestroyLock_Syscall(int lock){
 //
 //	Condition Syscalls
 ///////////////////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 class ConditionTableEntry{
 public:
 	Condition* condition;
@@ -656,106 +658,195 @@ bool Condition_Syscall_InputValidation(int cond, int lock){
 
 
 
-int CreateCondition_Syscall(){/*
+int CreateCondition_Syscall(int vaddr, int len){
 	DEBUG('C', "In CreateCondition_Syscall\n");
 	
-	int conID = ConditionTableBitMap.Find();
-	if(conID == -1){
-		printf("Max Number of Conditions created. Unable to CreateCondition\n");
+	char *buf;		// Kernel buffer for input
+	char buffer[MaxMailSize];
+	PacketHeader inPktHdr;
+    MailHeader inMailHdr;
+
+    if(len > MaxNameLen){
+    	printf("CV Name greater than MaxNameLen %i. Use a shorter name.\n", MaxNameLen);
+    	return -1;
+    }
+	
+	if ( !(buf = new char[len]) ) {
+		printf("%s","Error allocating kernel buffer!\n");
+		return -1;
+	} else {
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed to to CreateCondition.\n");
+			delete[] buf;
+			return -1;
+		}
+	}
+
+	string name = "";
+	for(int i = 0; i < len; i++){
+		if(buf[i] == ' '){
+			printf("Invalid name passed to CreateLock. Aborting...\n");
+			ASSERT(FALSE);
+		}
+		name += buf[i];
+	}
+	delete[] buf;
+
+	stringstream ss;
+
+	ss << SC_CreateCondition;
+	ss << " ";
+	ss << name;
+
+	char *msg = (char*) ss.str().c_str();
+	
+	clientSendMail(msg);
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+	stringstream rs;
+	rs << buffer;
+
+	bool success;
+	rs >> success;
+	int CVID;
+	if(success){
+		rs >> CVID;
+	}else{
 		return -1;
 	}
 
-	ConditionTableEntry* ce = new ConditionTableEntry();
 
-	ce->condition = new Condition("Condition " + conID);
-	ce->space = currentThread->space;
-	ce->isToBeDeleted = FALSE;
-
-	ConditionTable[conID]	= ce;
-
-	return conID;*/
-	return -1;
+	return CVID;
 }
 
-void Wait_Syscall(int condition, int lock){/*
+void Wait_Syscall(int condition, int lock){
 	DEBUG('C', "In Wait_Syscall\n");
 
-	if(!Condition_Syscall_InputValidation(condition, lock)){
-		printf("Unable to Wait.\n");
+	char buffer[MaxMailSize];
+	PacketHeader inPktHdr;
+    MailHeader inMailHdr;
+
+	if(condition < 0 || lock < 0){
+		printf("Bad condition or lock IDs. Unable to Wait.\n");
 		return;
 	}
 
-	ConditionTableEntry* ce = ConditionTable[condition];
-	//LockTableEntry* le = lockTable[lock];
 
-	ce->condition->Wait(le->lock);*/
+	stringstream ss;
+	ss << SC_Wait;
+	ss << " ";
+	ss << condition;
+	ss << " ";
+	ss << lock;
+
+	clientSendMail((char*)ss.str().c_str());
+
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+	stringstream rs;
+	rs << buffer;
+	
+	bool status;
+	rs >> status;
+	if(!status){
+		printf("Error during Wait_Syscall.\n");
+	}
+
+	return;
 }
 
-void Signal_Syscall(int condition, int lock){/*
+void Signal_Syscall(int condition, int lock){
 	DEBUG('C', "In Signal_Syscall\n");
 
-	if(!Condition_Syscall_InputValidation(condition, lock)){
-		printf("Unable to Signal.\n");
+	char buffer[MaxMailSize];
+	PacketHeader inPktHdr;
+    MailHeader inMailHdr;
+
+	if(condition < 0 || lock < 0){
+		printf("Bad condition or lock IDs. Unable to Signal.\n");
 		return;
 	}
 
-	ConditionTableEntry* ce = ConditionTable[condition];
-	//LockTableEntry* le = lockTable[lock];
 
-	ce->condition->Signal(le->lock);
+	stringstream ss;
+	ss << SC_Signal;
+	ss << " ";
+	ss << condition;
+	ss << " ";
+	ss << lock;
 
-	if(ce->isToBeDeleted && !ce->condition->isBusy()){
-		DEBUG('C', "Condition %i no longer BUSY. Deleting.", condition);
-		ConditionTable[condition] = NULL;
-		delete ce->condition;
-		ce->condition = NULL;
-		delete ce;
-		ConditionTableBitMap.Clear(condition);
+	clientSendMail((char*)ss.str().c_str());
+
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+	stringstream rs;
+	rs << buffer;
+	
+	bool status;
+	rs >> status;
+	if(!status){
+		printf("Error during Signal_Syscall.\n");
 	}
-*/
+	
+	return;
 }
 
 void Broadcast_Syscall(int condition, int lock){
-	/*DEBUG('C', "In Broadcast_Syscall\n");
+	DEBUG('C', "In Broadcast_Syscall\n");
 
-	if(!Condition_Syscall_InputValidation(condition, lock)){
-		printf("Unable to Broadcast.\n");
+	char buffer[MaxMailSize];
+	PacketHeader inPktHdr;
+    MailHeader inMailHdr;
+
+	if(condition < 0 || lock < 0)){
+		printf("Bad condition or lock IDs. Unable to Broadcast.\n");
 		return;
 	}
 
-	ConditionTableEntry* ce = ConditionTable[condition];
-	//LockTableEntry* le = lockTable[lock];
 
-	ce->condition->Broadcast(le->lock);
+	stringstream ss;
+	ss << SC_Broadcast;
+	ss << " ";
+	ss << condition;
+	ss << " ";
+	ss << lock;
+
+	clientSendMail((char*)ss.str().c_str());
 
 
-	if(ce->isToBeDeleted && !ce->condition->isBusy()){
-		DEBUG('C', "Condition %i no longer BUSY. Deleting.", condition);
-		ConditionTable[condition] = NULL;
-		delete ce->condition;
-		ce->condition = NULL;
-		delete ce;
-		ConditionTableBitMap.Clear(condition);
-	}*/
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+	stringstream rs;
+	rs << buffer;
+	
+	bool status;
+	rs >> status;
+	if(!status){
+		printf("Error during Broadcast_Syscall.\n");
+	}
+	
+	return;
 }
 
-void DestroyCondition_Syscall(int condition){/*
+void DestroyCondition_Syscall(int condition){
 	DEBUG('C', "In DestroyCondition_Syscall\n");
 
-	ConditionTableEntry* ce = ConditionTable[condition];
-
-	if((ce->condition->isBusy()) ){
-		ce->isToBeDeleted = TRUE;
-		DEBUG('C', "Condition %i BUSY marking for deletion.\n", condition);
-	}else{
-		ConditionTable[condition] = NULL;
-		delete ce->condition;
-		ce->condition = NULL;
-		delete ce;
-		ConditionTableBitMap.Clear(condition);
-		DEBUG('C', "Condition %i deleted.\n", condition);
+	if(condition < 0){
+		printf("Bad condition ID. Unable to Destroy.\n");
+		return;
 	}
-*/
+
+
+	stringstream ss;
+	ss << SC_DestroyCondition;
+	ss << " ";
+	ss << condition;
+
+	clientSendMail((char*)ss.str().c_str());
+	return;
 }
 
 int Rand_Syscall(){
@@ -1142,7 +1233,7 @@ void ExceptionHandler(ExceptionType which) {
 
 		case SC_CreateCondition:
 			DEBUG('a', "CreateCondition syscall.\n");
-			rv = CreateCondition_Syscall();
+			rv = CreateCondition_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
 		break;
 
 		case SC_Wait:

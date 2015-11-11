@@ -391,6 +391,7 @@ bool checkIfCVIDExists(int CVID){
 ////////////////
 void serverCreateCV(string name, int pktHdr, int mailHdr){
     int index = -1;
+    bool status = TRUE;
 
     //See if CV name exists
     for(unsigned int i = 0; i < serverCVs.size(); i++){
@@ -411,6 +412,7 @@ void serverCreateCV(string name, int pktHdr, int mailHdr){
 
         if(index == -1){
             printf("\t\tMax Number of locks created. lockTableSize: %i\n", lockTableSize);
+            status = FALSE;
         }else{
             if(index == (int)serverCVs.size()){
                 serverCVs.push_back(c);
@@ -426,6 +428,8 @@ void serverCreateCV(string name, int pktHdr, int mailHdr){
     }
 
     stringstream rs;
+    rs << status;
+    rs << " ";
     rs << index;
 
     sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
@@ -583,8 +587,48 @@ void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
 
 
 //////////////////////
-void serverBroadcast(){
+void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
 
+    ServerCV* c;
+    ServerLock* l;
+    stringstream rs;
+
+    if(!checkIfCVIDExists(CVID)){//Return error...
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }else if(!checkIfLockIDExists(lockID)){//return error...
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+    c = serverCVs[CVID];
+    l = serverLocks[lockID];
+
+    if(!l->isOwner(pktHdr, mailHdr)){
+        printf("\t\tMust be lock owner to Broadcast.\n");
+        //Return error....
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+    while( !( c->q->IsEmpty() ) ){
+        //Wakeup 1 waiting thread
+        ServerReplyMsg* r = (ServerReplyMsg *)c->q->Remove();
+
+        if(c->q->IsEmpty()){
+            c->waitingLock = NULL;
+        }
+
+        //We need to have the 'woken up' thread acquire the lock
+        serverAcquireLock(lockID, r->pktHdr, r->mailHdr);
+    }
+
+    rs << FALSE;
+    sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+    return;
 }
 
 
@@ -736,6 +780,60 @@ void Server(){
             serverDestroyLock(lockID);
 
 
+        }
+        else if( which == SC_CreateCondition){
+            printf("\tCreateCondition:\n");
+            string name;
+            ss >> name;
+
+            serverCreateCV(name, inPktHdr.from, inMailHdr.from);
+
+
+
+        }
+        else if(which == SC_Wait){
+            printf("\tWait:\n");
+
+            int CVID;
+            int lockID;
+            ss >> CVID;
+            ss >> lockID;
+
+            serverWait(CVID, lockID, inPktHdr.from, inMailHdr.from);
+
+
+
+        }
+        else if(which == SC_Signal){
+            printf("\tSignal:\n");
+
+            int CVID;
+            int lockID;
+            ss >> CVID;
+            ss >> lockID;
+
+            serverSignal(CVID, lockID, inPktHdr.from, inMailHdr.from);
+
+        }
+        else if(which == SC_Broadcast){
+            printf("\tBroadcast:\n");
+
+            int CVID;
+            int lockID;
+            ss >> CVID;
+            ss >> lockID;
+
+            serverBroadcast(CVID, lockID, inPktHdr.from, inMailHdr.from);
+
+
+        }
+        else if(which == SC_DestroyCondition){
+            printf("\tDestroyCondition\n");
+
+            int CVID;
+            ss >> CVID;
+
+            serverDestroyCV(CVID);
         }
 
 
