@@ -411,6 +411,7 @@ void Exit_Syscall(int status){
 **************************************************************/
 void PrintInt_Syscall(int wat){
 	printf("%i", wat);
+	fflush(stdout);
 }
 
 /*************************************************************
@@ -434,7 +435,7 @@ void PrintString_Syscall(unsigned int vaddr, int len){
 	for (int ii=0; ii<len; ii++) {
 		printf("%c",buf[ii]);
 	}
-
+	fflush(stdout);
 	delete[] buf;
 }//End PrintStringSyscall
 
