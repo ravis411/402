@@ -228,7 +228,7 @@ int getLockNamed(string name){
 bool checkLockAndDestroy(int lockID){
     ServerLock* l;
 
-    if(!checkIfLockIDExists(lockID)){return;}
+    if(!checkIfLockIDExists(lockID)){return FALSE;}
     
     l = serverLocks[lockID];
 
@@ -444,7 +444,7 @@ void serverCreateCV(string name, int pktHdr, int mailHdr){
 bool checkCVAndDestroy(int CVID){
     ServerCV* c;
 
-    if(!checkIfCVIDExists(CVID)){return false;}
+    if(!checkIfCVIDExists(CVID)){return FALSE;}
     
     c = serverCVs[CVID];
 
@@ -454,9 +454,9 @@ bool checkCVAndDestroy(int CVID){
         delete c;
         serverCVTableBitMap.Clear(CVID);
         printf("\t\tDestroyed CVID: %i.\n", CVID);
-        return true;
+        return TRUE;
     }else{
-        return false;
+        return FALSE;
     }
 }
 
