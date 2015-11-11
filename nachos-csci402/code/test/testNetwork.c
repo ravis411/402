@@ -59,7 +59,7 @@ int main() {
   CV1 = CreateCondition("CV1", sizeof("CV1"));
 
   PrintString("Got CVID: ", sizeof("Got CVID: "));
-  PrintInt(CVID);
+  PrintInt(CV1);
   PrintString("\n", 1);
 
 
