@@ -42,6 +42,10 @@ int main() {
   for(i = 0; i < 20; i++){
     PrintInt(i);
     PrintString(" ", 1);
+    /*Random Chance of Delay*/
+    if(!(Rand() % 4)){
+      Sleep(1);
+    }
   }
 
   Release(lock1);
