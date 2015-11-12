@@ -803,7 +803,7 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
 
     if(!checkIfMVIDExists(MVID)){return;}
 
-    m = serverCVs[MVID];
+    m = serverMVs[MVID];
 
     //Bounds Check for index
     if(index < 0 || index >= m->size){
