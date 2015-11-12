@@ -93,6 +93,7 @@ int main() {
     Broadcast(CV1, lock2);
     Release(startCVMVLock);
     Release(lock2);
+    Acquire(lock2);
 
   }
   else{
@@ -100,14 +101,11 @@ int main() {
     Acquire(lock2);
     Release(startCVMVLock);
     Wait(CV1, lock2);
-    Release(lock2);
   }
   
 
-
-
   /*Acquire CV lock*/
-  Acquire(lock2);
+  /*Acquire(lock2);Alreadyacquired.*/
 
   PrintString("First.\n", sizeof("First.\n"));
   PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
