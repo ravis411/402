@@ -780,7 +780,7 @@ void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
 
     //Bounds Check for index
     if(index < 0 || index >= m->size){
-        printf("\t\tInvalid index passed to Set.\n");
+        printf("\t\tInvalid index %i passed to Set.\n", index);
         status = FALSE;
     }
 
@@ -807,7 +807,7 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
 
     //Bounds Check for index
     if(index < 0 || index >= m->size){
-        printf("\t\tInvalid index passed to Set.\n");
+        printf("\t\tInvalid index %i passed to Set.\n", index);
         status = FALSE;
     }
 
