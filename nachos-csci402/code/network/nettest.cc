@@ -726,7 +726,7 @@ void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
             }else if(MVID < (int)serverMVs.size()){
                 serverMVs[MVID] = m;
             }else{ASSERT(FALSE);}
-            printf("\t\tCreated MV\n");
+            printf("\t\tCreated MV \"%s\" size %i.\n", m->name.c_str(), m->size);
         }
     }else{
         //MV name exists
