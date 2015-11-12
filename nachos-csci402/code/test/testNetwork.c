@@ -76,12 +76,12 @@ int main() {
   PrintString("First.\n", sizeof("First.\n"));
   PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
   i = Get(MV, 0);
-  Set(MV, 0, i++);
   PrintInt(i);
-  PrintString("MV[1]: ", sizeof("MV[1]: "));
+  Set(MV, 0, ++i);
+  PrintString(" MV[1]: ", sizeof("MV[1]: "));
   i = Get(MV, 1);
-  Set(MV, 1, i--);
   PrintInt(i);
+  Set(MV, 1, --i);
   PrintString("\n", 1);
 
   Sleep(1);
@@ -91,12 +91,12 @@ int main() {
   PrintString("Second.\n", sizeof("Second.\n"));
   PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
   i = Get(MV, 0);
-  Set(MV, 0, i++);
   PrintInt(i);
-  PrintString("MV[1]: ", sizeof("MV[1]: "));
+  Set(MV, 0, ++i);
+  PrintString(" MV[1]: ", sizeof("MV[1]: "));
   i = Get(MV, 1);
-  Set(MV, 1, i--);
   PrintInt(i);
+  Set(MV, 1, --i);
   PrintString("\n", 1);
 
 
@@ -107,12 +107,12 @@ int main() {
   PrintString("Third.\n", sizeof("Third.\n"));
   PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
   i = Get(MV, 0);
-  Set(MV, 0, i++);
   PrintInt(i);
-  PrintString("MV[1]: ", sizeof("MV[1]: "));
+  Set(MV, 0, ++i);
+  PrintString(" MV[1]: ", sizeof("MV[1]: "));
   i = Get(MV, 1);
-  Set(MV, 1, i--);
   PrintInt(i);
+  Set(MV, 1, --i);
   PrintString("\n", 1);
   
   Sleep(1);

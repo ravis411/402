@@ -698,7 +698,7 @@ bool checkIfMVIDExists(int MVID){
 
 ///////////////////////////
 void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
-    printf("\n\nMONITOR VARIABLE: SIZE %i\n\n", size);
+    //printf("\n\nMONITOR VARIABLE: SIZE %i\n\n", size);
     int MVID = -1;
     bool status = TRUE;
 
@@ -793,6 +793,11 @@ void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
     rs << status;
 
     sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+
+    if(status)
+        printf("\t\tSet MVID(%i)[%i] to %i.\n", MVID, index, value);
+    else
+        printf("\t\tSet error.\n");
 }
 
 
@@ -814,6 +819,7 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
 
     if(status){
         value = m->v[index];
+        printf("Returning MVID(%i)[%i]: %i.\n", MVID, index, value);
     }
 
     stringstream rs;
@@ -1040,7 +1046,7 @@ void Server(){
 
             ss >> size >> name;
             //ss >> size;
-            printf("\n\n\t\tSIZE: %i NAME:%s.\n\n", size, name.c_str());
+            //printf("\n\n\t\tSIZE: %i NAME:%s.\n\n", size, name.c_str());
 
             serverCreateMV(name, size, inPktHdr.from, inMailHdr.from);
 
