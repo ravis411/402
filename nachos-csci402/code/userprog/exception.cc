@@ -962,7 +962,7 @@ void DestroyMV_Syscall(int MVID){
 }
 
 
-void Set(int MVID, int index, int value){
+void Set_Syscall(int MVID, int index, int value){
 	char buffer[MaxMailSize];
 	PacketHeader inPktHdr;
     MailHeader inMailHdr;
@@ -1002,7 +1002,7 @@ void Set(int MVID, int index, int value){
 	return;
 }
 
-int Get(int MVID, int index){
+int Get_Syscall(int MVID, int index){
 	char buffer[MaxMailSize];
 	PacketHeader inPktHdr;
     MailHeader inMailHdr;
@@ -1010,11 +1010,11 @@ int Get(int MVID, int index){
 
 	if(MVID < 0){
 		printf("Bad MVID. Unable to Get.\n");
-		return;
+		return 0;
 	}
 	if(index < 0){
 		printf("Bad MV index passed to Get. Unable to Get.\n");
-		return;
+		return 0;
 	}
 
 
@@ -1044,7 +1044,7 @@ int Get(int MVID, int index){
 	}
 
 	rs >> value;
-	
+
 	return value;
 }
 
