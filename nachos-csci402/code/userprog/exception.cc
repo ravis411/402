@@ -921,7 +921,7 @@ int CreateMV_Syscall(unsigned int vaddr, int len, int size){
 
 	stringstream ss;
 
-	ss << SC_CreateMV << endl << size << endl << name;
+	ss << SC_CreateMV << end << size << end << name;
 	//ss << name;
 
 	DEBUG('V', "\n\nCREATE MSG: %s\n\n", ss.str().c_str());
@@ -1020,7 +1020,7 @@ int Get_Syscall(int MVID, int index){
 
 
 	stringstream ss;
-	ss << SC_Set;
+	ss << SC_Get;
 	ss << " ";
 	ss << MVID;
 	ss << " ";

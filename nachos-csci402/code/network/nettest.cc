@@ -1056,7 +1056,7 @@ void Server(){
 
         }
         else if(which == SC_Set){
-            printf("\tGet:\n");
+            printf("\tSet:\n");
 
             int MVID, index, value;
 
@@ -1068,7 +1068,7 @@ void Server(){
 
         }
         else if(which == SC_Get){
-            printf("\tSet:\n");
+            printf("\tGet:\n");
 
             int MVID, index;
 
