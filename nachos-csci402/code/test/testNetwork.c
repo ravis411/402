@@ -20,6 +20,7 @@ int main() {
   int lock2;
   int CV1;
   int i;
+  int MV;
 
   Write(welcomeString, sizeof(welcomeString), ConsoleOutput);
 
@@ -59,9 +60,10 @@ int main() {
   PrintString("\n\nFinished Lock Tests\n\n", sizeof("\n\nFinished Lock Tests\n\n"));
 
 
-  PrintString("\n\nGoing to test CVs\n\n", sizeof("\n\nGoing to test CVs\n\n"));
+  PrintString("\n\nGoing to test CVs and MVs\n\n", sizeof("\n\nGoing to test CVs and MVs\n\n"));
 
   CV1 = CreateCondition("CV1", sizeof("CV1"));
+  MV = CreateMV("MV1", sizeof("MV1"), 2);
 
   PrintString("Got CVID: ", sizeof("Got CVID: "));
   PrintInt(CV1);
@@ -72,19 +74,48 @@ int main() {
   Acquire(lock2);
 
   PrintString("First.\n", sizeof("First.\n"));
+  PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
+  i = Get(MV, 0);
+  Set(MV, 0, i++);
+  PrintInt(i);
+  PrintString("MV[1]: ", sizeof("MV[1]: "));
+  i = Get(MV, 1);
+  Set(MV, 1, i--);
+  PrintInt(i);
+  PrintString("\n", 1);
+
   Sleep(1);
   Signal(CV1, lock2);
   Wait(CV1, lock2);
 
   PrintString("Second.\n", sizeof("Second.\n"));
-  Sleep(1);
+  PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
+  i = Get(MV, 0);
+  Set(MV, 0, i++);
+  PrintInt(i);
+  PrintString("MV[1]: ", sizeof("MV[1]: "));
+  i = Get(MV, 1);
+  Set(MV, 1, i--);
+  PrintInt(i);
+  PrintString("\n", 1);
 
+
+  Sleep(1);
   Signal(CV1, lock2);
   Wait(CV1, lock2);
 
   PrintString("Third.\n", sizeof("Third.\n"));
+  PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
+  i = Get(MV, 0);
+  Set(MV, 0, i++);
+  PrintInt(i);
+  PrintString("MV[1]: ", sizeof("MV[1]: "));
+  i = Get(MV, 1);
+  Set(MV, 1, i--);
+  PrintInt(i);
+  PrintString("\n", 1);
+  
   Sleep(1);
-
   Signal(CV1, lock2);
   Wait(CV1, lock2);
   Broadcast(CV1, lock2);
@@ -95,6 +126,7 @@ int main() {
   DestroyLock(lock1);
   DestroyLock(lock2);
   DestroyCondition(CV1);
+  DestroyMV(MV);
 
 	PrintString("Done.\n", sizeof("Done.\n"));
   Exit(0);

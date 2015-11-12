@@ -415,7 +415,7 @@ void serverCreateCV(string name, int pktHdr, int mailHdr){
         index = serverCVTableBitMap.Find();
 
         if(index == -1){
-            printf("\t\tMax Number of locks created. lockTableSize: %i\n", lockTableSize);
+            printf("\t\tMax Number of CVs created. CVTableSize: %i\n", CVTableSize);
             status = FALSE;
         }else{
             if(index == (int)serverCVs.size()){
@@ -641,6 +641,196 @@ void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
 
 
 
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////  ////////////////  ////  /////////////////////  ///////////
+/////////////  /  //////////  /  /////  //////////////////  /////////////
+/////////////  //  ////////  //  ///////  //////////////  ///////////////
+/////////////  ///  //////  ///  /////////  //////////  /////////////////
+/////////////  ////  ////  ////  ///////////  //////  ///////////////////
+/////////////  /////  //  /////  /////////////  //  /////////////////////
+/////////////  //////  ////////  ///////////////  ////////////S//////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+
+
+#define MVTableSize 200
+BitMap serverMVTableBitMap(MVTableSize);
+
+class ServerMV{
+public:
+    string name;
+    int size;
+    int createMVCount;
+    vector<int> v;
+    ServerCV(string nam, int mvSize){
+        name = nam;
+        size = mvSize;
+        createMVCount = 1;
+        v.resize(size, 0);
+    }
+    ~ServerCV(){
+        v.clear();
+    }
+};
+
+vector<ServerMV*> serverMVs; //The table of MVs
+
+
+
+////////////////////
+bool checkIfMVIDExists(int MVID){
+    //Check if MV exists.
+    if(MVID >= (int)serverMVs.size() || MVID < 0){
+        printf("\t\tMVID %i does not exist.\n", MVID);
+        return FALSE;
+    }else if(serverMVs[MVID] == NULL){
+        printf("\t\tMVID %i no longer exists.\n", MVID);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+
+
+
+///////////////////////////
+void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
+    int MVID = -1;
+    bool status = TRUE;
+
+    //See if MV name exists
+    for(unsigned int i = 0; i < serverCVs.size(); i++){
+        if(serverMVs[i] != NULL){
+            if(serverMVs[i]->name == name){
+                MVID = (int)i;
+                break;
+            }
+        }
+    }
+
+    if(MVID == -1){
+        //MV doesn't exist
+        ServerMV* m = new ServerMV(name, size);
+
+        MVID = serverMVTableBitMap.Find();
+
+        if(MVID == -1){
+            printf("\t\tMax Number of MVs created. MVTableSize: %i\n", lockTableSize);
+            status = FALSE;
+        }else{
+            if(MVID == (int)serverMVs.size()){
+                serverMVs.push_back(m);
+            }else if(MVID < (int)serverMVs.size()){
+                serverMVs[MVID] = m;
+            }else{ASSERT(FALSE);}
+            printf("\t\tCreated MV\n");
+        }
+    }else{
+        //MV name exists
+        if(serverMVs[MVID]->size != size){
+            printf("\t\tMV with this name already exists...but with a different size! Returning an error.\n");
+            status = FALSE;
+            MVID = -1;
+        }else{
+            serverMVs[MVID]->createMVCount++;
+            printf("\t\tMV already Exists.\n");
+        }
+    }
+
+    stringstream rs;
+    rs << status;
+    rs << " ";
+    rs << MVID;
+
+    sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+}
+
+
+
+////////////////////////////
+void serverDestroyMV(int MVID){
+    ServerMV* m;
+
+    if(!checkIfMVIDExists(MVID)){return;}
+
+    m = serverCVs[MVID];
+
+    m->createCVCount--;
+
+    if( m->createMVCount == 0 ){
+        delete m;
+        serverMVs[MVID] = NULL;
+        serverMVTableBitMap.Clear(MVID);
+        printf("\t\tDestroyed MVID: %i.\n", MVID);
+    }else{
+        printf("\t\tNot ready to destroy MVID %i.\n", MVID);
+    }
+}
+//////////////////////////////////
+void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
+    ServerMV* m;
+    bool status = TRUE;
+
+    if(!checkIfMVIDExists(MVID)){return;}
+
+    m = serverCVs[MVID];
+
+    //Bounds Check for index
+    if(index < 0 || index >= m->size){
+        printf("\t\tInvalid index passed to Set.\n");
+        status = FALSE;
+    }
+
+    if(status){
+        m->v[index] = value;
+    }
+
+    stringstream rs;
+    rs << status;
+
+    sendMail((char*)rs.str().c_str());
+}
+
+
+//////////////////////////////////
+void serverGet(int MVID, int index, int pktHdr, int mailHdr){
+    ServerMV* m;
+    bool status = TRUE;
+    int value = 0;
+
+    if(!checkIfMVIDExists(MVID)){return;}
+
+    m = serverCVs[MVID];
+
+    //Bounds Check for index
+    if(index < 0 || index >= m->size){
+        printf("\t\tInvalid index passed to Set.\n");
+        status = FALSE;
+    }
+
+    if(status){
+        value = m->v[index];
+    }
+
+    stringstream rs;
+    rs << status;
+    rs << " ";
+    rs << value;
+
+    sendMail((char*)rs.str().c_str());
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -832,12 +1022,62 @@ void Server(){
 
         }
         else if(which == SC_DestroyCondition){
-            printf("\tDestroyCondition\n");
+            printf("\tDestroyCondition:\n");
 
             int CVID;
             ss >> CVID;
 
             serverDestroyCV(CVID);
+
+
+        }
+        else if(which == SC_CreateMV){
+            printf("\tCreateMV:\n");
+
+            string name;
+            int size;
+
+            ss >> name;
+            ss >> size;
+
+            serverCreateMV(name, size, inPktHdr.from, inMailHdr.from);
+
+
+        }
+        else if(which == SC_DestroyMV){
+            printf("\tDestroyMV:\n");
+
+            int MVID;
+            ss >> MVID;
+
+            serverDestroyMV(MVID);
+
+        }
+        else if(which == SC_Set){
+            printf("\tGet:\n");
+
+            int MVID, index, value;
+
+            ss >> MVID;
+            ss >> index;
+            ss >> value;
+
+            serverSet(MVID, index, value, inPktHdr.from, inMailHdr.from);
+
+        }
+        else if(which == SC_Get){
+            printf("\tSet:\n");
+
+            int MVID, index;
+
+            ss >> MVID;
+            ss >> index;
+
+            serverGet(MVID, index, inPktHdr.from, inMailHdr.from);
+
+        }
+        else{
+            printf("\tERROR: Unknown request.\n");
         }
 
 

@@ -685,7 +685,7 @@ int CreateCondition_Syscall(int vaddr, int len){
 	string name = "";
 	for(int i = 0; i < len; i++){
 		if(buf[i] == ' '){
-			printf("Invalid name passed to CreateLock. Aborting...\n");
+			printf("Invalid name passed to CreateCondition. Aborting...\n");
 			ASSERT(FALSE);
 		}
 		name += buf[i];
@@ -857,6 +857,234 @@ int Rand_Syscall(){
 void Sleep_Syscall(int sec){
 	Delay(sec);
 }
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////  ////////////////  ////  /////////////////////  ///////////
+/////////////  /  //////////  /  /////  //////////////////  /////////////
+/////////////  //  ////////  //  ///////  //////////////  ///////////////
+/////////////  ///  //////  ///  /////////  //////////  /////////////////
+/////////////  ////  ////  ////  ///////////  //////  ///////////////////
+/////////////  /////  //  /////  /////////////  //  /////////////////////
+/////////////  //////  ////////  ///////////////  ////////////S//////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+
+int CreateMV_Syscall(unsigned int vaddr, int len, int size){
+	char *buf;		// Kernel buffer for input
+	char buffer[MaxMailSize];
+	PacketHeader inPktHdr;
+    MailHeader inMailHdr;
+
+    if(len > MaxNameLen){
+    	printf("MV Name greater than MaxNameLen %i. Use a shorter name.\n", MaxNameLen);
+    	return -1;
+    }
+	
+	if ( !(buf = new char[len]) ) {
+		printf("%s","Error allocating kernel buffer!\n");
+		return -1;
+	} else {
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed to to CreateMV.\n");
+			delete[] buf;
+			return -1;
+		}
+	}
+
+	string name = "";
+	for(int i = 0; i < len; i++){
+		if(buf[i] == ' '){
+			printf("Invalid name passed to CreateMV. Aborting...\n");
+			ASSERT(FALSE);
+		}
+		name += buf[i];
+	}
+	delete[] buf;
+
+	if(size <= 0){
+		printf("Invalid size passed to CreateMV. Size must be greater than 0.\n");
+		return -1;
+	}
+
+	stringstream ss;
+
+	ss << SC_CreateMV;
+	ss << " ";
+	ss << name;
+	ss << " ";
+	ss << size;
+
+	clientSendMail((char*) ss.str().c_str());
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+	stringstream rs;
+	rs << buffer;
+
+	bool success;
+	rs >> success;
+	int MVID;
+	if(success){
+		rs >> MVID;
+	}else{
+		return -1;
+	}
+
+	return MVID;
+}
+
+void DestroyMV_Syscall(int MVID){
+	if(MVID < 0){
+		printf("Bad MVID. Unable to Destroy.\n");
+		return;
+	}
+
+	stringstream ss;
+	ss << SC_DestroyMV;
+	ss << " ";
+	ss << MVID;
+
+	clientSendMail((char*)ss.str().c_str());
+	return;
+}
+
+
+void Set(int MVID, int index, int value){
+	char buffer[MaxMailSize];
+	PacketHeader inPktHdr;
+    MailHeader inMailHdr;
+
+	if(MVID < 0){
+		printf("Bad MVID. Unable to Set.\n");
+		return;
+	}
+	if(index < 0){
+		printf("Bad MV index passed to Set. Unable to Set.\n");
+		return;
+	}
+
+
+	stringstream ss;
+	ss << SC_Set;
+	ss << " ";
+	ss << MVID;
+	ss << " ";
+	ss << index;
+	ss << " ";
+	ss << value;
+
+	clientSendMail((char*)ss.str().c_str());
+
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+	stringstream rs;
+	rs << buffer;
+	bool success;
+	rs >> success;
+
+	if(!success){
+		printf("Error during MV Set. Unable to Set.\n");
+	}
+
+	return;
+}
+
+int Get(int MVID, int index){
+	char buffer[MaxMailSize];
+	PacketHeader inPktHdr;
+    MailHeader inMailHdr;
+
+
+	if(MVID < 0){
+		printf("Bad MVID. Unable to Get.\n");
+		return;
+	}
+	if(index < 0){
+		printf("Bad MV index passed to Get. Unable to Get.\n");
+		return;
+	}
+
+
+	stringstream ss;
+	ss << SC_Set;
+	ss << " ";
+	ss << MVID;
+	ss << " ";
+	ss << index;
+
+	clientSendMail((char*)ss.str().c_str());
+
+
+	int value = 0;
+	bool success;
+	
+	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+	stringstream rs;
+	rs << buffer;
+	
+	rs >> success;
+
+	if(!success){
+		printf("Error during MV Get. Unable to Get.\n");
+		return value;
+	}
+
+	rs >> value;
+	
+	return value;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
