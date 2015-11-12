@@ -21,6 +21,8 @@ int main() {
   int CV1;
   int i;
   int MV;
+  int startCVMVLock;
+  int startCVMVLockMV;
 
   Write(welcomeString, sizeof(welcomeString), ConsoleOutput);
 
@@ -35,7 +37,16 @@ int main() {
   PrintString("Got lockID2: ", sizeof("Got lockID: "));
   PrintInt(lock2);
   PrintString("\n", 1);
-    
+
+
+  startCVMVLock = CreateLock("startCVMVLock", sizeof("startCVMVLock"));
+  startCVMVLockMV = CreateMV("startCVMVLockMV", sizeof("startCVMVLockMV"), 1);
+
+  Acquire(startCVMVLock);
+  i = Get(startCVMVLockMV, 0); /*This will allow us to count how many have been started...So we can wait before the CV section.*/
+  i++;
+  Set(startCVMVLockMV, 0, i);
+  Release(startCVMVLock);
 
     /*Delay to give time to start another instance.*/
     Sleep(3);
@@ -68,6 +79,29 @@ int main() {
   PrintString("Got CVID: ", sizeof("Got CVID: "));
   PrintInt(CV1);
   PrintString("\n", 1);
+
+
+
+  Acquire(startCVMVLock);
+  i = Get(startCVMVLockMV, 0); /*This will allow us to count how instances have been started...So we can wait before the CV section.*/
+  i--;
+  Set(startCVMVLockMV, 0, i);
+  if(i == 0){
+    /*Wake them all up...*/
+    Acquire(lock2);
+    Broadcast(CV1, lock2);
+    Release(startCVMVLock);
+    Release(lock2);
+
+  }
+  else{
+    Acquire(lock2);
+    Release(startCVMVLock);
+    Wait(CV1, lock2);
+    Release(lock2);
+  }
+  
+
 
 
   /*Acquire CV lock*/
