@@ -927,7 +927,7 @@ int CreateMV_Syscall(unsigned int vaddr, int len, int size){
 	ss << " ";
 	ss << size;
 
-	DEBUG('V', "\n\nSIZE: %i\n\n", size);
+	DEBUG('V', "\n\nCREATE MSG: %s\n\n", ss.str().c_str());
 
 	clientSendMail((char*) ss.str().c_str());
 
@@ -942,6 +942,7 @@ int CreateMV_Syscall(unsigned int vaddr, int len, int size){
 	if(success){
 		rs >> MVID;
 	}else{
+		printf("Error...Failed to create MV.\n");
 		return -1;
 	}
 

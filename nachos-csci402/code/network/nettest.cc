@@ -580,7 +580,7 @@ void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
     //We need to have the 'woken up' thread acquire the lock
     serverAcquireLock(lockID, r->pktHdr, r->mailHdr);
 
-    printf("Signalled %i:%i.\n",r->pktHdr, r->mailHdr);
+    printf("\t\tSignalled %i:%i.\n",r->pktHdr, r->mailHdr);
     delete r;
     
     rs << TRUE;
