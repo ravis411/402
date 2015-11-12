@@ -702,7 +702,7 @@ void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
     bool status = TRUE;
 
     //See if MV name exists
-    for(unsigned int i = 0; i < serverCVs.size(); i++){
+    for(unsigned int i = 0; i < serverMVs.size(); i++){
         if(serverMVs[i] != NULL){
             if(serverMVs[i]->name == name){
                 MVID = (int)i;
