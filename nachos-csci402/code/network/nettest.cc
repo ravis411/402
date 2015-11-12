@@ -665,13 +665,13 @@ public:
     int size;
     int createMVCount;
     vector<int> v;
-    ServerCV(string nam, int mvSize){
+    ServerMV(string nam, int mvSize){
         name = nam;
         size = mvSize;
         createMVCount = 1;
         v.resize(size, 0);
     }
-    ~ServerCV(){
+    ~ServerMV(){
         v.clear();
     }
 };
@@ -756,9 +756,9 @@ void serverDestroyMV(int MVID){
 
     if(!checkIfMVIDExists(MVID)){return;}
 
-    m = serverCVs[MVID];
+    m = serverMVs[MVID];
 
-    m->createCVCount--;
+    m->createMVCount--;
 
     if( m->createMVCount == 0 ){
         delete m;
@@ -776,7 +776,7 @@ void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
 
     if(!checkIfMVIDExists(MVID)){return;}
 
-    m = serverCVs[MVID];
+    m = serverMVs[MVID];
 
     //Bounds Check for index
     if(index < 0 || index >= m->size){
@@ -791,7 +791,7 @@ void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
     stringstream rs;
     rs << status;
 
-    sendMail((char*)rs.str().c_str());
+    sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
 }
 
 
@@ -820,7 +820,7 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
     rs << " ";
     rs << value;
 
-    sendMail((char*)rs.str().c_str());
+    sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
 }
 
 
