@@ -698,6 +698,7 @@ bool checkIfMVIDExists(int MVID){
 
 ///////////////////////////
 void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
+    printf("\n\nMONITOR VARIABLE: SIZE %i\n\n", size);
     int MVID = -1;
     bool status = TRUE;
 
