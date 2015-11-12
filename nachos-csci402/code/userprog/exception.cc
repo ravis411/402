@@ -927,6 +927,8 @@ int CreateMV_Syscall(unsigned int vaddr, int len, int size){
 	ss << " ";
 	ss << size;
 
+	DEBUG('V', "\n\nSIZE: %i\n\n", size);
+
 	clientSendMail((char*) ss.str().c_str());
 
 	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
@@ -1003,6 +1005,7 @@ void Set_Syscall(int MVID, int index, int value){
 }
 
 int Get_Syscall(int MVID, int index){
+	DEBUG('V', "\n\nGET SYSCALL: MVID: %i INDEX: %i\n\n", MVID, index);
 	char buffer[MaxMailSize];
 	PacketHeader inPktHdr;
     MailHeader inMailHdr;
@@ -1496,12 +1499,12 @@ void ExceptionHandler(ExceptionType which) {
 
 		case SC_CreateMV:
 			DEBUG('a', "CreateMV syscall.\n");
-			CreateMV_Syscall(machine->ReadRegister(4), machine->ReadRegister(5), machine->ReadRegister(6));
+			rv = CreateMV_Syscall(machine->ReadRegister(4), machine->ReadRegister(5), machine->ReadRegister(6));
 		break;
 
 		case SC_Get:
 			DEBUG('a', "Get syscall.\n");
-			Get_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
+			rv = Get_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
 		break;
 
 		case SC_Set:
