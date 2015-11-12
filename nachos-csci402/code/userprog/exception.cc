@@ -978,13 +978,7 @@ void Set_Syscall(int MVID, int index, int value){
 
 
 	stringstream ss;
-	ss << SC_Set;
-	ss << " ";
-	ss << MVID;
-	ss << " ";
-	ss << index;
-	ss << " ";
-	ss << value;
+	ss << SC_Set << " " << MVID << " " << index << " " << value;
 
 	clientSendMail((char*)ss.str().c_str());
 

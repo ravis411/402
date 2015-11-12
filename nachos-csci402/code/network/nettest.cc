@@ -819,7 +819,7 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
 
     if(status){
         value = m->v[index];
-        printf("Returning MVID(%i)[%i]: %i.\n", MVID, index, value);
+        printf("\t\tReturning MVID(%i)[%i]: %i.\n", MVID, index, value);
     }
 
     stringstream rs;
@@ -1066,9 +1066,7 @@ void Server(){
 
             int MVID, index, value;
 
-            ss >> MVID;
-            ss >> index;
-            ss >> value;
+            ss >> MVID >> index >> value;
 
             serverSet(MVID, index, value, inPktHdr.from, inMailHdr.from);
 
