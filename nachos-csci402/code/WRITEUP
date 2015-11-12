@@ -1,0 +1,174 @@
+Title:  Writeup for Project 3, Fall 2015
+ Date:  11/08/15
+ Group:	Name	Email	
+		Ryan Davis	ryanwdav@usc.edu	
+
+ 
+I. Requirements:
+	Project 3 requires the implementation of demand paged virtual memory and nachos networking.
+
+	DPVM involves software management of the TLB, IPT, and swap file. Project 2 preloaded all pages into memory. For this project pages are only loaded into memory when they are needed. When memory fills up, if the page is dirty, the page is written to the swap file. Nachos was set up to throw a PageFaultException on a TLB miss. This project required the implementation of the TLB miss function as well as IPT miss and handling when memory is full. The default page eviction policy is FIFO, however a user can use the -P option to choose RAND page eviction as well.
+
+	Networking involved converting all of the Lock and Condition syscalls to work through the server. Instead of using the lock or condition variables from project 1 directly, the client waits for a response from the server which only sends a reply when the client can access the resource, unless there is an error in which case an error value is sent to the client. The networking part also involved the creation of new monitor variable (MV) syscalls. These syscalls are to be used with their corresponding lock.
+
+II. Assumptions:
+	Assumption 1: The swap file for each instance of nachos is large enough to hold all the evicted pages. The size of the swap file can be set with the NumSwapPages compiler directive in system.cc. Currently set to 512 pages.
+	Assumption 2: The userprograms that access networked recourses will always properly give up and destroy resources they created. The client does not keep track of the resources it has created...it is up to the user program to properly manage this.
+	Assumption 3: The necessary changes have been made to the machine directory to allow for use of the standard template library. These changes were approved by Professor Crowley.
+
+III. Design:
+	DPVM:
+		Most of the DPVM code resides in exception.cc. A PageFaultException invokes the handleTLBMiss function which contains all of the logic for a TLB miss. Various other functions are used within this function to handle other cases such as the IPT miss and populating the TLB.
+
+	Networking:
+		A Server() function is called when the server is started. All of the code for the server is through this function which is in nettest.cc. To keep track of locks a ServerLock class was created that holds and manages data for locks. Similar are the ServerCV and ServerMV classes.
+
+IV. Implementation:
+	+ Files Modified
+		/machine/machine.h //To set NumPhysPages to 32
+		/network/Makefile
+		/network/nettest.cc
+		/test/Makefile
+		/test/start.s
+		/threads/main.cc
+		/threads/system.h
+		/threads/system.cc
+		/userprog/addrspace.h
+		/userprog/addrspace.cc
+		/userprog/exception.cc
+		/userprog/progtest.cc
+		/userprog/syscall.h
+
+
+	+ Files added
+		/test/testVirtualMemory.c
+		/test/memoryTestSuite.c
+		/test/testNetwork.c
+		
+
+	+ Data Structures added, and the file they were added to.
+		class ServerReplyMsg{	--in file nettest.cc
+			public:
+			int pktHdr;
+			int mailHdr;
+			char* msg;
+		}
+			//Keeps track of messages that are in a queue.
+
+		class ServerLock{...};	--in file nettest.cc
+			//Keeps track of each lock, the queued messages, and the state of the lock
+
+		class ServerCV{...};	--in file nettest.cc
+			//Keeps track of Conditions...
+
+		class ServerMV{...};	....
+
+
+	+ Data Structures modified, and the file they were added to.
+		class AddrSpace{...} --in addrspace.h/.cc
+			//Stopped preloading memory
+			//Open and save executable
+			//Modify pagetable to hold more data such as page location and byteoffset
+			//Implemented necessary changes in Fork, Exit, AddrSpace(), ~AddrSpace()...to allow for DPVM
+
+
+	+ Functions added and in which file.
+		sendMail	--in nettest.cc
+			//Sends the given message to a given machine and mailbox
+
+		checkIfLockIDExists	--in file nettest.cc
+			//Checks if a given lockID is valid.
+
+		getLockNamed()	--in nettest.cc
+			//Gets a lock with the given name or creates one if it doesn't exist.
+
+		checkLockAndDestroy()	-- in nettest.cc
+			//Determines if a lock can be destroyed and deletes it if safe.
+
+		serverAcquireLock	--in nettest.cc
+			//Called by Server() for client to acquire lock.
+
+		serverReleaseLock	--in nettest.cc
+			//For client to release lock
+
+		serverDestroyLock	--in nettest.cc
+			//For client to destroy lock
+
+		checkIfCVIDExists	--in nettest.cc
+			//To validate CVID
+
+		serverCreateCV	--in nettest.cc
+			//For client to CreateCondition
+
+		checkCVAndDestroy	--in nettest.cc
+			//to check and destory CV
+
+		serverDestroyCV	--in nettest.cc
+			//to destroy
+
+		--nettest.cc:
+		serverWait
+		serverSignal
+		serverBroadcast
+		checkIfMVIDExists
+		serverCreateMV
+		serverDestroyMV
+		serverSet
+		serverGet
+		Server()	//The main server function...parses request messages and calls corresponding handler.
+
+		--in file exception.cc
+		//Added syscalls for MVs
+		//Added functions for DPVM
+
+	+ Functions modified and in which file.
+		main()	--in main.cc
+			//Added command line argument to invoke Server()
+
+		--in file exception.cc
+			//Modified Lock, Condition, Fork, Exit syscalls etc.
+
+		Initialize()	-- in system.cc
+			//Added variables for the swap file as well as IPT and requred a netname when NETWORK is defined. Also added command line argument for FIFO/RAND
+
+		StartProcess 	-- in progtest.cc
+			//Pass executable name to AddrSpace constructor instead of creating it.
+
+V. Testing:  (For each test case, you must show)
+	+ How to test
+		To test the DPVM one can run nachos -x ../test/memoryTestSuite
+			The -P option can also be used to select RAND or the default FIFO
+			The -d MPTS or a subset may be helpful for printing debug statements...please note they are not garanteed to be nice looking.
+			If this command is run from the /network/ directory a -m option is required. (it does not matter what the number is) Otherwise it is recommended to compile and run from /vm/.
+			This test Execs two testVirtualMemory which each Fork two matmults. It also Execs a sort.
+			Expected output is printed to the console.
+		To test remote procedure calls, one can run "nachos -server -m 0" as well as 'any' number of "nachos -x ../test/testNetwork -m 1" greater than 1
+			For these tests nachos must be compiled from the network directory.
+			The test/ directory should of course be compiled separately.
+			It is required that at least 2 of the clients are run.
+			There is a delay of 3 seconds before trying to acquire locks.
+			Then a 10 second countdown is initiated after having acquired a lock.
+			After all clients have finished the lock test countdown the CV/MV test begins.
+			Each client will take a turn (3 turns each) printing the MV then incrementing MV[0] and decrementing MV[1].
+			Therefore output will vary depending on the number of clients run.
+			All clients should be started before the rest are finshed with the countdown.
+			Again, It is necessary to run at least 2 clients.
+	+ Test Output
+		Output for test/memoryTestSuite is given in the output of the test. You may read it while it is running.
+			Expected output (aside from the description statements) is 8 Exit statuses, 3 0s, 4 7220s and 1 1023
+		Output for the test/testNetwork	is some prints to show that locks/conditions have been created.
+			A mutually exclusive countdown.
+			A mutually exclusive output of MV values which are each invremented and decremented.
+			Exact output will vary based on number of clients
+
+VI. Discussion:
+	+ Experiment expectation.  (What is supposed to happen.)
+		I was expcted to learn about virtual memory and remote procedure calls.
+	+ Experiment result.  (What actually happened.)
+		I did learn a great deal about DPVM and RPCs.
+	+ Explanation
+		My code functions as it was designed and as the specifications required. I learned how to implement remote procedure calls and about the swap file, the TLB, and the IPT. I got full credit for the question about the TLB miss on the exam which proves I have learned a sufficient amount.
+
+VIII. Miscellaneous:
+	I did the entire project on my own and have decided to form my own group. I did the entire last project as well. I also did most of project 1. This is the worst team I have ever been in. They no longer deserve to benifit from my hard work.
+	While I had already finished part 1 of the project at the time, it was agreed that Emma would complete parts 1 and 2 and Wynston would complete part 3 networking. As of this writing neither of them have completed their parts. As far as I know, Wynston has no working code. I completed this independently of anything they may have been working on. While I think my project deserves full credit as I have not found any bugs or errors, please take into consideration that I am a group of 1. Thank you.
