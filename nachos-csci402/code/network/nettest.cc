@@ -1038,8 +1038,9 @@ void Server(){
             string name;
             int size;
 
-            ss >> name;
-            ss >> size;
+            ss >> size >> name;
+            //ss >> size;
+            printf("\n\n\t\tSIZE: %i NAME:%s.\n\n", size, name.c_str());
 
             serverCreateMV(name, size, inPktHdr.from, inMailHdr.from);
 

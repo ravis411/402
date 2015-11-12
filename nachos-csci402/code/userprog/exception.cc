@@ -921,11 +921,8 @@ int CreateMV_Syscall(unsigned int vaddr, int len, int size){
 
 	stringstream ss;
 
-	ss << SC_CreateMV;
-	ss << " ";
-	ss << name;
-	ss << " ";
-	ss << size;
+	ss << SC_CreateMV << size << name;
+	//ss << name;
 
 	DEBUG('V', "\n\nCREATE MSG: %s\n\n", ss.str().c_str());
 
