@@ -87,6 +87,7 @@ int main() {
   i--;
   Set(startCVMVLockMV, 0, i);
   if(i == 0){
+    printf("I was last to finsh waking them all up.\n", sizeof("I was last to finsh waking them all up.\n"));
     /*Wake them all up...*/
     Acquire(lock2);
     Broadcast(CV1, lock2);
@@ -95,6 +96,7 @@ int main() {
 
   }
   else{
+    PrintString("Waiting for everyone to catch up.\n", sizeof("Waiting for everyone to catch up.\n"));
     Acquire(lock2);
     Release(startCVMVLock);
     Wait(CV1, lock2);
