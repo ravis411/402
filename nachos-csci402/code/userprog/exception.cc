@@ -1504,7 +1504,7 @@ void ExceptionHandler(ExceptionType which) {
 			Get_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
 		break;
 
-		case SC_Sleep:
+		case SC_Set:
 			DEBUG('a', "Set syscall.\n");
 			Set_Syscall(machine->ReadRegister(4), machine->ReadRegister(5), machine->ReadRegister(6));
 		break;
