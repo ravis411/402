@@ -50,7 +50,7 @@ int main() {
 
   Write(welcomeString, sizeof(welcomeString), ConsoleOutput);
 
-  lock1 = CreateLock();
+  lock1 = CreateLock("H", 1);
 
   Acquire(lock1);
   PrintString("Lock Acquired.\n", sizeof("Lock Acquired.\n") );
@@ -61,7 +61,7 @@ int main() {
   DestroyLock(lock1);
   Release(lock1);
 
-  lock2 = CreateLock();
+  lock2 = CreateLock("K", 1);
   DestroyLock(lock2);
 
 	
