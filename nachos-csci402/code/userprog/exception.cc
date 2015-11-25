@@ -444,6 +444,23 @@ void PrintString_Syscall(unsigned int vaddr, int len){
 
 
 
+int Rand_Syscall(){
+	return rand();
+}
+
+
+void Sleep_Syscall(int sec){
+	Delay(sec);
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1232,22 +1249,6 @@ void DestroyCondition_Syscall(int condition){
 	clientSendMail((char*)ss.str().c_str());
 	return;
 }
-
-int Rand_Syscall(){
-	return rand();
-}
-
-
-void Sleep_Syscall(int sec){
-	Delay(sec);
-}
-
-
-
-
-
-
-
 
 
 
