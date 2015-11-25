@@ -105,7 +105,7 @@ MailTest(int farAddr)
 void sendMail(char* msg, int pktHdr, int mailHdr){
     PacketHeader outPktHdr;
     MailHeader outMailHdr;
-    outMailHdr.from = 0;
+    outMailHdr.from = currentThread->getThreadID();
 
     outMailHdr.to = mailHdr;
     outPktHdr.to = pktHdr;
@@ -901,13 +901,14 @@ SC_Broadcast
 SC_DestroyCondition*/
 
 void Server(){
-    printf("Starting nachos network server.\n");
+    int mailBoxNumber = currentThread->getThreadID();
     char buffer[MaxMailSize];
     PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
     bool success;
+    outMailHdr.from = mailBoxNumber;
 
-    outMailHdr.from = 0;
+    printf("Starting nachos network server MID: %d, MailBox: %d.\n", postOffice->getNetworkAddress(), mailBoxNumber);
 
     while(TRUE){
         //Revieve a msg
@@ -916,7 +917,7 @@ void Server(){
         //Reply(maybe)
         stringstream ss;
 
-        postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+        postOffice->Receive(mailBoxNumber, &inPktHdr, &inMailHdr, buffer);
         ss << buffer;
         printf("\nServer: Received Message from machine %d, mailbox %d:\"%s\".\n", inPktHdr.from, inMailHdr.from, ss.str().c_str());
         fflush(stdout);

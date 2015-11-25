@@ -348,3 +348,12 @@ PostOffice::PacketSent()
     messageSent->V();
 }
 
+
+
+
+///////////////////////////////////////////////////////
+//Returns the NeworkAddress passed to the constructor.
+///////////////////////////////////////////////////////
+ int PostOffice::getNetworkAddress(){
+    return netAddr;
+ }

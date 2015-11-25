@@ -128,6 +128,8 @@ class PostOffice {
 				// off of network (i.e., time to call 
 				// PostalDelivery)
 
+    int getNetworkAddress();  //Returns the NeworkAddress passed to the constructor.
+
   private:
     Network *network;		// Physical network connection
     NetworkAddress netAddr;	// Network address of this machine
