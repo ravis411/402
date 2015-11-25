@@ -273,6 +273,7 @@ Initialize(int argc, char **argv)
     swapFile = NULL;
 #ifdef NETWORK
     swapFileName = "nachosSwapFile" + netname;  //If network defined append netname to swapfile name
+    if(netname < 0){printf("You MUST set -m to a unique non-negative integer.\n"); ASSERT(FALSE);}
 #endif
 #ifndef NETWORK
     swapFileName = "nachosSwapFile";    //If network not defined
@@ -306,7 +307,6 @@ Initialize(int argc, char **argv)
 #endif
 
 #ifdef NETWORK
-    if(netname < 0){printf("You MUST set -m to a unique non-negative integer.\n"); ASSERT(FALSE);}
     postOffice = new PostOffice(netname, rely, 10);
 #endif
 }
