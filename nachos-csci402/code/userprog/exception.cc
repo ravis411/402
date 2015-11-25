@@ -461,6 +461,387 @@ void clientSendMail(char* msg){
 
 
 
+
+
+
+
+
+
+
+
+
+
+#ifndef NETWORK
+
+///////////////////////////////////////////////////
+////////////////////////////////////////////////////
+//NO NETWORKING
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Lock Syscalls
+///////////////////////////////////////////////////////////////////////////////////////////
+class LockTableEntry{
+public:
+	Lock* lock;
+	AddrSpace* space;
+	bool isToBeDeleted;
+};
+#define lockTableSize 200
+BitMap lockTableBitMap(lockTableSize);
+LockTableEntry* lockTable[lockTableSize];
+
+
+bool Lock_Syscall_InputValidation(int lock){
+	if(lock < 0 || lock >= lockTableSize){
+		printf("Invalid Lock Identifier: %i ", lock);
+		return FALSE;
+	}
+
+	LockTableEntry* lockEntry = lockTable[lock];
+
+	if(lockEntry == NULL){
+		printf("Lock %i does not exist. ", lock);
+		return FALSE;
+	}
+	if(lockEntry->space != currentThread->space){
+		printf("Lock %i does not belong to this process. ", lock);
+		return FALSE;
+	}
+	return TRUE;
+}
+
+
+///////////////////////////////
+// Creates the Lock
+///////////////////////////////
+int CreateLock_Syscall(int a, int b){
+	DEBUG('L', "In CreateLock_Syscall\n");
+
+	int lockTableIndex = lockTableBitMap.Find();
+	if(lockTableIndex == -1){
+		printf("Max Number of Locks created. Unable to CreateLock\n");
+		return -1;
+	}
+
+	LockTableEntry* te = new LockTableEntry();
+	te->lock = new Lock("Lock " + lockTableIndex);
+	te->space = currentThread->space;
+	te->isToBeDeleted = FALSE;
+
+	lockTable[lockTableIndex] = te;
+
+	return lockTableIndex;
+}
+
+
+/***********************
+*	Acquire the lock
+*/
+void Acquire_Syscall(int lock){
+	DEBUG('L', "In Acquire_Syscall\n");
+
+	if(!Lock_Syscall_InputValidation(lock)){
+	 printf("Unable to Acquire.\n");
+	 return;
+	}
+
+	DEBUG('L', "Acquiring lock.\n");
+	lockTable[lock]->lock->Acquire();
+
+}
+
+/*****************
+* 	Release the lock
+*/
+void Release_Syscall(int lock){
+	DEBUG('L', "In Release_Syscall\n");
+
+	if(!Lock_Syscall_InputValidation(lock)){
+	 printf("Unable to Release.\n");
+	 return;
+	}
+	
+	LockTableEntry* le = lockTable[lock];
+
+	DEBUG('L', "Releasing lock.\n");
+	le->lock->Release();
+	
+	if(le->isToBeDeleted && !(le->lock->isBusy()) ){
+		DEBUG('L', "Lock %i no longer busy. Deleting.\n", lock);
+		delete le->lock;
+		le->lock = NULL;
+		delete le;
+		lockTable[lock] = NULL;
+		lockTableBitMap.Clear(lock);
+	}
+
+}
+
+void DestroyLock_Syscall(int lock){
+	DEBUG('L', "In DestroyLock_Syscall\n");
+
+	if(!Lock_Syscall_InputValidation(lock)){
+	 printf("Unable to DestroyLock.\n");
+	 return;
+	}
+
+	LockTableEntry* le = lockTable[lock];
+
+	if((le->lock->isBusy()) ){
+		le->isToBeDeleted = TRUE;
+		DEBUG('L', "Lock %i BUSY marking for deletion.\n", lock);
+	}else{
+		delete le->lock;
+		le->lock = NULL;
+		delete le;
+		lockTable[lock] = NULL;
+		lockTableBitMap.Clear(lock);
+		DEBUG('L', "Lock %i deleted.\n", lock);
+	}
+
+
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Condition Syscalls
+///////////////////////////////////////////////////////////////////////////////////////////
+
+class ConditionTableEntry{
+public:
+	Condition* condition;
+	AddrSpace* space;
+	bool isToBeDeleted;
+};
+
+#define ConditionTableSize 200
+BitMap ConditionTableBitMap(ConditionTableSize);
+ConditionTableEntry* ConditionTable[ConditionTableSize];
+
+
+bool Condition_Syscall_InputValidation(int cond, int lock){
+
+	if(!Lock_Syscall_InputValidation(lock)){
+	 return FALSE;
+	}
+
+	if(cond < 0 || cond >= ConditionTableSize){
+		printf("Invalid Condition Identifier: %i ", cond);
+		return FALSE;
+	}
+
+	ConditionTableEntry* condEntry = ConditionTable[cond];
+	if(condEntry == NULL){
+		printf("Condition %i does not exist. ", cond);
+		return FALSE;
+	}
+	if(condEntry->space != currentThread->space){
+		printf("Lock %i does not belong to this process. ", cond);
+		return FALSE;
+	}
+	return TRUE;
+}
+
+
+
+int CreateCondition_Syscall(int a, int b){
+	DEBUG('C', "In CreateCondition_Syscall\n");
+	
+	int conID = ConditionTableBitMap.Find();
+	if(conID == -1){
+		printf("Max Number of Conditions created. Unable to CreateCondition\n");
+		return -1;
+	}
+
+	ConditionTableEntry* ce = new ConditionTableEntry();
+
+	ce->condition = new Condition("Condition " + conID);
+	ce->space = currentThread->space;
+	ce->isToBeDeleted = FALSE;
+
+	ConditionTable[conID]	= ce;
+
+	return conID;
+}
+
+void Wait_Syscall(int condition, int lock){
+	DEBUG('C', "In Wait_Syscall\n");
+
+	if(!Condition_Syscall_InputValidation(condition, lock)){
+		printf("Unable to Wait.\n");
+		return;
+	}
+
+	ConditionTableEntry* ce = ConditionTable[condition];
+	LockTableEntry* le = lockTable[lock];
+
+	ce->condition->Wait(le->lock);
+}
+
+void Signal_Syscall(int condition, int lock){
+	DEBUG('C', "In Signal_Syscall\n");
+
+	if(!Condition_Syscall_InputValidation(condition, lock)){
+		printf("Unable to Signal.\n");
+		return;
+	}
+
+	ConditionTableEntry* ce = ConditionTable[condition];
+	LockTableEntry* le = lockTable[lock];
+
+	ce->condition->Signal(le->lock);
+
+	if(ce->isToBeDeleted && !ce->condition->isBusy()){
+		DEBUG('C', "Condition %i no longer BUSY. Deleting.", condition);
+		ConditionTable[condition] = NULL;
+		delete ce->condition;
+		ce->condition = NULL;
+		delete ce;
+		ConditionTableBitMap.Clear(condition);
+	}
+
+}
+
+void Broadcast_Syscall(int condition, int lock){
+	DEBUG('C', "In Broadcast_Syscall\n");
+
+	if(!Condition_Syscall_InputValidation(condition, lock)){
+		printf("Unable to Broadcast.\n");
+		return;
+	}
+
+	ConditionTableEntry* ce = ConditionTable[condition];
+	LockTableEntry* le = lockTable[lock];
+
+	ce->condition->Broadcast(le->lock);
+
+
+	if(ce->isToBeDeleted && !ce->condition->isBusy()){
+		DEBUG('C', "Condition %i no longer BUSY. Deleting.", condition);
+		ConditionTable[condition] = NULL;
+		delete ce->condition;
+		ce->condition = NULL;
+		delete ce;
+		ConditionTableBitMap.Clear(condition);
+	}
+}
+
+void DestroyCondition_Syscall(int condition){
+	DEBUG('C', "In DestroyCondition_Syscall\n");
+
+	ConditionTableEntry* ce = ConditionTable[condition];
+
+	if((ce->condition->isBusy()) ){
+		ce->isToBeDeleted = TRUE;
+		DEBUG('C', "Condition %i BUSY marking for deletion.\n", condition);
+	}else{
+		ConditionTable[condition] = NULL;
+		delete ce->condition;
+		ce->condition = NULL;
+		delete ce;
+		ConditionTableBitMap.Clear(condition);
+		DEBUG('C', "Condition %i deleted.\n", condition);
+	}
+
+}
+
+
+
+//MVs require networking...just some emtpty stubs then...
+int CreateMV_Syscall(unsigned int vaddr, int len, int size){
+	return -1;
+}
+void DestroyMV_Syscall(int MVID){
+	return;
+}
+void Set_Syscall(int MVID, int index, int value){
+	return;
+}
+int Get_Syscall(int MVID, int index){
+	DEBUG('V', "\n\nGET SYSCALL: MVID: %i INDEX: %i\n\n", MVID, index);
+	return 0;
+}
+
+
+
+#endif
+//End for lock CV without networking.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//These are the syscalls used for NETWORK
+#ifdef NETWORK
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1046,7 +1427,8 @@ int Get_Syscall(int MVID, int index){
 
 
 
-
+#endif
+//End for with NETWORK
 
 
 
