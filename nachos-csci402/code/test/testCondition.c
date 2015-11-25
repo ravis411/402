@@ -71,8 +71,8 @@ int main() {
 
   Write(welcomeString, sizeof(welcomeString), ConsoleOutput);
 
-  lock1 = CreateLock();
-  condition1 = CreateCondition();
+  lock1 = CreateLock("L1", 2);
+  condition1 = CreateCondition("C1", 2);
 
 
 
@@ -90,7 +90,7 @@ int main() {
   DestroyCondition(condition1);
 
 
-  condition2 = CreateCondition();
+  condition2 = CreateCondition("C2", 2);
   Fork(thread3);
   Yield();
   Acquire(lock1);
