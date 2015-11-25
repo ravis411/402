@@ -29,9 +29,12 @@
 #include <string>
 #include "synch.h"
 #include "bitmap.h"
-#include "network.h"
-#include "post.h"
-#include <sstream>
+#ifdef NETWORK
+	#include "network.h"
+	#include "post.h"
+	#include <sstream>
+#endif
+
 using namespace std;
 
 int copyin(unsigned int vaddr, int len, char *buf) {
@@ -441,27 +444,6 @@ void PrintString_Syscall(unsigned int vaddr, int len){
 
 
 
-//Utility function to send a message to the server.
-void clientSendMail(char* msg){
-	PacketHeader outPktHdr;
-    MailHeader outMailHdr;
-    outMailHdr.from = 0;
-
-    outPktHdr.to = 0;
-	outMailHdr.to = 0;
-	outMailHdr.length = strlen(msg) + 1;
-	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
-
-	if(!success){
-		printf("ERROR: Failed to send message to the server.\n");
-		interrupt->Halt();
-		ASSERT(FALSE);
-	}
-}
-
-
-
-
 
 
 
@@ -841,6 +823,27 @@ int Get_Syscall(int MVID, int index){
 
 //These are the syscalls used for NETWORK
 #ifdef NETWORK
+
+
+//Utility function to send a message to the server.
+void clientSendMail(char* msg){
+	PacketHeader outPktHdr;
+    MailHeader outMailHdr;
+    outMailHdr.from = 0;
+
+    outPktHdr.to = 0;
+	outMailHdr.to = 0;
+	outMailHdr.length = strlen(msg) + 1;
+	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+
+	if(!success){
+		printf("ERROR: Failed to send message to the server.\n");
+		interrupt->Halt();
+		ASSERT(FALSE);
+	}
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
