@@ -1881,29 +1881,29 @@ int main() {
   senatorPresentWaitOutSide = 0;
   senatorSafeToEnter = 0;
 
-  applicationClerkLineLock = CreateLock();
-  pictureClerkLineLock = CreateLock();
-  passportClerkLineLock = CreateLock();
-  cashierLineLock = CreateLock();
-  managerLock = CreateLock();
-  printLock = CreateLock();
-  SSNLock = CreateLock();
+  applicationClerkLineLock = CreateLock("appLineLock", sizeof("appLineLock"));
+  pictureClerkLineLock = CreateLock("picLineLock", sizeof("picLineLock"));
+  passportClerkLineLock = CreateLock("pasLineLock", sizeof("pasLineLock"));
+  cashierLineLock = CreateLock("casLineLock", sizeof("casLineLock"));
+  managerLock = CreateLock("manLock", sizeof("manLock"));
+  printLock = CreateLock("printLock", sizeof("printLock"));
+  SSNLock = CreateLock("SSNLock", sizeof("SSNLock"));
   SSNCount = 0;
-  ApplicationMyLineLock = CreateLock();
+  ApplicationMyLineLock = CreateLock("appMyLock", sizeof("appMyLock"));
   ApplicationMyLine = 0;
-  PictureMyLineLock = CreateLock();
+  PictureMyLineLock = CreateLock("picMyLock", sizeof("picMyLock"));
   PictureMyLine = 0;
-  PassportMyLineLock = CreateLock();
+  PassportMyLineLock = CreateLock("pasMyLock", sizeof("pasMyLock"));
   PassportMyLine = 0;
-  CashierMyLineLock = CreateLock();
+  CashierMyLineLock = CreateLock("casMyLock", sizeof("casMyLock"));
   CashierMyLine = 0;
 
-  applicationClerkBreakCV = CreateCondition();
-  pictureClerkBreakCV = CreateCondition();
-  passportClerkBreakCV = CreateCondition();
-  cashierBreakCV = CreateCondition();
-  passportOfficeOutsideLineCV = CreateCondition();
-  senatorLineCV = CreateCondition();
+  applicationClerkBreakCV = CreateCondition("appBrkCV", sizeof("appBrkCV"));
+  pictureClerkBreakCV = CreateCondition("picBrkCV", sizeof("picBrkCV"));
+  passportClerkBreakCV = CreateCondition("pasBrkCV", sizeof("pasBrkCV"));
+  cashierBreakCV = CreateCondition("casBrkCV", sizeof("casBrkCV"));
+  passportOfficeOutsideLineCV = CreateCondition("pasOutCV", sizeof("pasOutCV"));
+  senatorLineCV = CreateCondition("senLineCV", sizeof("senLineCV"));
 
 
 
@@ -1933,25 +1933,25 @@ int main() {
     pictureClerkSharedDataPicture[i] = 0;
     passportClerkSharedDataSSN[i] = 0;
 
-    applicationClerkLock[i] = CreateLock();
-    applicationClerkLineCV[i] = CreateCondition();
-    applicationClerkBribeLineCV[i] = CreateCondition();
-    applicationClerkCV[i] = CreateCondition();
+    applicationClerkLock[i] = CreateLock("appLock" + i, sizeof("appLock" + i));
+    applicationClerkLineCV[i] = CreateCondition("appLineCV", sizeof("appLineCV"));
+    applicationClerkBribeLineCV[i] = CreateCondition("appBribeCV", sizeof("appBribeCV"));
+    applicationClerkCV[i] = CreateCondition("appCV", sizeof("appCV"));
 
-    pictureClerkLock[i] = CreateLock();
-    pictureClerkLineCV[i] = CreateCondition();
-    pictureClerkBribeLineCV[i] = CreateCondition();
-    pictureClerkCV[i] = CreateCondition();
+    pictureClerkLock[i] = CreateLock("picLock" + i, sizeof("picLock" + i));
+    pictureClerkLineCV[i] = CreateCondition("picLineCV", sizeof("picLineCV"));
+    pictureClerkBribeLineCV[i] = CreateCondition("picBribeCV", sizeof("picBribeCV"));
+    pictureClerkCV[i] = CreateCondition("picCV", sizeof("picCV"));
 
-    passportClerkLock[i] = CreateLock();
-    passportClerkLineCV[i] = CreateCondition();
-    passportClerkBribeLineCV[i] = CreateCondition();
-    passportClerkCV[i] = CreateCondition();
+    passportClerkLock[i] = CreateLock("pasLock" + i, sizeof("pasLock" + i));
+    passportClerkLineCV[i] = CreateCondition("pasLineCV" + i, sizeof("pasLineCV" + i));
+    passportClerkBribeLineCV[i] = CreateCondition("pasBribeCV" + i, sizeof("pasBribeCV" + i));
+    passportClerkCV[i] = CreateCondition("pasCV" + i, sizeof("pasCV" + i));
 
-    cashierLock[i] = CreateLock();
-    cashierLineCV[i] = CreateCondition();
-    cashierBribeLineCV[i] = CreateCondition();
-    cashierCV[i] = CreateCondition();
+    cashierLock[i] = CreateLock("casLock" + i, sizeof("casLock" + i));
+    cashierLineCV[i] = CreateCondition("casLineCV" + i, sizeof("casLineCV" + i));
+    cashierBribeLineCV[i] = CreateCondition("casBribeCV" + i, sizeof("casBribeCV" + i));
+    cashierCV[i] = CreateCondition("casCV" + i, sizeof("casCV" + i));
   }
 
   for(i = 0; i < MAXCUSTOMERS + MAXSENATORS; i++){
