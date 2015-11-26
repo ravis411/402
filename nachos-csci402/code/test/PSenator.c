@@ -7,7 +7,7 @@
  */
 
 #include "syscall.h"
- #include "passportSetup.h"
+#include "passportSetup.h"
 
 
 
@@ -18,6 +18,6 @@ main()
 
 
 
-	
-    Exit(0);		/* and then we're done */
+
+    Exit(0);
 }
