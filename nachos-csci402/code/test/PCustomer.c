@@ -25,6 +25,8 @@
 
 /*Wait outside or something there's a Senator present*/
 void customerSenatorPresentWaitOutside(int SSN){
+  int temp;
+
   Acquire(printLock);
   PrintString("Customer ", sizeof("Customer ")); 
   PrintInt(SSN);
@@ -33,19 +35,32 @@ void customerSenatorPresentWaitOutside(int SSN){
   Release(printLock);
 
   /*Go outside.*/
-  customersPresentCount--;
-  passportOfficeOutsideLineCount++;
+  temp = Get(customersPresentCount, 0);
+  temp--;
+  Set(customersPresentCount, 0, temp);
+
+  temp = Get(passportOfficeOutsideLineCount, 0);
+  temp++;
+  Set(passportOfficeOutsideLineCount, 0, temp);
+  
   Wait(passportOfficeOutsideLineCV, managerLock);
   /*Can go back inside now.*/
-  passportOfficeOutsideLineCount--;
-  customersPresentCount++;
+
+
+  temp = Get(customersPresentCount, 0);
+  temp++;
+  Set(customersPresentCount, 0, temp);
+
+  temp = Get(passportOfficeOutsideLineCount, 0);
+  temp--;
+  Set(passportOfficeOutsideLineCount, 0, temp);
 }
 
 /* Checks if a senator is present. Then goes outside if there is.*/
 int customerCheckSenator(int SSN){
   int present;
   Acquire(managerLock);
-  present = senatorPresentWaitOutSide;
+  present = Get(senatorPresentWaitOutSide, 0);
 
   if(present)
     customerSenatorPresentWaitOutside(SSN);
@@ -56,13 +71,18 @@ int customerCheckSenator(int SSN){
 
 int customerCheckIn(){
   int SSN;
+  int temp;
   Acquire(managerLock);
-  customersPresentCount++;
+
+  temp = Get(customersPresentCount, 0);
+  temp++;
+  Set(customersPresentCount, 0, temp);
+
   Release(managerLock);
 
   Acquire(SSNLock);
-  SSN = SSNCount;
-  SSNCount++;
+  SSN = Get(SSNCount, 0);
+  Set(SSNCount, 0, (SSN + 1));
   Release(SSNLock);
   return SSN;
 }
@@ -70,8 +90,15 @@ int customerCheckIn(){
 /*To tell the manager they did a great job and let him know we're done.*/
 void customerCheckOut(int SSN){
   Acquire(managerLock);
-  customersPresentCount--;
-  checkedOutCount++;
+
+  temp = Get(customersPresentCount, 0);
+  temp--;
+  Set(customersPresentCount, 0, temp);
+
+  temp = Get(checkedOutCount, 0);
+  temp++;
+  Set(checkedOutCount, 0, temp);
+
   Release(managerLock);
   Acquire(printLock);
   PrintString("Customer ", sizeof("Customer ") );
@@ -93,6 +120,8 @@ int customerApplicationClerkInteraction(int SSN, int *money, int VIP){
   int myLine = -1;
   char* myType = MYTYPE(VIP);
   int bribe = (*money > 500) && (Rand()%2) && !VIP;/*VIPS dont bribe...*/
+  int tempState;
+  int temp;
   /*I have decided to go to the applicationClerk*/
 
   /*I should acquire the line lock*/
@@ -109,9 +138,12 @@ int customerApplicationClerkInteraction(int SSN, int *money, int VIP){
   }
   
   /*I must wait in line*/
-  if(applicationClerkState[myLine] != AVAILABLE){
+  tempState = Get(applicationClerkState, myLine);
+  if(tempState != AVAILABLE){
     if(!bribe){
-      applicationClerkLineCount[myLine]++;
+      temp = Get(applicationClerkLineCount, myLine);
+      temp++;
+      Set(applicationClerkLineCount, myLine, temp);
       /*printf("%s %i has gotten in regular line for ApplicationClerk %i.\n", myType, SSN, myLine);*/
 
       Acquire(printLock);
@@ -125,18 +157,23 @@ int customerApplicationClerkInteraction(int SSN, int *money, int VIP){
       Release(printLock);
 
       Wait(applicationClerkLineCV[myLine], applicationClerkLineLock);
-      applicationClerkLineCount[myLine]--;
+      temp = Get(applicationClerkLineCount, myLine);
+      temp--;
+      Set(applicationClerkLineCount, myLine, temp);
       /*See if the clerk for my line signalled me, otherwise check if a senator is here and go outside.*/
-      if(applicationClerkState[myLine] != SIGNALEDCUSTOMER){
+      tempState = Get(applicationClerkState, myLine);
+      if(tempState != SIGNALEDCUSTOMER){
         Release(applicationClerkLineLock);
         if(customerCheckSenator(SSN))
           return 0;
       }
     }else{
-      applicationClerkBribeLineCount[myLine]++;
+      temp = Get(applicationClerkBribeLineCount, myLine);
+      temp++;
+      Set(applicationClerkBribeLineCount, myLine, temp);
 
       /*printf("%s %i has gotten in bribe line for ApplicationClerk %i.\n", myType, SSN, myLine);*/
-       Acquire(printLock);
+      Acquire(printLock);
       PrintString(myType, 8);
       PrintString(" ", 1);
       PrintInt(SSN);
@@ -147,9 +184,12 @@ int customerApplicationClerkInteraction(int SSN, int *money, int VIP){
       Release(printLock);
       
       Wait(applicationClerkBribeLineCV[myLine], applicationClerkLineLock);
-      applicationClerkBribeLineCount[myLine]--;
+      temp = Get(applicationClerkBribeLineCount, myLine);
+      temp--;
+      Set(applicationClerkBribeLineCount, myLine, temp);
       /*See if the clerk for my line signalled me, otherwise check if a senator is here and go outside.*/
-      if(applicationClerkState[myLine] != SIGNALEDCUSTOMER){
+      tempState = Get(applicationClerkState, myLine);
+      if(tempState != SIGNALEDCUSTOMER){
         Release(applicationClerkLineLock);
         if(customerCheckSenator(SSN))
           return 0;
@@ -158,13 +198,13 @@ int customerApplicationClerkInteraction(int SSN, int *money, int VIP){
     }
   }
   /*Clerk is AVAILABLE*/
-  applicationClerkState[myLine] = BUSY;
+  Set(applicationClerkState, myLine, BUSY);
   Release(applicationClerkLineLock);
   /*Lets talk to clerk*/
   Acquire(applicationClerkLock[myLine]);
   /*Give my data to my clerk*/
   /*We already have a lock so put my SSN in applicationClerkSharedData*/
-  applicationClerkSharedData[myLine] = SSN;
+  Set(applicationClerkSharedData, myLine, SSN);
   /*printf("%s %i has given SSN %i to ApplicationClerk %i.\n", myType, SSN, SSN, myLine);*/
   Acquire(printLock);
       PrintString(myType, 8);
@@ -559,7 +599,7 @@ void Customer(){
   int cashierDone = 0;
   int SSN = -1;
   int money = (Rand()%4)*500 + 100;
-  int appClerkFirst = Rand() % 2;
+  int appClerkFirst = true || Rand() % 2;
   int i;
 
   SSN = customerCheckIn();
@@ -572,6 +612,7 @@ void Customer(){
 
     if( !(appClerkDone) && (appClerkFirst || pictureClerkDone) ){ /*Go to applicationClerk*/
       appClerkDone = customerApplicationClerkInteraction(SSN, &money, 0);
+      Exit();/*Temp test only app clerk...*/
     }
     else if( !pictureClerkDone ){
       /*Go to the picture clerk*/

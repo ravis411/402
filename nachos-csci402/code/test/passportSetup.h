@@ -6,8 +6,8 @@
 
 
 
-#define CLERKCOUNT  3
-#define CUSTOMERCOUNT 10
+#define CLERKCOUNT  2
+#define CUSTOMERCOUNT 2
 #define SENATORCOUNT  3
 
 #define MAXCLERKS 5
@@ -156,11 +156,15 @@ int pickShortestLine(int* pickShortestlineCount, int* pickShortestclerkState){
   int myLine = -1;
   int lineSize = 1000;
   int i;
+  int tempLineCount;
+  int tempState;
   for(i=0; i < CLERKCOUNT; i++){
+    tempLineCount = Get(pickShortestlineCount, i);
+    tempState = Get(pickShortestclerkState, i);
     /*If lineCount < lineSize and clerk is not on break*/
-    if(pickShortestlineCount[i] < lineSize && pickShortestclerkState[i] != ONBREAK ){
+    if(tempLineCount < lineSize && tempState != ONBREAK ){
       myLine = i;
-      lineSize = pickShortestlineCount[i];
+      lineSize = tempLineCount;
     }
   }
   return myLine;  /*This is the shortest line*/

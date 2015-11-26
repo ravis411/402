@@ -15,7 +15,10 @@ int
 main()
 {
 
+	initialSetup();
 
+	
+	initialDestroy();
 
 
 	
