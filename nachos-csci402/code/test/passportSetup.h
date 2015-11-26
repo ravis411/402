@@ -176,14 +176,66 @@ int pickShortestLine(int* pickShortestlineCount, int* pickShortestclerkState){
 
 //Should be called only once to initialize all MVs
 void initialSetup(){
+  int i;
 	Set(THEEND, 0, 0);
-  	Set(senatorPresentWaitOutSide, 0, 0);
-  	Set(senatorSafeToEnter, 0, 0);
-  	Set(SSNCount, 0, 0);
-  	Set(ApplicationMyLine, 0, 0);
-  	Set(PictureMyLine, 0, 0);
-  	Set(PassportMyLine, 0, 0);
-  	Set(CashierMyLine, 0, 0);
+  Set(senatorPresentWaitOutSide, 0, 0);
+  Set(senatorSafeToEnter, 0, 0);
+  Set(SSNCount, 0, 0);
+  Set(ApplicationMyLine, 0, 0);
+  Set(PictureMyLine, 0, 0);
+  Set(PassportMyLine, 0, 0);
+  Set(CashierMyLine, 0, 0);
+
+  for(i = 0; i < MAXCUSTOMERS + MAXSENATORS; i++){
+    Set(applicationCompletion, i, 0);
+    Set(pictureCompletion, i, 0);
+    Set(passportCompletion, i, 0);
+    Set(passportPunishment, i, 0);
+    Set(cashierSharedDataSSN, i, 0);
+    Set(cashierRejection, i, 0);
+    Set(doneCompletely, i, 0);
+  }
+
+  for(i=0; i<MAXCLERKS; i++){
+    Set(applicationClerkState, i, BUSY);
+    Set(pictureClerkState, i, BUSY);
+    Set(passportClerkState, i, BUSY);
+    Set(cashierState, i, BUSY);
+
+    Set(applicationClerkLineCount, i, 0);     
+    Set(applicationClerkBribeLineCount, i, 0);    
+    Set(pictureClerkLineCount, i, 0);     
+    Set(pictureClerkBribeLineCount, i, 0);    
+    Set(passportClerkLineCount, i, 0);      
+    Set(passportClerkBribeLineCount, i, 0);   
+    Set(cashierLineCount, i, 0);      
+    Set(cashierBribeLineCount, i, 0);
+
+    Set(applicationClerkSharedData, i, 0);
+    Set(pictureClerkSharedDataSSN, i, 0);
+    Set(pictureClerkSharedDataPicture, i, 0);
+    Set(passportClerkSharedDataSSN, i, 0);
+  }
+
+  for(i = 0; i < CUSTOMERCOUNT; i++){
+    Exec(../test/PCustomer);
+  }
+
+  
+  for(i = 0; i < SENATORCOUNT; i++){
+    Exec("../test/PSenator");
+  }
+
+
+  for(i = 0; i < CLERKCOUNT; i++){
+    Exec("../test/PAppClerk");
+    /*Exec("../test/PPicClerk");
+    Exec("../test/PPasClerk");
+    Exec("../test/PCashier");*/
+  }
+
+  Exec(../test/Manager);
+
 }
 
 
@@ -235,13 +287,13 @@ void setup(){
 	pictureClerkSharedDataPicture = CreateMV("picSDP", sizeof("picSDP"), MAXCLERKS);
 	passportClerkSharedDataSSN = CreateMV("pasSDS", sizeof("pasSDS"), MAXCLERKS);
 
-	applicationCompletion = CreateMV("appComp", sizeof("appComp"), MAXCLERKS + MAXSENATORS);/*[MAXCUSTOMERS + MAXSENATORS]; /* //Used by passportCerkto verify that application has been completed */
-	pictureCompletion = CreateMV("picComp", sizeof("picComp"), MAXCLERKS + MAXSENATORS);;/*[MAXCUSTOMERS + MAXSENATORS]; /* //Used by passportClerk to verify that picture has beeen completed */
-	passportCompletion = CreateMV("pasComp", sizeof("pasComp"), MAXCLERKS + MAXSENATORS);;/*[MAXCUSTOMERS + MAXSENATORS]; /* // Used by cashier to verify that the passport is complete */
-	passportPunishment = CreateMV("pasPun", sizeof("pasPun"), MAXCLERKS + MAXSENATORS);;/*[MAXCUSTOMERS + MAXSENATORS]; /* //Used by passportClerk to punish bad people. */
-	cashierSharedDataSSN = CreateMV("casSDSSN", sizeof("casSDSSN"), MAXCLERKS + MAXSENATORS);;/*[MAXCUSTOMERS + MAXSENATORS]; /* //This can be used by the customer to pass SSN */
-	cashierRejection = CreateMV("casReject", sizeof("casReject"), MAXCLERKS + MAXSENATORS);;/*[MAXCUSTOMERS + MAXSENATORS]; /* //Used by the cashier to reject customers. */
-	doneCompletely = CreateMV("doneComp", sizeof("doneComp"), MAXCLERKS + MAXSENATORS);;/*[MAXCUSTOMERS + MAXSENATORS]; /* //Used by customer to tell when done. */
+	applicationCompletion = CreateMV("appComp", sizeof("appComp"), MAXCLERKS + MAXSENATORS);
+	pictureCompletion = CreateMV("picComp", sizeof("picComp"), MAXCLERKS + MAXSENATORS);
+	passportCompletion = CreateMV("pasComp", sizeof("pasComp"), MAXCLERKS + MAXSENATORS);
+	passportPunishment = CreateMV("pasPun", sizeof("pasPun"), MAXCLERKS + MAXSENATORS);
+	cashierSharedDataSSN = CreateMV("casSDSSN", sizeof("casSDSSN"), MAXCLERKS + MAXSENATORS);
+	cashierRejection = CreateMV("casReject", sizeof("casReject"), MAXCLERKS + MAXSENATORS);
+	doneCompletely = CreateMV("doneComp", sizeof("doneComp"), MAXCLERKS + MAXSENATORS);
 
 	SSNCount = CreateMV("SSNCount", sizeof("SSNCount"), 1);
 	ApplicationMyLine = CreateMV("AppMyLine", sizeof("AppMyLine"), 1);
@@ -259,30 +311,8 @@ void setup(){
 
 	THEEND = CreateMV("THEEND", sizeof("THEEND"), 1);
 
-
-
-
   /*Init clerkStates, lineCounts*/
   for(i=0; i<MAXCLERKS; i++){
-    applicationClerkState[i] = BUSY;
-    pictureClerkState[i] = BUSY;
-    passportClerkState[i] = BUSY;
-    cashierState[i] = BUSY;
-
-    applicationClerkLineCount[i] = 0;     
-    applicationClerkBribeLineCount[i] = 0;    
-    pictureClerkLineCount[i] = 0;     
-    pictureClerkBribeLineCount[i] = 0;    
-    passportClerkLineCount[i] = 0;      
-    passportClerkBribeLineCount[i] = 0;   
-    cashierLineCount[i] = 0;      
-    cashierBribeLineCount[i] = 0;
-
-    applicationClerkSharedData[i] = 0;
-    pictureClerkSharedDataSSN[i] = 0;
-    pictureClerkSharedDataPicture[i] = 0;
-    passportClerkSharedDataSSN[i] = 0;
-
     applicationClerkLock[i] = CreateLock("appLock" + i, sizeof("appLock" + i));
     applicationClerkLineCV[i] = CreateCondition("appLineCV", sizeof("appLineCV"));
     applicationClerkBribeLineCV[i] = CreateCondition("appBribeCV", sizeof("appBribeCV"));
@@ -304,35 +334,15 @@ void setup(){
     cashierCV[i] = CreateCondition("casCV" + i, sizeof("casCV" + i));
   }
 
-  for(i = 0; i < MAXCUSTOMERS + MAXSENATORS; i++){
-    applicationCompletion[i] = 0;
-    pictureCompletion[i] = 0;
-    passportCompletion[i] = 0;
-    passportPunishment[i] = 0;
-    cashierSharedDataSSN[i] = 0;
-    cashierRejection[i] = 0;
-    doneCompletely[i] = 0;
-  }
+}
 
+/*Called by each entity to destroy their resources.*/
+void destroy(){
 
-  for(i = 0; i < CUSTOMERCOUNT; i++){
-    Fork(Customer);
-  }
+}
 
-  
-  for(i = 0; i < SENATORCOUNT; i++){
-    Fork(Senator);
-  }
-
-
-  for(i = 0; i < CLERKCOUNT; i++){
-    Fork(ApplicationClerk);
-    Fork(PictureClerk);
-    Fork(PassportClerk);
-    Fork(Cashier);
-  }
-
-  Fork(Manager);
+/*Should be called once to close the passport office.*/
+void initialDestroy(){
 
   while(!THEEND){
     Yield();
@@ -342,6 +352,4 @@ void setup(){
   Acquire(printLock);
   PrintString("Passport Office Closed.\n", sizeof("Passport Office Closed.\n"));
   Release(printLock);
-
-  Exit(0);
 }
