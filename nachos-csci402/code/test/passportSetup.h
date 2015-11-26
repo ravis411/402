@@ -177,6 +177,9 @@ int pickShortestLine(int* pickShortestlineCount, int* pickShortestclerkState){
 //Should be called only once to initialize all MVs
 void initialSetup(){
   int i;
+
+  setup();
+
 	Set(THEEND, 0, 0);
   Set(senatorPresentWaitOutSide, 0, 0);
   Set(senatorSafeToEnter, 0, 0);
@@ -218,7 +221,7 @@ void initialSetup(){
   }
 
   for(i = 0; i < CUSTOMERCOUNT; i++){
-    Exec(../test/PCustomer);
+    Exec("../test/PCustomer");
   }
 
   
@@ -338,7 +341,95 @@ void setup(){
 
 /*Called by each entity to destroy their resources.*/
 void destroy(){
+  int i;
 
+
+
+  DestroyLock(applicationClerkLineLock);
+  DestroyLock(pictureClerkLineLock);
+  DestroyLock(passportClerkLineLock);
+  DestroyLock(cashierLineLock);
+  DestroyLock(managerLock);
+  DestroyLock(printLock);
+  DestroyLock(SSNLock);
+  DestroyLock(ApplicationMyLineLock);
+  DestroyLock(PictureMyLineLock);
+  DestroyLock(PassportMyLineLock);
+  DestroyLock(CashierMyLineLock);
+
+  DestroyCondition(applicationClerkBreakCV);
+  DestroyCondition(pictureClerkBreakCV);
+  DestroyCondition(passportClerkBreakCV);
+  DestroyCondition(cashierBreakCV);
+  DestroyCondition(passportOfficeOutsideLineCV);
+  DestroyCondition(senatorLineCV);
+
+  /*Monitor Variables...*/
+  DestroyMV(applicationClerkState);
+  DestroyMV(pictureClerkState);
+  DestroyMV(passportClerkState);
+  DestroyMV(cashierState);
+
+  DestroyMV(applicationClerkLineCount);
+  DestroyMV(applicationClerkBribeLineCount);
+  DestroyMV(pictureClerkLineCount);
+  DestroyMV(pictureClerkBribeLineCount);
+  DestroyMV(passportClerkLineCount);
+  DestroyMV(passportClerkBribeLineCount);
+  DestroyMV(cashierLineCount);
+  DestroyMV(cashierBribeLineCount);
+
+  DestroyMV(applicationClerkSharedData);
+  DestroyMV(pictureClerkSharedDataSSN);
+  DestroyMV(pictureClerkSharedDataPicture);
+  DestroyMV(passportClerkSharedDataSSN);
+
+  DestroyMV(applicationCompletion);
+  DestroyMV(pictureCompletion);
+  DestroyMV(passportCompletion);
+  DestroyMV(passportPunishment);
+  DestroyMV(cashierSharedDataSSN);
+  DestroyMV(cashierRejection);
+  DestroyMV(doneCompletely);
+
+  DestroyMV(SSNCount);
+  DestroyMV(ApplicationMyLine);
+  DestroyMV(PictureMyLine);
+  DestroyMV(PassportMyLine);
+  DestroyMV(CashierMyLine);
+
+  DestroyMV(customersPresentCount);
+  DestroyMV(senatorPresentCount);
+  DestroyMV(checkedOutCount);
+  DestroyMV(senatorLineCount);
+  DestroyMV(passportOfficeOutsideLineCount);
+  DestroyMV(senatorSafeToEnter);
+  DestroyMV(senatorPresentWaitOutSide);
+
+  DestroyMV(THEEND);
+
+  /*Init clerkStates, lineCounts*/
+  for(i=0; i<MAXCLERKS; i++){
+    DestroyLock(applicationClerkLock[i]);
+    DestroyCondition(applicationClerkLineCV[i]);
+    DestroyCondition(applicationClerkBribeLineCV[i]);
+    DestroyCondition(applicationClerkCV[i]);
+
+    DestroyLock(pictureClerkLock[i]);
+    DestroyCondition(pictureClerkLineCV[i]);
+    DestroyCondition(pictureClerkBribeLineCV[i]);
+    DestroyCondition(pictureClerkCV[i]);
+
+    DestroyLock(passportClerkLock[i]);
+    DestroyCondition(passportClerkLineCV[i]);
+    DestroyCondition(passportClerkBribeLineCV[i]);
+    DestroyCondition(passportClerkCV[i]);
+
+    DestroyLock(cashierLock[i]);
+    DestroyCondition(cashierLineCV[i]);
+    DestroyCondition(cashierBribeLineCV[i]);
+    DestroyCondition(cashierCV[i]);
+  }
 }
 
 /*Should be called once to close the passport office.*/
@@ -352,4 +443,6 @@ void initialDestroy(){
   Acquire(printLock);
   PrintString("Passport Office Closed.\n", sizeof("Passport Office Closed.\n"));
   Release(printLock);
+
+  destroy();
 }
