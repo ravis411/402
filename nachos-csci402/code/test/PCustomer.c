@@ -106,7 +106,7 @@ void customerCheckOut(int SSN){
   PrintInt(SSN);
   PrintString(" is leaving the Passport Office.\n", sizeof(" is leaving the Passport Office.\n"));
   Release(printLock);
-  destroy();
+  passportDestroy();
   Exit(0);
 }
 
