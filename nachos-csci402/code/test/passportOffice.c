@@ -7,7 +7,7 @@
  */
 
 #include "syscall.h"
- #include "passportSetup.h"
+#include "passportSetup.h"
 
 
 
@@ -18,7 +18,7 @@ main()
 	initialPassportSetup();
 
 
-	initialPassportDestroy();
+	/*initialPassportDestroy();*/
 
 
 	

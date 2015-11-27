@@ -605,7 +605,7 @@ void Customer(){
   int i;
 
   SSN = customerCheckIn();
-
+  PrintString("Customer checked in...\n", sizeof("Customer checked in...\n"));
 
   while(1){
 
