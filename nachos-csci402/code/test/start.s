@@ -233,7 +233,14 @@ Sleep:
 	syscall
 	j	$31
 	.end Sleep
-
+	
+	.globl StringConcatInt
+	.ent 	StringConcatInt
+StringConcatInt:
+	addiu $2,$0,SC_StringConcatInt
+	syscall
+	j	$31
+	.end StringConcatInt
 
 	.globl CreateMV
 	.ent 	CreateMV

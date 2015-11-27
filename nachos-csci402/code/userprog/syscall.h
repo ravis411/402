@@ -46,6 +46,7 @@
 #define SC_DestroyMV	25
 #define SC_Get			26
 #define	SC_Set 			27
+#define SC_StringConcatInt	28
 
 #define MAXFILENAME 256
 
@@ -185,6 +186,8 @@ void DestroyCondition(int condition);
 int Rand();
 
 void Sleep(int seconds);
+
+void StringConcatInt_Syscall(char * vaddr, int len, int concat);
 
 /***************************
 *

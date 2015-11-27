@@ -453,7 +453,34 @@ void Sleep_Syscall(int sec){
 	Delay(sec);
 }
 
+//len is the length of the vaddr string curently in use...the char* had better be large enough to hold the integer as well...
+void StringConcatInt_Syscall(unsigned int vaddr, int len, int concat) {
+	char *buf;		// Kernel buffer for input
+	string temp;
+		
+	if ( !(buf = new char[len + 2]) ) {
+		printf("%s","Error allocating kernel buffer in StringConcatInt\n");
+		return -1;
+	} else {
+		if ( copyin(vaddr,len,buf) == -1 ) {
+			printf("%s","Bad pointer passed in StringConcatInt: data not pinted.\n");
+			delete[] buf;
+			return;
+		}
+	}
 
+	for(int ii = 0; i i<len; ii++){
+		temp += buf[ii];
+	}
+	
+	temp += concat;
+	len = sizeof(temp);
+
+	if ( copyout(vaddr, len, buf) == -1 ) {
+		printf("%s","Bad pointer passed in StringConcatInt: data not copied\n");
+	}
+	delete[] buf;
+} 
 
 
 
@@ -1875,6 +1902,10 @@ void ExceptionHandler(ExceptionType which) {
 		case SC_Sleep:
 			DEBUG('a', "Sleep/Delay syscall.\n");
 			Sleep_Syscall(machine->ReadRegister(4));
+		break;
+
+		case SC_StringConcatInt:
+			StringConcatInt_Syscall(machine->ReadRegister(4), machine->ReadRegister(5), machine->ReadRegister(6));
 		break;
 
 		case SC_CreateMV:

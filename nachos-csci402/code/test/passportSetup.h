@@ -284,7 +284,12 @@ void passportSetup(){
   /*Init clerkStates, lineCounts*/
 	PrintString("Setup bout to create MAXCLERKS loop.\n", sizeof("Setup bout to create MAXCLERKS loop.\n"));
   for(i=0; i<MAXCLERKS; i++){
-    applicationClerkLock[i] = CreateLock("appLock" + i, sizeof("appLock" + i));
+  	char[15] temp;
+
+  	temp = "appLock";
+  	StringConcatInt(temp, sizeof(temp), i);
+
+    applicationClerkLock[i] = CreateLock(temp, sizeof(temp));
     applicationClerkLineCV[i] = CreateCondition("appLineCV", sizeof("appLineCV"));
     applicationClerkBribeLineCV[i] = CreateCondition("appBribeCV", sizeof("appBribeCV"));
     applicationClerkCV[i] = CreateCondition("appCV", sizeof("appCV"));
