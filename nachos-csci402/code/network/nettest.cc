@@ -264,6 +264,7 @@ void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
     }
 
     l = serverLocks[lockID];
+    printf("\t\tLock: %s\n", l->name);
 
     if(l->isOwner(pktHdr, mailHdr)){
         //We already own the lock...
@@ -296,7 +297,7 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
    if(!checkIfLockIDExists(lockID)){return;}
 
     l = serverLocks[lockID];
-
+    printf("\t\tLock: %s\n", l->name);
 
     if(! (l->isOwner(pktHdr, mailHdr)) ){
         //Only the lock owner can release the lock
@@ -323,6 +324,7 @@ void serverDestroyLock(int lockID){
     if(!checkIfLockIDExists(lockID)){return;}
 
     l = serverLocks[lockID];
+    printf("\t\tLock: %s\n", l->name);
 
     //mark for deletion.
     l->isToBeDestroyed = TRUE;
@@ -490,7 +492,8 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
 
     c = serverCVs[CVID];
     l = serverLocks[lockID];
-
+    printf("\t\tLock: %s", l->name);
+    printf("\t\tCV: %s\n", c->name);
     if(!l->isOwner(pktHdr, mailHdr)){
         printf("\t\tMust be lock owner to wait.\n");
         //Return error....
@@ -545,6 +548,9 @@ void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
 
     c = serverCVs[CVID];
     l = serverLocks[lockID];
+
+    printf("\t\tLock: %s", l->name);
+    printf("\t\tCV: %s\n", c->name);
 
     if(!l->isOwner(pktHdr, mailHdr)){
         printf("\t\tMust be lock owner to signal.\n");
@@ -609,6 +615,9 @@ void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
 
     c = serverCVs[CVID];
     l = serverLocks[lockID];
+
+    printf("\t\tLock: %s", l->name);
+    printf("\t\tCV: %s\n", c->name);
 
     if(!l->isOwner(pktHdr, mailHdr)){
         printf("\t\tMust be lock owner to Broadcast.\n");
@@ -778,6 +787,7 @@ void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
     if(!checkIfMVIDExists(MVID)){return;}
 
     m = serverMVs[MVID];
+    printf("\t\tMV: %s\n", m->name);
 
     //Bounds Check for index
     if(index < 0 || index >= m->size){
@@ -810,6 +820,7 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
     if(!checkIfMVIDExists(MVID)){return;}
 
     m = serverMVs[MVID];
+    printf("\t\tMV: %s\n", m->name);
 
     //Bounds Check for index
     if(index < 0 || index >= m->size){
