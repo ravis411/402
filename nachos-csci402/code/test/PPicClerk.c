@@ -90,7 +90,7 @@ void PictureClerk(){
         customerFromLine = 1;
         Signal(pictureClerkBribeLineCV[myLine], pictureClerkLineLock);
         Set(pictureClerkState, myLine, SIGNALEDCUSTOMER);
-      }else if(pictureClerkLineCount[myLine] > 0){/*if there is someone in my regular line*/
+      }else if(Get(pictureClerkLineCount, myLine) > 0){/*if there is someone in my regular line*/
         customerFromLine = 2;
         Signal(pictureClerkLineCV[myLine], pictureClerkLineLock);
         Set(pictureClerkState, myLine, SIGNALEDCUSTOMER);
