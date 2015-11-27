@@ -281,6 +281,7 @@ void passportSetup(){
 	THEEND = CreateMV("THEEND", sizeof("THEEND"), 1);
 
   /*Init clerkStates, lineCounts*/
+	PrintString("Setup bout to create MAXCLERKS loop.\n", sizeof("Setup bout to create MAXCLERKS loop.\n"));
   for(i=0; i<MAXCLERKS; i++){
     applicationClerkLock[i] = CreateLock("appLock" + i, sizeof("appLock" + i));
     applicationClerkLineCV[i] = CreateCondition("appLineCV", sizeof("appLineCV"));
@@ -470,13 +471,13 @@ void initialPassportSetup(){
 
 
   for(i = 0; i < CLERKCOUNT; i++){
-    Exec("../test/PAppClerk", sizeof("../test/PAppClerk"));
+    /*Exec("../test/PAppClerk", sizeof("../test/PAppClerk"));*/
     /*Exec("../test/PPicClerk", sizeof("../test/PPicClerk"));
     Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
     Exec("../test/PCashier", sizeof("../test/PCashier"));*/
   }
 
-  Exec("../test/PManager", sizeof("../test/PManager"));
+  /*Exec("../test/PManager", sizeof("../test/PManager"));*/
 
 }
 
