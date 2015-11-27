@@ -7,8 +7,8 @@
 
 
 #define CLERKCOUNT  2
-#define CUSTOMERCOUNT 2
-#define SENATORCOUNT  3
+#define CUSTOMERCOUNT 3
+#define SENATORCOUNT  0
 
 #define MAXCLERKS 5
 #define MAXCUSTOMERS 5/*50*/
@@ -270,7 +270,7 @@ void passportSetup(){
 	PassportMyLine = CreateMV("PasMyLine", sizeof("PasMyLine"), 1);
 	CashierMyLine = CreateMV("CasMyLine", sizeof("CasMyLine"), 1);
 
-	customersPresentCount = CreateMV("CasMyLine", sizeof("CasMyLine"), 1);
+	customersPresentCount = CreateMV("cusPresCount", sizeof("cusPresCount"), 1);
 	senatorPresentCount = CreateMV("senPresCount", sizeof("senPresCount"), 1);
 	checkedOutCount = CreateMV("checkOutC", sizeof("checkOutC"), 1);
 	senatorLineCount = CreateMV("senLineC", sizeof("senLineC"), 1);
@@ -465,7 +465,7 @@ void initialPassportSetup(){
 
   
   for(i = 0; i < SENATORCOUNT; i++){
-    Exec("../test/PSenator", sizeof("../test/PSenator"));
+    /*Exec("../test/PSenator", sizeof("../test/PSenator"));*/
   }
 
 
