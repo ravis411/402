@@ -170,6 +170,28 @@ int pickShortestLine(int* pickShortestlineCount, int* pickShortestclerkState){
   return myLine;  /*This is the shortest line*/
 }/*End pickShortestLine*/
 
+
+/*This may be necessary to check for race conditions while a senator is waiting outside
+ * Before the customer leaves their line the clerk might think they are able to call them*/
+int clerkCheckForSenator(){
+  int i;
+  int temp1;
+  int temp2;
+  /*DEBUG('s', "DEBUG: Clerk bout to check for senator.\n");*/
+  Acquire(managerLock);
+  temp1 = Get(senatorPresentWaitOutSide, 0);
+  temp2 = Get(senatorSafeToEnter, 0);
+  if(temp1 && !temp2){
+    Release(managerLock);
+    /*Lets just wait a bit...
+    printf("DEBUG: Clerk yielding for senator.\n");*/
+    for(i = 0; i < Rand()%780 + 20; i++) { Yield(); }
+    return 1;
+  }
+  Release(managerLock);
+  return 0;
+}
+
 /*******************
  End Utility Functions
 ********************/

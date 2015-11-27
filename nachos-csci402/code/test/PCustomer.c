@@ -105,6 +105,7 @@ void customerCheckOut(int SSN){
   PrintInt(SSN);
   PrintString(" is leaving the Passport Office.\n", sizeof(" is leaving the Passport Office.\n"));
   Release(printLock);
+  destroy();
   Exit(0);
 }
 
@@ -650,7 +651,8 @@ void Customer(){
 int
 main()
 {
+  setup();
 	Customer();
 
-    Exit(0);
+  Exit(0);
 }

@@ -31,7 +31,10 @@ CPP = $(GCCDIR)cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition passportOffice twoPassportOffices memoryTestSuite testVirtualMemory testNetwork
+all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition 
+	memoryTestSuite testVirtualMemory testNetwork
+	passportOffice twoPassportOffices PreNetworkingPassportOffice
+	PAppClerk PCashier PCustomer PManager PPasClerk PPicClerk PSenator
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -123,6 +126,58 @@ testNetwork.o: testNetwork.c
 testNetwork: testNetwork.o start.o
 	$(LD) $(LDFLAGS) start.o testNetwork.o -o testNetwork.coff
 	../bin/coff2noff testNetwork.coff testNetwork
+
+PreNetworkingPassportOffice.o: PreNetworkingPassportOffice.c
+	$(CC) $(CFLAGS) -c PreNetworkingPassportOffice.c
+PreNetworkingPassportOffice: PreNetworkingPassportOffice.o start.o
+	$(LD) $(LDFLAGS) start.o PreNetworkingPassportOffice.o -o PreNetworkingPassportOffice.coff
+	../bin/coff2noff PreNetworkingPassportOffice.coff PreNetworkingPassportOffice
+
+
+PAppClerk.o: PAppClerk.c
+	$(CC) $(CFLAGS) -c PAppClerk.c
+PAppClerk: PAppClerk.o start.o
+	$(LD) $(LDFLAGS) start.o PAppClerk.o -o PAppClerk.coff
+	../bin/coff2noff PAppClerk.coff PAppClerk
+
+PCashier.o: PCashier.c
+	$(CC) $(CFLAGS) -c PCashier.c
+PCashier: PCashier.o start.o
+	$(LD) $(LDFLAGS) start.o PCashier.o -o PCashier.coff
+	../bin/coff2noff PCashier.coff PCashier
+
+PCustomer.o: PCustomer.c
+	$(CC) $(CFLAGS) -c PCustomer.c
+PCustomer: PCustomer.o start.o
+	$(LD) $(LDFLAGS) start.o PCustomer.o -o PCustomer.coff
+	../bin/coff2noff PCustomer.coff PCustomer
+
+PManager.o: PManager.c
+	$(CC) $(CFLAGS) -c PManager.c
+PManager: PManager.o start.o
+	$(LD) $(LDFLAGS) start.o PManager.o -o PManager.coff
+	../bin/coff2noff PManager.coff PManager
+
+PPasClerk.o: PPasClerk.c
+	$(CC) $(CFLAGS) -c PPasClerk.c
+PPasClerk: PPasClerk.o start.o
+	$(LD) $(LDFLAGS) start.o PPasClerk.o -o PPasClerk.coff
+	../bin/coff2noff PPasClerk.coff PPasClerk
+
+PPicClerk.o: PPicClerk.c
+	$(CC) $(CFLAGS) -c PPicClerk.c
+PPicClerk: PPicClerk.o start.o
+	$(LD) $(LDFLAGS) start.o PPicClerk.o -o PPicClerk.coff
+	../bin/coff2noff PPicClerk.coff PPicClerk
+
+PSenator.o: PSenator.c
+	$(CC) $(CFLAGS) -c PSenator.c
+PSenator: PSenator.o start.o
+	$(LD) $(LDFLAGS) start.o PSenator.o -o PSenator.coff
+	../bin/coff2noff PSenator.coff PSenator
+
+	      
+
 
 
 clean:
