@@ -18,7 +18,7 @@ main()
 	initialPassportSetup();
 
 
-	/*initialPassportDestroy();*/
+	initialPassportDestroy();
 
 
 	

@@ -27,7 +27,7 @@ void checkEndOfDay(){
     /*DEBUG('s', "DEBUG: MANAGER: END OF DAY!\n");
     All the customers are gone
     Lets all EXIT!!!*/
-    PrintString("Manager SETING END OF DAY!!", sizeof("Manager SETING END OF DAY!!") );
+    /*PrintString("Manager SETING END OF DAY!!", sizeof("Manager SETING END OF DAY!!") );*/
     Set(THEEND,0, 1);
     Release(managerLock);
 
