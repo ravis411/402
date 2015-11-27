@@ -874,7 +874,7 @@ void clientSendMail(char* msg){
 	PacketHeader outPktHdr;
     MailHeader outMailHdr;
     outMailHdr.from = currentThread->getThreadID();
-    printf("ThreadID: %i, outMailHdr.from: %i\n",currentThread->getThreadID(), outMailHdr.from);
+    DEBUG('N', "ThreadID: %i, outMailHdr.from: %i\n",currentThread->getThreadID(), outMailHdr.from);
     outPktHdr.to = 0;
 	outMailHdr.to = 0;
 	outMailHdr.length = strlen(msg) + 1;
@@ -1835,7 +1835,7 @@ void ExceptionHandler(ExceptionType which) {
 		
 		case SC_PrintString:
 			DEBUG('a', "PrintString syscall.\n");
-			printf("\nTHREAD ID: %i: ", currentThread->getThreadID() );
+			DEBUG('N', "\nTHREAD ID: %i: ", currentThread->getThreadID() );
 			PrintString_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
 		break;
 		
