@@ -878,7 +878,7 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	char buffer[MaxMailSize];
 	PacketHeader outPktHdr, inPktHdr;
     MailHeader outMailHdr, inMailHdr;
-    outMailHdr.from = 0;
+    outMailHdr.from = currentThread->getThreadID();
 
     if(len > MaxNameLen){
     	printf("LockName greater than MaxNameLen %i. Use a shorter name.\n", MaxNameLen);

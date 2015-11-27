@@ -218,6 +218,7 @@ void passportSetup(){
 
 
   applicationClerkLineLock = CreateLock("appLineLock", sizeof("appLineLock"));
+  PrintString("Getting stuck here...?\n", sizeof("Getting stuck here...?\n"));
   pictureClerkLineLock = CreateLock("picLineLock", sizeof("picLineLock"));
   passportClerkLineLock = CreateLock("pasLineLock", sizeof("pasLineLock"));
   cashierLineLock = CreateLock("casLineLock", sizeof("casLineLock"));
