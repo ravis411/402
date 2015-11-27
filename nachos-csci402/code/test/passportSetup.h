@@ -247,23 +247,23 @@ void initialSetup(){
   }
 
   for(i = 0; i < CUSTOMERCOUNT; i++){
-    Exec("../test/PCustomer");
+    Exec("../test/PCustomer", sizeof("../test/PCustomer"));
   }
 
   
   for(i = 0; i < SENATORCOUNT; i++){
-    Exec("../test/PSenator");
+    Exec("../test/PSenator", sizeof("../test/PSenator"));
   }
 
 
   for(i = 0; i < CLERKCOUNT; i++){
-    Exec("../test/PAppClerk");
-    /*Exec("../test/PPicClerk");
-    Exec("../test/PPasClerk");
-    Exec("../test/PCashier");*/
+    Exec("../test/PAppClerk", sizeof("../test/PAppClerk"));
+    /*Exec("../test/PPicClerk", sizeof("../test/PPicClerk"));
+    Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
+    Exec("../test/PCashier", sizeof("../test/PCashier"));*/
   }
 
-  Exec(../test/Manager);
+  Exec("../test/Manager", sizeof("../test/Manager"));
 
 }
 
