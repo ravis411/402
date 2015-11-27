@@ -23,7 +23,7 @@
 
 void managerBroadcastBreakLine(int managerBBLineLock, int managerBBLCV){
 	Acquire(managerBBLineLock);
-	Broadcast(managerBBLCV);
+	Broadcast(managerBBLCV, managerBBLineLock);
 	Release(managerBBLineLock);
 }
 
@@ -48,7 +48,7 @@ void checkEndOfDay(){
     Release(managerLock);
 
     managerWakeUpAllClerks();
-    
+
   /*currentThread->Finish();*/
     passportDestroy();
     Exit(0);
