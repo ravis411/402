@@ -214,6 +214,8 @@ int clerkCheckForSenator(){
 /*Called for every clerk to Create the locks and whatnot...*/
 void passportSetup(){
 	int i;
+	char[15] temp;
+	
 	PrintString("Start passportSetup...\n", sizeof("Start passportSetup...\n"));
 
 
@@ -284,7 +286,6 @@ void passportSetup(){
   /*Init clerkStates, lineCounts*/
 	PrintString("Setup bout to create MAXCLERKS loop.\n", sizeof("Setup bout to create MAXCLERKS loop.\n"));
   for(i=0; i<MAXCLERKS; i++){
-  	char[15] temp;
 
   	temp = "appLock";
   	StringConcatInt(temp, sizeof(temp), i);
