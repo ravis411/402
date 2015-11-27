@@ -505,6 +505,9 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
     if(c->waitingLock == NULL){
         printf("\t\tNo threads waiting. Setting CV lock.\n");
         c->waitingLock = lockID;
+        if(c->waitingLock == NULL){
+            printf("\t\tWTF!!!\n");
+        }
     }
 
     if(c->waitingLock != lockID){
