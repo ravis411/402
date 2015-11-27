@@ -6,8 +6,8 @@
 
 
 
-#define CLERKCOUNT  1
-#define CUSTOMERCOUNT 1
+#define CLERKCOUNT  2
+#define CUSTOMERCOUNT 3
 #define SENATORCOUNT  0
 
 #define MAXCLERKS 5

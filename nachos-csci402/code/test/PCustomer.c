@@ -601,7 +601,7 @@ void Customer(){
   int cashierDone = 0;
   int SSN = -1;
   int money = (Rand()%4)*500 + 100;
-  int appClerkFirst = false && Rand() % 2;
+  int appClerkFirst = Rand() % 2;
   int i;
 
   SSN = customerCheckIn();
