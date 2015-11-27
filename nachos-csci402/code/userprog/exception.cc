@@ -847,7 +847,7 @@ void clientSendMail(char* msg){
 	PacketHeader outPktHdr;
     MailHeader outMailHdr;
     outMailHdr.from = currentThread->getThreadID();
-    printf("outMailHdr.from: %i\n", outMailHdr.from);
+    printf("ThreadID: %i, outMailHdr.from: %i\n",currentThread->getThreadID(), outMailHdr.from);
     outPktHdr.to = 0;
 	outMailHdr.to = 0;
 	outMailHdr.length = strlen(msg) + 1;
