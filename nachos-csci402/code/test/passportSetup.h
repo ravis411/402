@@ -590,7 +590,7 @@ void initialPassportSetup(){
     Exec("../test/PAppClerk", sizeof("../test/PAppClerk"));
     Exec("../test/PPicClerk", sizeof("../test/PPicClerk"));
     Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
-    /*Exec("../test/PCashier", sizeof("../test/PCashier"));*/
+    Exec("../test/PCashier", sizeof("../test/PCashier"));
   }
 
   Exec("../test/PManager", sizeof("../test/PManager"));

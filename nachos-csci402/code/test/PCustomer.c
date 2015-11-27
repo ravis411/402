@@ -624,7 +624,6 @@ void Customer(){
       if (!passportClerkDone) { for (i = 0; i < Rand() % 901 + 100; i++) { Yield(); } }
     }
     else if(!cashierDone){
-    customerCheckOut(SSN);
       cashierDone = customerCashierInteraction(SSN, &money, 0);
       if (!cashierDone) { for (i = 0; i < Rand() % 901 + 100; i++) { Yield(); } }
     }
