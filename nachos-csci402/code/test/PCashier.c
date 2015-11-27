@@ -57,7 +57,7 @@ void cashiercheckAndGoOnBreak(int myLine){
 int CashierGetMyLine(){
   int myLine;
   Acquire(CashierMyLineLock);
-  myLine = Get(CashierMyLine, 0)
+  myLine = Get(CashierMyLine, 0);
   Set(CashierMyLine, 0, myLine + 1);
   Release(CashierMyLineLock);
   return myLine;
