@@ -1807,6 +1807,7 @@ void ExceptionHandler(ExceptionType which) {
 		
 		case SC_PrintString:
 			DEBUG('a', "PrintString syscall.\n");
+			printf("\nTHREAD ID: %i\n", currentThread->getThreadID() );
 			PrintString_Syscall(machine->ReadRegister(4), machine->ReadRegister(5));
 		break;
 		
