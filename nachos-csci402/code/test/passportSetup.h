@@ -303,7 +303,7 @@ void passportSetup(){
     cashierBribeLineCV[i] = CreateCondition("casBribeCV" + i, sizeof("casBribeCV" + i));
     cashierCV[i] = CreateCondition("casCV" + i, sizeof("casCV" + i));
   }
-
+  PrintString("Setup done...\n", sizeof("Setup done...\n"));
 }
 
 /*Called by each entity to destroy their resources.*/
@@ -459,6 +459,8 @@ void initialPassportSetup(){
     Set(pictureClerkSharedDataPicture, i, 0);
     Set(passportClerkSharedDataSSN, i, 0);
   }
+
+  PrintString("Initial Setup Done. Execing entities...\n", sizeof("Initial Setup Done. Execing entities...\n"));
 
   for(i = 0; i < CUSTOMERCOUNT; i++){
     Exec("../test/PCustomer", sizeof("../test/PCustomer"));
