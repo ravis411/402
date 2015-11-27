@@ -402,7 +402,9 @@ void Exit_Syscall(int status){
 	kernel_threadLock.Release();
 
 	#ifdef USE_TLB
-	printf("\nExit status: %i\n\n", status);
+	if(status != 0){
+		printf("\nExit status: %i\n\n", status);
+	}
 	#endif
 	(void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 	currentThread->Finish();

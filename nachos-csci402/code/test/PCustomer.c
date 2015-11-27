@@ -605,7 +605,7 @@ void Customer(){
   int i;
 
   SSN = customerCheckIn();
-  PrintString("Customer checked in...\n", sizeof("Customer checked in...\n"));
+  /*PrintString("Customer checked in...\n", sizeof("Customer checked in...\n"));*/
 
   while(1){
 
@@ -614,11 +614,11 @@ void Customer(){
 
     if( !(appClerkDone) && (appClerkFirst || pictureClerkDone) ){ /*Go to applicationClerk*/
       appClerkDone = customerApplicationClerkInteraction(SSN, &money, 0);
-      customerCheckOut(SSN);
     }
     else if( !pictureClerkDone ){
       /*Go to the picture clerk*/
       pictureClerkDone = customerPictureClerkInteraction(SSN, &money, 0);
+      customerCheckOut(SSN);
     }
     else if(!passportClerkDone){
       passportClerkDone = customerPassportClerkInteraction(SSN, &money, 0);
