@@ -31,6 +31,7 @@ void checkEndOfDay(){
     Release(managerLock);
 
   /*currentThread->Finish();*/
+    passportDestroy();
     Exit(0);
   }
   Release(managerLock);
@@ -212,8 +213,8 @@ void Manager(){
 int
 main()
 {
-
-
+	passportSetup();
+	Manager();
 
 
 	

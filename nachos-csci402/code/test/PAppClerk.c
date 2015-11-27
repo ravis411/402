@@ -55,7 +55,7 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
     Release(applicationClerkLineLock);
     /*Should we go to sleep?*/
     Acquire(managerLock);
-    if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); destroy(); Exit(0);}
+    if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}
     Release(managerLock);
     Yield();
     Acquire(applicationClerkLineLock);
@@ -66,7 +66,7 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
 int getMyApplicationLine(){
   int myLine;
   Acquire(ApplicationMyLineLock);
-  myLine = Get(ApplicationMyLine);
+  myLine = Get(ApplicationMyLine, 0);
   Set(ApplicationMyLine, 0, (myLine + 1) );
   Release(ApplicationMyLineLock);
   return myLine;
@@ -204,7 +204,7 @@ void ApplicationClerk(){
 int
 main()
 {
-	setup();
+	passportSetup();
 	ApplicationClerk();
 	
     Exit(0);		/* and then we're done */
