@@ -146,21 +146,32 @@ int THEEND;
 * Utility Functions...
 ***************************/
 
+/*Used by customerInteractions to return customer/senator text...*/
+char* MYTYPE(int VIP){
+  if(VIP == 0){
+    return CUSTOMERTEXT;
+  }else if(VIP == 1){
+    return SENATORTEXT;
+  }else{
+    return "NULL";
+  }
+}
+
 /* Utility function to pick the shortest line
 * Customer has already chosen type of line to get in just needs to pick which line
 * Assumptions: The caller has a lock for the given MVs
 *Parameters: 
   *lineCount: a vector of the lineCount
   *clerkState: a vector of the clerkState*/
-int pickShortestLine(int* pickShortestlineCount, int* pickShortestclerkState){
+int pickShortestLine(int pickShortestlineCount, int pickShortestclerkState){
   int myLine = -1;
   int lineSize = 1000;
   int i;
   int tempLineCount;
   int tempState;
   for(i=0; i < CLERKCOUNT; i++){
-    tempLineCount = Get((int)pickShortestlineCount, i);
-    tempState = Get((int)pickShortestclerkState, i);
+    tempLineCount = Get(pickShortestlineCount, i);
+    tempState = Get(pickShortestclerkState, i);
     /*If lineCount < lineSize and clerk is not on break*/
     if(tempLineCount < lineSize && tempState != ONBREAK ){
       myLine = i;

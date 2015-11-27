@@ -89,6 +89,7 @@ int customerCheckIn(){
 
 /*To tell the manager they did a great job and let him know we're done.*/
 void customerCheckOut(int SSN){
+  int temp;
   Acquire(managerLock);
 
   temp = Get(customersPresentCount, 0);
