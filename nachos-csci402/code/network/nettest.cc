@@ -369,7 +369,7 @@ public:
     int createCVCount;
     ServerCV(){
         q = new List();
-        waitingLock = NULL;
+        waitingLock = -1;
         createCVCount = 1;
     }
     ~ServerCV(){
@@ -502,10 +502,10 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
         return;
     }
 
-    if(c->waitingLock == NULL){
+    if(c->waitingLock == -1){
         printf("\t\tNo threads waiting. Setting CV lockID %i.\n", lockID);
         c->waitingLock = lockID;
-        if(c->waitingLock == NULL){
+        if(c->waitingLock == -1){
             printf("\t\tWTF!!!\n");
         }
     }
@@ -565,7 +565,7 @@ void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
     }
 
 
-    if(c->waitingLock == NULL){ //if no thread waiting
+    if(c->waitingLock == -1){ //if no thread waiting
         if(!c->q->IsEmpty()){
             printf("\t\tERROR Q is not empty but waitingLock is NULL\n");
         }
@@ -587,7 +587,7 @@ void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
     ServerReplyMsg* r = (ServerReplyMsg *)c->q->Remove();
 
     if(c->q->IsEmpty()){
-        c->waitingLock = NULL;
+        c->waitingLock = -1;
     }
 
     //We need to have the 'woken up' thread acquire the lock
@@ -639,7 +639,7 @@ void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
         ServerReplyMsg* r = (ServerReplyMsg *)c->q->Remove();
 
         if(c->q->IsEmpty()){
-            c->waitingLock = NULL;
+            c->waitingLock = -1;
         }
 
         //We need to have the 'woken up' thread acquire the lock
