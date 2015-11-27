@@ -473,7 +473,7 @@ int customerCashierInteraction(int SSN, int *money, int VIP){
   
   if(Get(cashierState, myLine) != AVAILABLE){
     if(!bribe){
-      Set(cashierLineCount, myLine, Get(cashierLineLock, myLine) + 1);
+      Set(cashierLineCount, myLine, Get(cashierLineCount, myLine) + 1);
       Acquire(printLock);
           PrintString(myType, 8);
           PrintString(" ", 1);
