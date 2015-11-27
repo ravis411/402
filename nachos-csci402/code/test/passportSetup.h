@@ -11,8 +11,8 @@
 #define SENATORCOUNT  3
 
 #define MAXCLERKS 5
-#define MAXCUSTOMERS 50
-#define MAXSENATORS 10
+#define MAXCUSTOMERS 5/*50*/
+#define MAXSENATORS 2 /*10*/
 
 
 #define AVAILABLE 0
@@ -476,7 +476,7 @@ void initialPassportSetup(){
     Exec("../test/PCashier", sizeof("../test/PCashier"));*/
   }
 
-  Exec("../test/Manager", sizeof("../test/Manager"));
+  Exec("../test/PManager", sizeof("../test/PManager"));
 
 }
 

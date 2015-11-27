@@ -846,7 +846,7 @@ int Get_Syscall(int MVID, int index){
 void clientSendMail(char* msg){
 	PacketHeader outPktHdr;
     MailHeader outMailHdr;
-    outMailHdr.from = 0;
+    outMailHdr.from = currentThread->getThreadID();
 
     outPktHdr.to = 0;
 	outMailHdr.to = 0;
@@ -922,7 +922,7 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 		interrupt->Halt();
 	}
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
@@ -963,7 +963,7 @@ void Acquire_Syscall(int lock){
 	
 	clientSendMail(msg);
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
@@ -1103,7 +1103,7 @@ int CreateCondition_Syscall(int vaddr, int len){
 	
 	clientSendMail(msg);
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
@@ -1144,7 +1144,7 @@ void Wait_Syscall(int condition, int lock){
 	clientSendMail((char*)ss.str().c_str());
 
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
@@ -1181,7 +1181,7 @@ void Signal_Syscall(int condition, int lock){
 	clientSendMail((char*)ss.str().c_str());
 
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
@@ -1218,7 +1218,7 @@ void Broadcast_Syscall(int condition, int lock){
 	clientSendMail((char*)ss.str().c_str());
 
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
@@ -1313,7 +1313,7 @@ int CreateMV_Syscall(unsigned int vaddr, int len, int size){
 
 	clientSendMail((char*) ss.str().c_str());
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
@@ -1367,7 +1367,7 @@ void Set_Syscall(int MVID, int index, int value){
 
 	clientSendMail((char*)ss.str().c_str());
 
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
@@ -1411,7 +1411,7 @@ int Get_Syscall(int MVID, int index){
 	int value = 0;
 	bool success;
 	
-	postOffice->Receive(0, &inPktHdr, &inMailHdr, buffer);
+	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
