@@ -200,77 +200,6 @@ int clerkCheckForSenator(){
 
 
 
-/*hould be called only once to initialize all MVs*/
-void initialPassportSetup(){
-  int i;
-
-  passportSetup();
-
-	Set(THEEND, 0, 0);
-  Set(senatorPresentWaitOutSide, 0, 0);
-  Set(senatorSafeToEnter, 0, 0);
-  Set(SSNCount, 0, 0);
-  Set(ApplicationMyLine, 0, 0);
-  Set(PictureMyLine, 0, 0);
-  Set(PassportMyLine, 0, 0);
-  Set(CashierMyLine, 0, 0);
-
-  for(i = 0; i < MAXCUSTOMERS + MAXSENATORS; i++){
-    Set(applicationCompletion, i, 0);
-    Set(pictureCompletion, i, 0);
-    Set(passportCompletion, i, 0);
-    Set(passportPunishment, i, 0);
-    Set(cashierSharedDataSSN, i, 0);
-    Set(cashierRejection, i, 0);
-    Set(doneCompletely, i, 0);
-  }
-
-  for(i=0; i<MAXCLERKS; i++){
-    Set(applicationClerkState, i, BUSY);
-    Set(pictureClerkState, i, BUSY);
-    Set(passportClerkState, i, BUSY);
-    Set(cashierState, i, BUSY);
-
-    Set(applicationClerkLineCount, i, 0);     
-    Set(applicationClerkBribeLineCount, i, 0);    
-    Set(pictureClerkLineCount, i, 0);     
-    Set(pictureClerkBribeLineCount, i, 0);    
-    Set(passportClerkLineCount, i, 0);      
-    Set(passportClerkBribeLineCount, i, 0);   
-    Set(cashierLineCount, i, 0);      
-    Set(cashierBribeLineCount, i, 0);
-
-    Set(applicationClerkSharedData, i, 0);
-    Set(pictureClerkSharedDataSSN, i, 0);
-    Set(pictureClerkSharedDataPicture, i, 0);
-    Set(passportClerkSharedDataSSN, i, 0);
-  }
-
-  for(i = 0; i < CUSTOMERCOUNT; i++){
-    Exec("../test/PCustomer", sizeof("../test/PCustomer"));
-  }
-
-  
-  for(i = 0; i < SENATORCOUNT; i++){
-    Exec("../test/PSenator", sizeof("../test/PSenator"));
-  }
-
-
-  for(i = 0; i < CLERKCOUNT; i++){
-    Exec("../test/PAppClerk", sizeof("../test/PAppClerk"));
-    /*Exec("../test/PPicClerk", sizeof("../test/PPicClerk"));
-    Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
-    Exec("../test/PCashier", sizeof("../test/PCashier"));*/
-  }
-
-  Exec("../test/Manager", sizeof("../test/Manager"));
-
-}
-
-
-
-
-
 /*Called for every clerk to Create the locks and whatnot...*/
 void passportSetup(){
 	int i;
@@ -459,7 +388,7 @@ void passportDestroy(){
 }
 
 /*Should be called once to close the passport office.*/
-void PassportInitialDestroy(){
+void initialPassportDestroy(){
 
   while(!THEEND){
     Yield();
@@ -472,3 +401,71 @@ void PassportInitialDestroy(){
 
   passportDestroy();
 }
+
+/*hould be called only once to initialize all MVs*/
+void initialPassportSetup(){
+  int i;
+
+  passportSetup();
+
+  Set(THEEND, 0, 0);
+  Set(senatorPresentWaitOutSide, 0, 0);
+  Set(senatorSafeToEnter, 0, 0);
+  Set(SSNCount, 0, 0);
+  Set(ApplicationMyLine, 0, 0);
+  Set(PictureMyLine, 0, 0);
+  Set(PassportMyLine, 0, 0);
+  Set(CashierMyLine, 0, 0);
+
+  for(i = 0; i < MAXCUSTOMERS + MAXSENATORS; i++){
+    Set(applicationCompletion, i, 0);
+    Set(pictureCompletion, i, 0);
+    Set(passportCompletion, i, 0);
+    Set(passportPunishment, i, 0);
+    Set(cashierSharedDataSSN, i, 0);
+    Set(cashierRejection, i, 0);
+    Set(doneCompletely, i, 0);
+  }
+
+  for(i=0; i<MAXCLERKS; i++){
+    Set(applicationClerkState, i, BUSY);
+    Set(pictureClerkState, i, BUSY);
+    Set(passportClerkState, i, BUSY);
+    Set(cashierState, i, BUSY);
+
+    Set(applicationClerkLineCount, i, 0);     
+    Set(applicationClerkBribeLineCount, i, 0);    
+    Set(pictureClerkLineCount, i, 0);     
+    Set(pictureClerkBribeLineCount, i, 0);    
+    Set(passportClerkLineCount, i, 0);      
+    Set(passportClerkBribeLineCount, i, 0);   
+    Set(cashierLineCount, i, 0);      
+    Set(cashierBribeLineCount, i, 0);
+
+    Set(applicationClerkSharedData, i, 0);
+    Set(pictureClerkSharedDataSSN, i, 0);
+    Set(pictureClerkSharedDataPicture, i, 0);
+    Set(passportClerkSharedDataSSN, i, 0);
+  }
+
+  for(i = 0; i < CUSTOMERCOUNT; i++){
+    Exec("../test/PCustomer", sizeof("../test/PCustomer"));
+  }
+
+  
+  for(i = 0; i < SENATORCOUNT; i++){
+    Exec("../test/PSenator", sizeof("../test/PSenator"));
+  }
+
+
+  for(i = 0; i < CLERKCOUNT; i++){
+    Exec("../test/PAppClerk", sizeof("../test/PAppClerk"));
+    /*Exec("../test/PPicClerk", sizeof("../test/PPicClerk"));
+    Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
+    Exec("../test/PCashier", sizeof("../test/PCashier"));*/
+  }
+
+  Exec("../test/Manager", sizeof("../test/Manager"));
+
+}
+

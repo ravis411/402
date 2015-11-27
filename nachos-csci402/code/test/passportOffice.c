@@ -15,10 +15,10 @@ int
 main()
 {
 
-	initialSetup();
+	initialPassportSetup();
 
-	
-	initialDestroy();
+
+	initialPassportDestroy();
 
 
 	

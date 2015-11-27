@@ -651,7 +651,7 @@ void Customer(){
 int
 main()
 {
-  setup();
+  passportSetup();
 	Customer();
 
   Exit(0);
