@@ -653,8 +653,9 @@ void Customer(){
 int
 main()
 {
-  PrintString("\nPCUSTOMER\n", sizeof("\nPCUSTOMER\n"));
+  
   passportSetup();
+  PrintString("\nPCUSTOMER\n", sizeof("\nPCUSTOMER\n"));
 	Customer();
 
   Exit(0);
