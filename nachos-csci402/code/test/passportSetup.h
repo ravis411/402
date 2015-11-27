@@ -214,8 +214,8 @@ int clerkCheckForSenator(){
 /*Called for every clerk to Create the locks and whatnot...*/
 void passportSetup(){
 	int i;
-	char[15] temp;
-	
+	char temp[15];
+
 	PrintString("Start passportSetup...\n", sizeof("Start passportSetup...\n"));
 
 
