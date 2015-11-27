@@ -460,7 +460,7 @@ void StringConcatInt_Syscall(unsigned int vaddr, int len, int concat) {
 		
 	if ( !(buf = new char[len + 2]) ) {
 		printf("%s","Error allocating kernel buffer in StringConcatInt\n");
-		return -1;
+		return;
 	} else {
 		if ( copyin(vaddr,len,buf) == -1 ) {
 			printf("%s","Bad pointer passed in StringConcatInt: data not pinted.\n");
@@ -469,7 +469,7 @@ void StringConcatInt_Syscall(unsigned int vaddr, int len, int concat) {
 		}
 	}
 
-	for(int ii = 0; i i<len; ii++){
+	for(int ii = 0; ii < len; ii++){
 		temp += buf[ii];
 	}
 	
