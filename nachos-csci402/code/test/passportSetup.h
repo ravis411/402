@@ -6,7 +6,7 @@
 
 
 
-#define CLERKCOUNT  2
+#define CLERKCOUNT  1
 #define CUSTOMERCOUNT 3
 #define SENATORCOUNT  0
 
