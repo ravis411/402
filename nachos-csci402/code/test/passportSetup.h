@@ -201,10 +201,10 @@ int clerkCheckForSenator(){
 
 
 /*hould be called only once to initialize all MVs*/
-void initialSetup(){
+void initialPassportSetup(){
   int i;
 
-  setup();
+  passportSetup();
 
 	Set(THEEND, 0, 0);
   Set(senatorPresentWaitOutSide, 0, 0);
@@ -272,7 +272,7 @@ void initialSetup(){
 
 
 /*Called for every clerk to Create the locks and whatnot...*/
-void setup(){
+void passportSetup(){
 	int i;
 
 
@@ -366,7 +366,7 @@ void setup(){
 }
 
 /*Called by each entity to destroy their resources.*/
-void destroy(){
+void passportDestroy(){
   int i;
 
 
@@ -459,7 +459,7 @@ void destroy(){
 }
 
 /*Should be called once to close the passport office.*/
-void initialDestroy(){
+void PassportInitialDestroy(){
 
   while(!THEEND){
     Yield();
@@ -470,5 +470,5 @@ void initialDestroy(){
   PrintString("Passport Office Closed.\n", sizeof("Passport Office Closed.\n"));
   Release(printLock);
 
-  destroy();
+  passportDestroy();
 }
