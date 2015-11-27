@@ -216,11 +216,11 @@ void passportSetup(){
 	int i;
 	char temp[15];
 
-	PrintString("Start passportSetup...\n", sizeof("Start passportSetup...\n"));
+	/*PrintString("Start passportSetup...\n", sizeof("Start passportSetup...\n"));*/
 
 
   applicationClerkLineLock = CreateLock("appLineLock", sizeof("appLineLock"));
-  PrintString("Getting stuck here...?\n", sizeof("Getting stuck here...?\n"));
+  /*PrintString("Getting stuck here...?\n", sizeof("Getting stuck here...?\n"));*/
   pictureClerkLineLock = CreateLock("picLineLock", sizeof("picLineLock"));
   passportClerkLineLock = CreateLock("pasLineLock", sizeof("pasLineLock"));
   cashierLineLock = CreateLock("casLineLock", sizeof("casLineLock"));
@@ -285,7 +285,7 @@ void passportSetup(){
 
 
   /*Init clerkStates, lineCounts*/
-	PrintString("Setup bout to create MAXCLERKS loop.\n", sizeof("Setup bout to create MAXCLERKS loop.\n"));
+	/*PrintString("Setup bout to create MAXCLERKS loop.\n", sizeof("Setup bout to create MAXCLERKS loop.\n"));*/
  /* for(i=0; i<MAXCLERKS; i++){
 
   	temp = "appLock";
@@ -415,7 +415,7 @@ void passportSetup(){
     cashierBribeLineCV[4] = CreateCondition("casBribeCV5", sizeof("casBribeCV5"));
     cashierCV[4] = CreateCondition("casCV5", sizeof("casCV5"));
 
-  PrintString("Setup done...\n", sizeof("Setup done...\n"));
+  /*PrintString("Setup done...\n", sizeof("Setup done...\n"));*/
 }
 
 /*Called by each entity to destroy their resources.*/
@@ -572,7 +572,7 @@ void initialPassportSetup(){
     Set(passportClerkSharedDataSSN, i, 0);
   }
 
-  PrintString("Initial Setup Done. Execing entities...\n", sizeof("Initial Setup Done. Execing entities...\n"));
+  /*PrintString("Initial Setup Done. Execing entities...\n", sizeof("Initial Setup Done. Execing entities...\n"));*/
 
   for(i = 0; i < CUSTOMERCOUNT; i++){
     Exec("../test/PCustomer", sizeof("../test/PCustomer"));

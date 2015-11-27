@@ -653,10 +653,10 @@ void Customer(){
 int
 main()
 {
-  PrintString("PCUSTOMER\n", sizeof("PCUSTOMER\n"));
+  /*PrintString("PCUSTOMER\n", sizeof("PCUSTOMER\n"));*/
   passportSetup();
-  PrintString("CUSTOMER SETUP\n", sizeof("CUSTOMER SETUP\n"));
-	/*Customer();*/
+  /*PrintString("CUSTOMER SETUP\n", sizeof("CUSTOMER SETUP\n"));*/
+  Customer();
 
   Exit(0);
 }
