@@ -41,7 +41,7 @@ void checkEndOfDay(){
 * checks if a line has more than 3 customers... 
 * if so, signals a clerk on break
 * Returns true if there was asleeping clerk and needed to wake one up*/
-int managerCheckandWakeupCLERK(int managerCWCLineLock, int* managerCWClineCount, int* managerCWCState, int managerCWCBreakCV, int managerCWCount){
+int managerCheckandWakeupCLERK(int managerCWCLineLock, int managerCWClineCount, int managerCWCState, int managerCWCBreakCV, int managerCWCount){
   int wakeUp = 0;/*should we wake up a clerk?*/
   int asleep = 0;/*is any clerk asleep?*/
   int i;
