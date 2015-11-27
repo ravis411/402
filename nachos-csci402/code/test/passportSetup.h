@@ -159,8 +159,8 @@ int pickShortestLine(int* pickShortestlineCount, int* pickShortestclerkState){
   int tempLineCount;
   int tempState;
   for(i=0; i < CLERKCOUNT; i++){
-    tempLineCount = Get(pickShortestlineCount, i);
-    tempState = Get(pickShortestclerkState, i);
+    tempLineCount = Get((int)pickShortestlineCount, i);
+    tempState = Get((int)pickShortestclerkState, i);
     /*If lineCount < lineSize and clerk is not on break*/
     if(tempLineCount < lineSize && tempState != ONBREAK ){
       myLine = i;
