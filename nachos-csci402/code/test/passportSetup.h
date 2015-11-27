@@ -591,7 +591,7 @@ void initialPassportSetup(){
     Exec("../test/PCashier", sizeof("../test/PCashier"));*/
   }
 
-  Exec("../test/PManager", sizeof("../test/PManager"));
+  /*Exec("../test/PManager", sizeof("../test/PManager"));*/
 
 }
 
