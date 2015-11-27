@@ -513,9 +513,11 @@ void passportDestroy(){
 
 /*Should be called once to close the passport office.*/
 void initialPassportDestroy(){
-
+	int i;
   while(!Get(THEEND, 0)){
-    Yield();
+    for(i = 0; i < 400;i++){
+    	Yield();
+    }
   }
 
 
@@ -587,8 +589,8 @@ void initialPassportSetup(){
   for(i = 0; i < CLERKCOUNT; i++){
     Exec("../test/PAppClerk", sizeof("../test/PAppClerk"));
     Exec("../test/PPicClerk", sizeof("../test/PPicClerk"));
-    /*Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
-    Exec("../test/PCashier", sizeof("../test/PCashier"));*/
+    Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
+    /*Exec("../test/PCashier", sizeof("../test/PCashier"));*/
   }
 
   Exec("../test/PManager", sizeof("../test/PManager"));

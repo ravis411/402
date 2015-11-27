@@ -403,7 +403,12 @@ void Exit_Syscall(int status){
 
 	#ifdef USE_TLB
 	if(status != 0){
-		printf("\nExit status: %i\n\n", status);
+		#ifdef NETWORK
+			printf("\nExit ThreadID: %i status: %i\n\n", currentThread->getThreadID(), status);
+		#endif
+		#ifndef NETWORK
+			printf("\nExit status: %i\n\n", status);
+		#endif
 	}
 	#endif
 	(void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
