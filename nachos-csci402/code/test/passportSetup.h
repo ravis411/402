@@ -401,7 +401,7 @@ void passportDestroy(){
 /*Should be called once to close the passport office.*/
 void initialPassportDestroy(){
 
-  while(!THEEND){
+  while(!Get(THEEND, 0)){
     Yield();
   }
 
