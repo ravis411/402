@@ -200,7 +200,7 @@ int clerkCheckForSenator(){
 
 
 
-//Should be called only once to initialize all MVs
+/*hould be called only once to initialize all MVs*/
 void initialSetup(){
   int i;
 
