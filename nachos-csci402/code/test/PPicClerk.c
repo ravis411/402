@@ -77,11 +77,11 @@ void PictureClerk(){
     int customerSSN;
 
     myLine = PictureGetMyLine();
-    Acquire(printLock);
+    /*Acquire(printLock);
     PrintString("PicClerk MyLine: ", sizeof("PicClerk MyLine: "));
     PrintInt(myLine);
     PrintString("\n", 1);
-    Release(printLock);
+    Release(printLock);*/
     while(1){
   
       if(clerkCheckForSenator()) continue; /*Waiting for senators to enter just continue.*/
