@@ -932,6 +932,7 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	if(success){
 		rs >> lockID;
 	}else{
+		printf("CreateLock failure.?\n");
 		return -1;
 	}
 

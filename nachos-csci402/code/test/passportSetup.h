@@ -6,8 +6,8 @@
 
 
 
-#define CLERKCOUNT  2
-#define CUSTOMERCOUNT 2
+#define CLERKCOUNT  1
+#define CUSTOMERCOUNT 1
 #define SENATORCOUNT  0
 
 #define MAXCLERKS 5
@@ -214,7 +214,7 @@ int clerkCheckForSenator(){
 /*Called for every clerk to Create the locks and whatnot...*/
 void passportSetup(){
 	int i;
-
+	PrintString("Start passportSetup...\n", sizeof("Start passportSetup...\n"));
 
 
   applicationClerkLineLock = CreateLock("appLineLock", sizeof("appLineLock"));

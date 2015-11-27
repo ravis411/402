@@ -656,7 +656,7 @@ main()
   PrintString("PCUSTOMER\n", sizeof("PCUSTOMER\n"));
   passportSetup();
   PrintString("CUSTOMER SETUP\n", sizeof("CUSTOMER SETUP\n"));
-	Customer();
+	/*Customer();*/
 
   Exit(0);
 }
