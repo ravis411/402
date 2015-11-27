@@ -247,9 +247,9 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
     myLine = pickShortestLine(pictureClerkBribeLineCount, pictureClerkState);
   }
   
-  if(pictureClerkState[myLine] != AVAILABLE){
+  if(Get(pictureClerkState, myLine) != AVAILABLE){
     if(!bribe){
-      pictureClerkLineCount[myLine]++;
+      Set(pictureClerkLineCount, myLine, Get(pictureClerkLineCount, myLine)++);
       /*printf("%s %i has gotten in regular line for PictureClerk %i.\n", myType, SSN, myLine);*/
        Acquire(printLock);
           PrintString(myType, 8);
@@ -261,14 +261,14 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
           PrintString(".\n", 2);
       Release(printLock);
       Wait(pictureClerkLineCV[myLine], pictureClerkLineLock);
-      pictureClerkLineCount[myLine]--;
-      if(pictureClerkState[myLine] != SIGNALEDCUSTOMER){
+      Set(pictureClerkLineCount, myLine, Get(pictureClerkLineCount, myLine)--;
+      if(Get(pictureClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(pictureClerkLineLock);
         if(customerCheckSenator(SSN))
           return false;
       }
     }else{
-      pictureClerkBribeLineCount[myLine]++;
+      Set(pictureClerkBribeLineCount, myLine, Get(pictureClerkBribeLineCount, myLine)++);
       /*printf("%s %i has gotten in bribe line for PictureClerk %i.\n", myType, SSN, myLine);*/
       Acquire(printLock);
           PrintString(myType, 8);
@@ -281,8 +281,8 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
       Release(printLock);
 
       Wait(pictureClerkBribeLineCV[myLine], pictureClerkLineLock);
-      pictureClerkBribeLineCount[myLine]--;
-      if(pictureClerkState[myLine] != SIGNALEDCUSTOMER){
+      Set(pictureClerkBribeLineCount, myLine, Get(pictureClerkBribeLineCount, myLine)--);
+      if(Get(pictureClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(pictureClerkLineLock);
         if(customerCheckSenator(SSN))
           return false;
@@ -291,12 +291,12 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
     }
   }
 
-  pictureClerkState[myLine] = BUSY;
+  Set(pictureClerkState, myLine, BUSY);
   Release(pictureClerkLineLock);
 
   Acquire(pictureClerkLock[myLine]);
  
-  pictureClerkSharedDataSSN[myLine] = SSN;
+  Set(pictureClerkSharedDataSSN, myLine, SSN);
   Acquire(printLock);
       PrintString(myType, 8);
       PrintString(" ", 1);
@@ -313,7 +313,7 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
   Wait(pictureClerkCV[myLine], pictureClerkLock[myLine]);
 
 
-  while(pictureClerkSharedDataPicture[myLine] == 0) {
+  while(Get(pictureClerkSharedDataPicture, myLine) == 0) {
     if(Rand()%10 > 7) {
       Acquire(printLock);
           PrintString(myType, 8);
@@ -324,7 +324,7 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
           PrintInt(myLine);
           PrintString(".\n", 2);
       Release(printLock);
-      pictureClerkSharedDataPicture[myLine] = 0;
+      Set(pictureClerkSharedDataPicture, myLine, 0);
       Signal(pictureClerkCV[myLine], pictureClerkLock[myLine]);
 
       Wait(pictureClerkCV[myLine], pictureClerkLock[myLine]);
@@ -340,7 +340,7 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
           PrintInt(myLine);
           PrintString(".\n", 2);
       Release(printLock);
-      pictureClerkSharedDataPicture[myLine] = 1;
+      Set(pictureClerkSharedDataPicture, myLine, 1);
       Signal(pictureClerkCV[myLine], pictureClerkLock[myLine]);
 
       Wait(pictureClerkCV[myLine], pictureClerkLock[myLine]);
@@ -368,9 +368,9 @@ int customerPassportClerkInteraction(int SSN, int *money, int VIP){
     myLine = pickShortestLine(passportClerkBribeLineCount, passportClerkState);
   }
 
-  if(passportClerkState[myLine] != AVAILABLE){
+  if(Get(passportClerkState, myLine) != AVAILABLE){
     if(!bribe){
-      passportClerkLineCount[myLine]++;
+      Set(passportClerkLineCount,myLine, ( Get(passportClerkLineCount, myLine) + 1 ) );
       Acquire(printLock);
           PrintString(myType, 8);
           PrintString(" ", 1);
@@ -381,14 +381,14 @@ int customerPassportClerkInteraction(int SSN, int *money, int VIP){
           PrintString(".\n", 2);
       Release(printLock);
       Wait(passportClerkLineCV[myLine], passportClerkLineLock);
-      passportClerkLineCount[myLine]--;
-      if(passportClerkState[myLine] != SIGNALEDCUSTOMER){
+      Set(passportClerkLineCount, myLine, Get(passportClerkLineCount, myLine) - 1);
+      if(Get(passportClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(passportClerkLineLock);
         if(customerCheckSenator(SSN))
           return false;
       }
     }else{
-      passportClerkBribeLineCount[myLine]++;
+      Set(passportClerkBribeLineCount, myLine, Get(passportClerkBribeLineCount, myLine) + 1);
       Acquire(printLock);
           PrintString(myType, 8);
           PrintString(" ", 1);
@@ -399,8 +399,8 @@ int customerPassportClerkInteraction(int SSN, int *money, int VIP){
           PrintString(".\n", 2);
       Release(printLock);
       Wait(passportClerkBribeLineCV[myLine], passportClerkLineLock);
-      passportClerkBribeLineCount[myLine]--;
-      if(passportClerkState[myLine] != SIGNALEDCUSTOMER){
+      Set(passportClerkBribeLineCount, myLine, Get(passportClerkBribeLineCount, myLine) - 1 );
+      if(Get(passportClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(passportClerkLineLock);
         if(customerCheckSenator(SSN))
           return false;
@@ -410,13 +410,13 @@ int customerPassportClerkInteraction(int SSN, int *money, int VIP){
   }
 
 
-  passportClerkState[myLine] = BUSY;
+  Set(passportClerkState, myLine, BUSY);
   Release(passportClerkLineLock);
 
   Acquire(passportClerkLock[myLine]);
 
 
-  passportClerkSharedDataSSN[myLine] = SSN;
+  Set(passportClerkSharedDataSSN, myLine, SSN);
   Acquire(printLock);
       PrintString(myType, 8);
       PrintString(" ", 1);
@@ -432,7 +432,7 @@ int customerPassportClerkInteraction(int SSN, int *money, int VIP){
 
 
   Wait(passportClerkCV[myLine], passportClerkLock[myLine]);
-  if(passportPunishment[SSN] == 1) {
+  if(Get(passportPunishment, SSN) == 1) {
     Acquire(printLock);
       PrintString(myType, 8);
       PrintString(" ", 1);
@@ -471,9 +471,9 @@ int customerCashierInteraction(int SSN, int *money, int VIP){
     myLine = pickShortestLine(cashierBribeLineCount, cashierState);
   }
   
-  if(cashierState[myLine] != AVAILABLE){
+  if(Get(cashierState, myLine) != AVAILABLE){
     if(!bribe){
-      cashierLineCount[myLine]++;
+      Set(cashierLineCount, myLine, Get(cashierLineLock, myLine) + 1);
       Acquire(printLock);
           PrintString(myType, 8);
           PrintString(" ", 1);
@@ -483,14 +483,14 @@ int customerCashierInteraction(int SSN, int *money, int VIP){
           PrintString(".\n", 2);
       Release(printLock);
       Wait(cashierLineCV[myLine], cashierLineLock);
-      cashierLineCount[myLine]--;
-      if(cashierState[myLine] != SIGNALEDCUSTOMER){
+      Set(cashierLineCount, myLine, Get(cashierLineCount, myLine) - 1);
+      if(Get(cashierState, myLine) != SIGNALEDCUSTOMER){
         Release(cashierLineLock);
         if(customerCheckSenator(SSN))
           return false;
       }
     }else{
-      cashierBribeLineCount[myLine]++;
+      Set(cashierBribeLineCount, myLine, Get(cashierBribeLineCount, myLine) + 1);
       Acquire(printLock);
           PrintString(myType, 8);
           PrintString(" ", 1);
@@ -500,8 +500,8 @@ int customerCashierInteraction(int SSN, int *money, int VIP){
           PrintString(".\n", 2);
       Release(printLock);
       Wait(cashierBribeLineCV[myLine], cashierLineLock);
-      cashierBribeLineCount[myLine]--;
-      if(cashierState[myLine] != SIGNALEDCUSTOMER){
+      Set(cashierBribeLineCount, myLine, Get(cashierBribeLineCount, myLine) - 1);
+      if(Get(cashierState, myLine) != SIGNALEDCUSTOMER){
         Release(cashierLineLock);
         if(customerCheckSenator(SSN))
           return false;
@@ -511,14 +511,14 @@ int customerCashierInteraction(int SSN, int *money, int VIP){
     }
   }
 
-  cashierState[myLine] = BUSY;
+  Set(cashierState, myLine, BUSY);
   Release(cashierLineLock);
 
 
   Acquire(cashierLock[myLine]);
 
 
-  cashierSharedDataSSN[myLine] = SSN;
+  Set(cashierSharedDataSSN, myLine, SSN);
    Acquire(printLock);
       PrintString(myType, 8);
       PrintString(" ", 1);
@@ -533,7 +533,7 @@ int customerCashierInteraction(int SSN, int *money, int VIP){
 
   Wait(cashierCV[myLine], cashierLock[myLine]);
 
-  if (cashierRejection[SSN] == 1) {
+  if (Get(cashierRejection, SSN) == 1) {
     Acquire(printLock);
       PrintString(myType, 8);
       PrintString(" ", 1);
