@@ -652,6 +652,7 @@ void Customer(){
 int
 main()
 {
+  PrintString("\nPCUSTOMER\n", sizeof("\nPCUSTOMER\n"));
   passportSetup();
 	Customer();
 
