@@ -19,6 +19,22 @@
 *
 *******************************************************/
 
+
+
+void managerBroadcastBreakLine(int managerBBLineLock, int managerBBLCV){
+	Acquire(managerBBLineLock);
+	Broadcast(managerBBLCV);
+	Release(managerBBLineLock);
+}
+
+void managerWakeUpAllClerks(){
+	managerBroadcastBreakLine(applicationClerkLineLock, applicationClerkBreakCV);
+	managerBroadcastBreakLine(pictureClerkLineLock, pictureClerkBreakCV);
+	managerBroadcastBreakLine(passportClerkLineLock, passportClerkBreakCV);
+	managerBroadcastBreakLine(cashierLineLock, cashierBreakCV);
+}
+
+
 /*This will put the clerks and the manager to sleep so everyone can Exit and nachos can clean up*/
 void checkEndOfDay(){
   Acquire(managerLock);
@@ -31,12 +47,16 @@ void checkEndOfDay(){
     Set(THEEND,0, 1);
     Release(managerLock);
 
+    managerWakeUpAllClerks();
+    
   /*currentThread->Finish();*/
     passportDestroy();
     Exit(0);
   }
   Release(managerLock);
 }
+
+
 
 /* managerCheckandWakeupCLERK
 * checks if a line has more than 3 customers... 

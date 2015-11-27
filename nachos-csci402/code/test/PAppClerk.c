@@ -19,9 +19,21 @@
 * Assumptions: called with clerkLineLock*/
 void applicationClerkcheckAndGoOnBreak(int myLine){
   /*Only go on break if there is at least one other clerk*/
+
   int freeOrAvailable = 0;
   int i;
   int tempSate;
+
+
+
+  Release(applicationClerkLineLock);
+  /*Should we go to sleep?*/
+  Acquire(managerLock);
+  if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}
+  Release(managerLock);
+  Yield();
+  Acquire(applicationClerkLineLock);
+
   for(i = 0; i < CLERKCOUNT; i++){
   	tempSate = Get(applicationClerkState, i);
     if(i != myLine && ( tempSate == AVAILABLE || tempSate == BUSY ) ){
@@ -49,18 +61,8 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
     PrintString(" is coming off break.\n", sizeof(" is coming off break.\n") );
     Release(printLock);
 
-  }else{
-    /*If everyone is on break...
-    * applicationClerkState[myLine] = AVAILABLE;*/
-    Release(applicationClerkLineLock);
-    /*Should we go to sleep?*/
-    Acquire(managerLock);
-    if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}
-    Release(managerLock);
-    Yield();
-    Acquire(applicationClerkLineLock);
   }
-  /*applicationClerkState[myLine] = AVAILABLE;*/
+
 }
 
 int getMyApplicationLine(){

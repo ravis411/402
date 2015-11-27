@@ -24,6 +24,15 @@ void pictureClerkcheckAndGoOnBreak(int myLine){
   int tempState;
   int freeOrAvailable = false;
 
+  /*Check if the day is over...*/
+  Release(pictureClerkLineLock);
+  Acquire(managerLock);
+  if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}
+  Release(managerLock);
+  Yield();
+  Acquire(pictureClerkLineLock);
+
+
   for(i = 0; i < CLERKCOUNT; i++){
   	tempState = Get(pictureClerkState, i);
     if(i != myLine && ( tempState == AVAILABLE || tempState == BUSY ) ){
@@ -46,18 +55,8 @@ void pictureClerkcheckAndGoOnBreak(int myLine){
       PrintInt(myLine);
       PrintString(" is coming off break.\n", sizeof(" is coming off break.\n") );
     Release(printLock);
-  }else{
-
-    Release(pictureClerkLineLock);
-
-    Acquire(managerLock);
-    if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}
-    Release(managerLock);
-    Yield();
-
-    Acquire(pictureClerkLineLock);
   }
-  /*applicationClerkState[myLine] = AVAILABLE;*/
+
 }
 
 int PictureGetMyLine(){
