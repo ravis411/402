@@ -308,8 +308,8 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
         l->ownerMachineID = r->pktHdr;
         l->ownerMailboxNumber = r->mailHdr;
         sendMail(r->msg, r->pktHdr, r->mailHdr);
+        printf("\t\tSent acquire confirmation to sleeping thread. MID: %i MB: %i\n", r->pktHdr, r->mailHdr);
         delete r;
-        printf("\t\tSent acquire confirmation to sleeping thread.\n");
     }else{//The lock is now free
         l->state = FREE;
         printf("\t\tLock is now Free.\n");
@@ -503,6 +503,7 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
     }
 
     if(c->waitingLock == NULL){
+        printf("\t\tNo threads waiting. Setting CV lock.\n");
         c->waitingLock = lockID;
     }
 
@@ -523,7 +524,7 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
     r->msg = (char*)rs.str().c_str();
 
     c->q->Append((void*)r);
-
+    printf("\t\tMID: %i MB: %i added to waitQ.\n", pktHdr, mailHdr );
     //Release waiting lock...
     serverReleaseLock(lockID, pktHdr, mailHdr);
 }
@@ -562,6 +563,9 @@ void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
 
 
     if(c->waitingLock == NULL){ //if no thread waiting
+        if(!c->q->IsEmpty()){
+            printf("\t\tERROR Q is not empty but waitingLock is NULL\n");
+        }
         printf("\t\tNo waiting threads.\n");
         rs << TRUE;
         sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
