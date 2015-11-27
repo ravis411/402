@@ -249,7 +249,7 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
   
   if(Get(pictureClerkState, myLine) != AVAILABLE){
     if(!bribe){
-      Set(pictureClerkLineCount, myLine, Get(pictureClerkLineCount, myLine)++);
+      Set(pictureClerkLineCount, myLine, Get(pictureClerkLineCount, myLine) + 1);
       /*printf("%s %i has gotten in regular line for PictureClerk %i.\n", myType, SSN, myLine);*/
        Acquire(printLock);
           PrintString(myType, 8);
@@ -261,14 +261,14 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
           PrintString(".\n", 2);
       Release(printLock);
       Wait(pictureClerkLineCV[myLine], pictureClerkLineLock);
-      Set(pictureClerkLineCount, myLine, Get(pictureClerkLineCount, myLine)--;
+      Set(pictureClerkLineCount, myLine, Get(pictureClerkLineCount, myLine) - 1 );
       if(Get(pictureClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(pictureClerkLineLock);
         if(customerCheckSenator(SSN))
           return false;
       }
     }else{
-      Set(pictureClerkBribeLineCount, myLine, Get(pictureClerkBribeLineCount, myLine)++);
+      Set(pictureClerkBribeLineCount, myLine, Get(pictureClerkBribeLineCount, myLine) + 1);
       /*printf("%s %i has gotten in bribe line for PictureClerk %i.\n", myType, SSN, myLine);*/
       Acquire(printLock);
           PrintString(myType, 8);
@@ -281,7 +281,7 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
       Release(printLock);
 
       Wait(pictureClerkBribeLineCV[myLine], pictureClerkLineLock);
-      Set(pictureClerkBribeLineCount, myLine, Get(pictureClerkBribeLineCount, myLine)--);
+      Set(pictureClerkBribeLineCount, myLine, Get(pictureClerkBribeLineCount, myLine) - 1);
       if(Get(pictureClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(pictureClerkLineLock);
         if(customerCheckSenator(SSN))
@@ -614,7 +614,7 @@ void Customer(){
 
     if( !(appClerkDone) && (appClerkFirst || pictureClerkDone) ){ /*Go to applicationClerk*/
       appClerkDone = customerApplicationClerkInteraction(SSN, &money, 0);
-      Exit();/*Temp test only app clerk...*/
+      Exit(0);/*Temp test only app clerk...*/
     }
     else if( !pictureClerkDone ){
       /*Go to the picture clerk*/
