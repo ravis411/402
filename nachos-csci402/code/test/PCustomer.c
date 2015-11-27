@@ -614,8 +614,7 @@ void Customer(){
 
     if( !(appClerkDone) && (appClerkFirst || pictureClerkDone) ){ /*Go to applicationClerk*/
       appClerkDone = customerApplicationClerkInteraction(SSN, &money, 0);
-      PrintString("\nCustomer done...\n", sizeof("\nCustomer done...\n"));
-      Exit(0);/*Temp test only app clerk...*/
+      customerCheckOut(SSN);
     }
     else if( !pictureClerkDone ){
       /*Go to the picture clerk*/

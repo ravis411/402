@@ -18,7 +18,6 @@
 /*Utility for applicationClerk to gon on brak
 * Assumptions: called with clerkLineLock*/
 void applicationClerkcheckAndGoOnBreak(int myLine){
-  /*TODO DONT GO ON BREAK FOR NOW...*/
   /*Only go on break if there is at least one other clerk*/
   int freeOrAvailable = 0;
   int i;
