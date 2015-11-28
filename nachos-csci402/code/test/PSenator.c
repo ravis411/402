@@ -67,7 +67,7 @@ int customerApplicationClerkInteraction(int SSN, int *money, int VIP){
       tempState = Get(applicationClerkState, myLine);
       if(tempState != SIGNALEDCUSTOMER){
         Release(applicationClerkLineLock);
-        if(true))
+        if(true)
           return 0;
       }
     }else{
