@@ -882,10 +882,18 @@ void clientSendMail(char* msg){
     MailHeader outMailHdr;
     outMailHdr.from = currentThread->getThreadID();
     DEBUG('N', "ThreadID: %i, outMailHdr.from: %i\n",currentThread->getThreadID(), outMailHdr.from);
-    outPktHdr.to = 0;
+    
 	outMailHdr.to = 0;
 	outMailHdr.length = strlen(msg) + 1;
-	bool success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	bool success;
+
+	int trys = 0;
+	do{
+		trys++;
+		outPktHdr.to = rand() % 1;
+ 		success = postOffice->Send(outPktHdr, outMailHdr, msg);
+	}while(!success && trys < 500);
+
 
 	if(!success){
 		printf("ERROR: Failed to send message to the server.\n");

@@ -140,7 +140,7 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////
-#define lockTableSize 200
+#define lockTableSize 100
 BitMap serverLockTableBitMap(lockTableSize);
 
 enum SERVERLOCKSTATE {FREE, BUSY};
@@ -170,6 +170,20 @@ public:
 
 vector<ServerLock*> serverLocks; //The table of locks
 
+
+int checkIfLockIsMineAndGetMyIndex(int lockID){
+    int index = lockID % (postOffice->getNetworkAddress() * lockTableSize);
+    //postOffice->getNetworkAddress() * lockTableSize + index;
+    int machineID = (lockID - index) % lockTableSize;
+
+    printf("CheckIFLockIsMine: lockID: %i \n\tindex: %i \n\t machineID: %i \n", lockID, index, machineID);
+
+    if(machineID == postOffice->getNetworkAddress() ){
+        return index;
+    }else{
+        return -1;
+    }
+}
 
 bool checkIfLockIDExists(int lockID){
     //Check if lock exists.
@@ -227,7 +241,7 @@ int getLockNamed(string name){
 
 bool checkLockAndDestroy(int lockID){
     ServerLock* l;
-
+    lockID = checkIfLockIsMineAndGetMyIndex(lockID);
     if(!checkIfLockIDExists(lockID)){return FALSE;}
     
     l = serverLocks[lockID];
@@ -253,6 +267,7 @@ void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
     stringstream rs;
 
     //Check if lock exists.
+    lockID = checkIfLockIsMineAndGetMyIndex(lockID);
     status = checkIfLockIDExists(lockID);
 
     rs << status;
@@ -294,6 +309,7 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
     ServerLock* l;
 
     //Check if lock exists.
+    lockID = checkIfLockIsMineAndGetMyIndex(lockID);
    if(!checkIfLockIDExists(lockID)){return;}
 
     l = serverLocks[lockID];
@@ -321,6 +337,7 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
 void serverDestroyLock(int lockID){
      ServerLock* l;
 
+     lockID = checkIfLockIsMineAndGetMyIndex(lockID);
     if(!checkIfLockIDExists(lockID)){return;}
 
     l = serverLocks[lockID];
@@ -953,6 +970,8 @@ void Server(){
             ss >> lockName;
             
             int lockID = getLockNamed(lockName);//Find or create the lock
+
+            lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
             
             printf("\t\tCreateLock named %s lockID %i.\n", lockName.c_str(), lockID);
             

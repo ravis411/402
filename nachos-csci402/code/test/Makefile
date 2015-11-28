@@ -31,7 +31,7 @@ CPP = $(GCCDIR)cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition memoryTestSuite testVirtualMemory testNetwork passportOffice twoPassportOffices PreNetworkingPassportOffice PAppClerk PCashier PCustomer PManager PPasClerk PPicClerk PSenator
+all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition memoryTestSuite testVirtualMemory testMultipleServers testNetwork passportOffice twoPassportOffices PreNetworkingPassportOffice PAppClerk PCashier PCustomer PManager PPasClerk PPicClerk PSenator
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -173,7 +173,14 @@ PSenator: PSenator.o start.o
 	$(LD) $(LDFLAGS) start.o PSenator.o -o PSenator.coff
 	../bin/coff2noff PSenator.coff PSenator
 
-	      
+testMultipleServers.o: testMultipleServers.c
+	$(CC) $(CFLAGS) -c testMultipleServers.c
+testMultipleServers: testMultipleServers.o start.o
+	$(LD) $(LDFLAGS) start.o testMultipleServers.o -o testMultipleServers.coff
+	../bin/coff2noff testMultipleServers.coff testMultipleServers
+
+
+
 
 
 
