@@ -176,11 +176,13 @@ int checkIfLockIsMineAndGetMyIndex(int lockID){
     //postOffice->getNetworkAddress() * lockTableSize + index;
     int machineID = (lockID - index) % lockTableSize;
 
-    printf("CheckIFLockIsMine: lockID: %i \n\tindex: %i \n\t machineID: %i \n", lockID, index, machineID);
+    printf("CheckIFLockIsMine: lockID: %i \n\tindex: %i \n\t machineID: %i \n\t", lockID, index, machineID);
 
     if(machineID == postOffice->getNetworkAddress() ){
+        printf("Lock IS mine.\n");
         return index;
     }else{
+        printf("Lock is NOT mine.\n");
         return -1;
     }
 }
