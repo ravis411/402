@@ -252,11 +252,11 @@ int createLockNamed(string name){
 
 
 void serverCreateLock(string name, int pktHdr, int mailHdr){
-    int lockID = createLockNamed(lockName);//Find or create the lock
+    int lockID = createLockNamed(name);//Find or create the lock
 
     lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
     
-    printf("\t\tCreateLock named %s lockID %i.\n", lockName.c_str(), lockID);
+    printf("\t\tCreateLock named %s lockID %i.\n", name.c_str(), lockID);
     
     stringstream rs;
     rs << (lockID != -1);//status
