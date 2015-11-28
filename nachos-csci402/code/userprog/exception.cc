@@ -955,14 +955,14 @@ int CreateLock_Syscall(unsigned int vaddr, int len){
 	ss << name;
 
 	char *msg = (char*) ss.str().c_str();
-	
+
 	clientSendMail(msg);
 
 	postOffice->Receive(currentThread->getThreadID(), &inPktHdr, &inMailHdr, buffer);
 
 	stringstream rs;
 	rs << buffer;
-
+	bool success;
 	rs >> success;
 	int lockID;
 	if(success){
