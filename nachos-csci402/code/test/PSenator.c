@@ -67,7 +67,7 @@ int customerApplicationClerkInteraction(int SSN, int *money, int VIP){
       tempState = Get(applicationClerkState, myLine);
       if(tempState != SIGNALEDCUSTOMER){
         Release(applicationClerkLineLock);
-        if(customerCheckSenator(SSN))
+        if(TRUE))
           return 0;
       }
     }else{
@@ -94,7 +94,7 @@ int customerApplicationClerkInteraction(int SSN, int *money, int VIP){
       tempState = Get(applicationClerkState, myLine);
       if(tempState != SIGNALEDCUSTOMER){
         Release(applicationClerkLineLock);
-        if(customerCheckSenator(SSN))
+        if(TRUE)
           return 0;
       }
       *money -= 500;
@@ -165,7 +165,7 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
       Set(pictureClerkLineCount, myLine, Get(pictureClerkLineCount, myLine) - 1 );
       if(Get(pictureClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(pictureClerkLineLock);
-        if(customerCheckSenator(SSN))
+        if(TRUE)
           return false;
       }
     }else{
@@ -185,7 +185,7 @@ int customerPictureClerkInteraction(int SSN, int *money, int VIP){
       Set(pictureClerkBribeLineCount, myLine, Get(pictureClerkBribeLineCount, myLine) - 1);
       if(Get(pictureClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(pictureClerkLineLock);
-        if(customerCheckSenator(SSN))
+        if(TRUE)
           return false;
       }
       *money -= 500;
@@ -285,7 +285,7 @@ int customerPassportClerkInteraction(int SSN, int *money, int VIP){
       Set(passportClerkLineCount, myLine, Get(passportClerkLineCount, myLine) - 1);
       if(Get(passportClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(passportClerkLineLock);
-        if(customerCheckSenator(SSN))
+        if(TRUE)
           return false;
       }
     }else{
@@ -303,7 +303,7 @@ int customerPassportClerkInteraction(int SSN, int *money, int VIP){
       Set(passportClerkBribeLineCount, myLine, Get(passportClerkBribeLineCount, myLine) - 1 );
       if(Get(passportClerkState, myLine) != SIGNALEDCUSTOMER){
         Release(passportClerkLineLock);
-        if(customerCheckSenator(SSN))
+        if(TRUE)
           return false;
       }
       *money -= 500;
@@ -387,7 +387,7 @@ int customerCashierInteraction(int SSN, int *money, int VIP){
       Set(cashierLineCount, myLine, Get(cashierLineCount, myLine) - 1);
       if(Get(cashierState, myLine) != SIGNALEDCUSTOMER){
         Release(cashierLineLock);
-        if(customerCheckSenator(SSN))
+        if(TRUE)
           return false;
       }
     }else{
@@ -404,7 +404,7 @@ int customerCashierInteraction(int SSN, int *money, int VIP){
       Set(cashierBribeLineCount, myLine, Get(cashierBribeLineCount, myLine) - 1);
       if(Get(cashierState, myLine) != SIGNALEDCUSTOMER){
         Release(cashierLineLock);
-        if(customerCheckSenator(SSN))
+        if(TRUE)
           return false;
       }
       *money -= 500;
