@@ -890,13 +890,13 @@ void clientSendMail(char* msg){
 	int trys = 0;
 	do{
 		trys++;
-		outPktHdr.to = rand() % 2;
+		outPktHdr.to = 1;//rand() % 2;
  		success = postOffice->Send(outPktHdr, outMailHdr, msg);
 	}while(!success && trys > 500);
 
 
 	if(!success){
-		printf("ERROR: Failed to send message to the server.\n");
+		printf("ERROR: Failed to send message to the servers.\n");
 		interrupt->Halt();
 		ASSERT(FALSE);
 	}
