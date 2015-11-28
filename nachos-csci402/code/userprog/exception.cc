@@ -890,7 +890,6 @@ void clientSendMail(char* msg){
 	int trys = 0;
 	string wat(msg);
 	do{
-		wat = msg;
 		trys++;
 		outPktHdr.to = rand() % 3;
 		printf("MSG: %s , to %i\n",wat.c_str(), outPktHdr.to );
