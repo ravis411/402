@@ -888,11 +888,13 @@ void clientSendMail(char* msg){
 	bool success;
 
 	int trys = 0;
+	char* wat;
 	do{
+		wat = msg;
 		trys++;
 		outPktHdr.to = rand() % 3;
-		printf("MSG: %s , to %i\n",msg, outPktHdr.to );
- 		success = postOffice->Send(outPktHdr, outMailHdr, msg);
+		printf("MSG: %s , to %i\n",wat, outPktHdr.to );
+ 		success = postOffice->Send(outPktHdr, outMailHdr, wat);
 	}while(!success && trys < 500);
 
 
