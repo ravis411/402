@@ -888,7 +888,7 @@ void clientSendMail(char* msg){
 	bool success;
 
 	int trys = 0;
-	string wat(msg);
+	string wat((const char*)msg);
 	do{
 		trys++;
 		outPktHdr.to = rand() % 3;
