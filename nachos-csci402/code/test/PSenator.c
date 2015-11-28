@@ -496,10 +496,10 @@ int senatorArriveAtPassportOffice(){
   Release(SSNLock);
 
   Acquire(managerLock);
-  while(!Get(senatorSafeToEnter, 0){
+  while(!Get(senatorSafeToEnter, 0) ){
     Set(senatorLineCount, 0, Get(senatorLineCount, 0) + 1);
     Wait(senatorLineCV, managerLock);
-    Set(senatorLineCount,0, Get(senatorLineCount) - 1 );
+    Set(senatorLineCount,0, Get(senatorLineCount, 0) - 1 );
   }
   Set(senatorPresentCount, 0, Get(senatorPresentCount, 0) + 1 );
   Release(managerLock);
