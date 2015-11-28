@@ -243,7 +243,7 @@ int getLockNamed(string name){
 
 bool checkLockAndDestroy(int lockID){
     ServerLock* l;
-    lockID = checkIfLockIsMineAndGetMyIndex(lockID);
+    //lockID = checkIfLockIsMineAndGetMyIndex(lockID);
     if(!checkIfLockIDExists(lockID)){return FALSE;}
     
     l = serverLocks[lockID];

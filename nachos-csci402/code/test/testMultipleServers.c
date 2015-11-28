@@ -71,6 +71,8 @@ int main() {
   PrintString("\n\nFinished Lock Tests\n\n", sizeof("\n\nFinished Lock Tests\n\n"));
 
   Exit(0);
+
+  
   PrintString("\n\nGoing to test CVs and MVs\n\n", sizeof("\n\nGoing to test CVs and MVs\n\n"));
 
   CV1 = CreateCondition("CV1", sizeof("CV1"));
