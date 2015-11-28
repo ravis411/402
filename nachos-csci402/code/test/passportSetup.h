@@ -7,7 +7,7 @@
 
 
 #define CLERKCOUNT  1
-#define CUSTOMERCOUNT 3
+#define CUSTOMERCOUNT 2
 #define SENATORCOUNT  1
 
 #define MAXCLERKS 5
