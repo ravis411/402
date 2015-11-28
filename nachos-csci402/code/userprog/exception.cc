@@ -892,7 +892,7 @@ void clientSendMail(char* msg){
 		trys++;
 		outPktHdr.to = rand() % 2;
  		success = postOffice->Send(outPktHdr, outMailHdr, msg);
-	}while(!success && trys < 500);
+	}while(!success && trys > 500);
 
 
 	if(!success){
