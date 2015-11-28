@@ -202,8 +202,7 @@ bool checkIfLockIDExists(int lockID){
 
 ////////////
 // Trys to find a lock with the given name
-// Creates one if it doesn't exist.
-int getLockNamed(string name){
+int findLockNamed(string name){
     int index = -1;
 
     //See if lock exists.
@@ -215,6 +214,13 @@ int getLockNamed(string name){
             }
         }
     }
+
+    
+    return index;
+}
+
+int createLockNamed(string name){
+    int index = findLockNamed(name);
 
     if(index == -1){
         //Lock doesn't exist yet...need to create it.
@@ -241,6 +247,31 @@ int getLockNamed(string name){
     }
     return index;
 }
+
+
+
+
+void serverCreateLock(string name, int pktHdr, int mailHdr){
+    int lockID = createLockNamed(lockName);//Find or create the lock
+
+    lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
+    
+    printf("\t\tCreateLock named %s lockID %i.\n", lockName.c_str(), lockID);
+    
+    stringstream rs;
+    rs << (lockID != -1);//status
+    rs << " ";
+    rs << lockID;
+
+    char *msg = (char*) rs.str().c_str();
+
+    sendMail(msg, pktHdr, mailHdr);
+}
+
+
+
+
+
 
 bool checkLockAndDestroy(int lockID){
     ServerLock* l;
@@ -971,29 +1002,8 @@ void Server(){
             printf("\tCreateLock\n");
             string lockName;
             ss >> lockName;
-            
-            int lockID = getLockNamed(lockName);//Find or create the lock
 
-            lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
-            
-            printf("\t\tCreateLock named %s lockID %i.\n", lockName.c_str(), lockID);
-            
-            stringstream rs;
-            rs << (lockID != -1);//status
-            rs << " ";
-            rs << lockID;
-
-            char *msg = (char*) rs.str().c_str();
-
-            outPktHdr.to = inPktHdr.from;
-            outMailHdr.to = inMailHdr.from;
-            outMailHdr.length = strlen(msg) + 1;
-            success = postOffice->Send(outPktHdr, outMailHdr, msg);
-            if(!success){
-                printf("Failed to reply to machine %d.\n", outPktHdr.to);
-            }
-        
-
+            serverCreateLock(lockName, inPktHdr.from, inMailHdr.from);
 
         }//SC_Acquire
         else if(which == SC_Acquire){
