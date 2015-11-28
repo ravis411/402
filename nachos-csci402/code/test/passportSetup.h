@@ -8,7 +8,7 @@
 
 #define CLERKCOUNT  1
 #define CUSTOMERCOUNT 3
-#define SENATORCOUNT  0
+#define SENATORCOUNT  1
 
 #define MAXCLERKS 5
 #define MAXCUSTOMERS 5/*50*/
@@ -582,7 +582,7 @@ void initialPassportSetup(){
 
   
   for(i = 0; i < SENATORCOUNT; i++){
-    /*Exec("../test/PSenator", sizeof("../test/PSenator"));*/
+ 	Exec("../test/PSenator", sizeof("../test/PSenator"));
   }
 
 
