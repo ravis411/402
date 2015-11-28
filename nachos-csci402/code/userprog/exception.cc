@@ -407,7 +407,7 @@ void Exit_Syscall(int status){
 			printf("\nExit ThreadID: %i status: %i\n\n", currentThread->getThreadID(), status);
 		#endif
 		#ifndef NETWORK
-			printf("\nExit status: %i\n\n", status);
+			printf("\nExit status!: %i\n\n", status);
 		#endif
 	}
 	#endif
@@ -890,9 +890,9 @@ void clientSendMail(char* msg){
 	int trys = 0;
 	do{
 		trys++;
-		outPktHdr.to = 1;//rand() % 2;
+		outPktHdr.to = rand() % 3;
  		success = postOffice->Send(outPktHdr, outMailHdr, msg);
-	}while(!success && trys > 500);
+	}while(!success && trys < 500);
 
 
 	if(!success){
