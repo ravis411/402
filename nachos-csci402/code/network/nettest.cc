@@ -174,7 +174,7 @@ vector<ServerLock*> serverLocks; //The table of locks
 int checkIfLockIsMineAndGetMyIndex(int lockID){
     int index = lockID % (postOffice->getNetworkAddress() * lockTableSize);
     //postOffice->getNetworkAddress() * lockTableSize + index;
-    int machineID = (lockID - index) % lockTableSize;
+    int machineID = (lockID - index) / lockTableSize;
 
     printf("CheckIFLockIsMine: lockID: %i \n\tindex: %i \n\t machineID: %i \n\t", lockID, index, machineID);
 
