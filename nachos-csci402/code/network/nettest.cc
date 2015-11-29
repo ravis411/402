@@ -393,7 +393,7 @@ void serverDoCreateLock(string name, int pktHdr, int mailHdr){
 void serverCreateLock(string name, int pktHdr, int mailHdr){
 
     if(findLockNamed(name) != -1){//We have the lock and can handle the create....
-        serverDoCreateLock(name, pkthdr, mailHdr);
+        serverDoCreateLock(name, pktHdr, mailHdr);
     }else{
 
         //This isn't our lock and need to check with the other servers...
