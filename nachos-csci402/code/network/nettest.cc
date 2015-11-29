@@ -344,12 +344,11 @@ int checkIfLockIsMineAndGetMyIndex(int lockID){
     int index;
     int machineID;
 
+    
+
+    index = lockID % lockTableSize;
     machineID = (lockID - index) / lockTableSize;
-    if(machineID > 0){
-        index = lockID % (machineID * lockTableSize);
-    }else{
-        index = lockID;
-    }
+
 
     if(print)printf("CheckIFLockIsMine: lockID: %i \n\tindex: %i \n\t machineID: %i \n\t", lockID, index, machineID);
 
