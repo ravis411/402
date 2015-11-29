@@ -9,12 +9,12 @@
 #include "syscall.h"
 #include "passportSetup.h"
 
-
+char ughh[] = "Initialized Passport Office and 1 manager";
 
 int
 main()
 {
-	char ughh[] = "Initialized Passport Office and 1 manager";
+	
 	startPass();
 
 	while(true){
