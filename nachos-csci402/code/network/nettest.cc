@@ -1360,9 +1360,7 @@ void Server(){
                 }else{
                     //Server request message
                     //Need to send a reply of some kind...possibly handle the request...
-                    printf("\t\tDEBUG: bout to calc my index...\n");
                     int myIndex = checkIfLockIsMineAndGetMyIndex(lockID);
-                    printf("\t\tDEBUG: MYINDEX: %i\n", myIndex);
 
                     if(myIndex != -1){
                         //If this lock is ours reply YES and handle the request.
@@ -1387,7 +1385,6 @@ void Server(){
         else if(which == SC_Release){
             printf("\tRelease:\n");
             int lockID;
-            ss >> lockID;
 
             if(!fromServer){
                 
