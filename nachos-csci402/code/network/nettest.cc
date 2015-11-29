@@ -179,12 +179,12 @@ vector<PendingRequest*> pendingRequests;
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
 int findPendingCreateLockRequest(int pkthdr, int mailHdr, string name){
-    for(int i = 0; i < pendingRequests.size(); i++){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
         if(p->type == SC_CreateLock){
-            if(p->pkthdr == pkthdr && p->mailHdr == mailHdr){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
                 if(p->name == name){
-                    return i;
+                    return (int)i;
                 }
             }
         }
@@ -211,7 +211,7 @@ void sendPendingRequest(PendingRequest* p){
 
 
     if(p->type == SC_CreateLock){
-        ss << name;
+        ss << p->name;
     }else if(p->type == SC_Acquire){
         ss << p->lockID;
     }else if(p->type == SC_Release){
@@ -373,7 +373,7 @@ int createLockNamed(string name){
 }
 
 
-void serverDoCreateLock(string name, int pkthdr, int mailHdr){
+void serverDoCreateLock(string name, int pktHdr, int mailHdr){
     int lockID = createLockNamed(name);//Find or create the lock
 
     lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
@@ -1192,7 +1192,7 @@ void Server(){
                         if(p->noCount == p->sentCount){
                             //All servers replied NO...we need to handle the request.
                             printf("\t\tAll servers have responded. Handling the request.\n");
-                            serverDoCreateLock(p->name, p->pkthdr, p->mailHdr);
+                            serverDoCreateLock(p->name, p->pktHdr, p->mailHdr);
                             deletePendingRequest(pendingRequestIndex);
                         }
                     }
@@ -1200,14 +1200,14 @@ void Server(){
                     //Server request message
                     //Need to send a reply of some kind...possibly handle the request...
                     
-                    if(findLockNamed(p->name)){
+                    if(findLockNamed(lockName)){
                         //If this lock is ours reply YES and handle the request.
                         printf("\t\tThis lock is ours...I'll handle the request.\n");
                         stringstream rs;
                         rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
-                        serverDoCreateLock(p->name, p->pkthdr, p->mailHdr);
+                        serverDoCreateLock(lockName, reqPktHdr, reqMailHdr);
                     }else{
                         //If this lock does not belong to us...reply NO
                         printf("\t\tThis lock is not ours...reply NO.\n");

@@ -43,10 +43,10 @@ int main() {
 
   PrintString("Got lockID3: ", sizeof("Got lockID: "));
   PrintInt(lock3);
-  PrintString("\n", 1)
+  PrintString("\n", 1);
 
   Exit(0);
-  
+
   startCVMVLock = CreateLock("startCVMVLock", sizeof("startCVMVLock"));
   /*startCVMVLockMV = CreateMV("startCVMVLockMV", sizeof("startCVMVLockMV"), 1);*/
 
