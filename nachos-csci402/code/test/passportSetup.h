@@ -663,7 +663,8 @@ void startPass(){
   }
 
   Exec("../test/PManager", sizeof("../test/PManager"));
-  for(i = 0; i < 10000 i++){
+  
+  for(i = 0; i < 10000; i++){
     Yield();
   }
   passportDestroy();
