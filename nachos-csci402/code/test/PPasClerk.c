@@ -27,7 +27,7 @@ void passportClerkcheckAndGoOnBreak(int myLine){
     }
   }
 
-  if(freeOrAvailable && (Rand() % 10 ) < 3 ){
+  if(freeOrAvailable && (Rand() % 100 ) < 25 ){
     Set(passportClerkState, myLine, ONBREAK);
     Acquire(printLock);
       PrintString("PassportClerk ", sizeof("PassportClerk ") );

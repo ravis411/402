@@ -34,7 +34,7 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
     }
   }
   /*There is at least one clerk...go on a break.*/
-  if(freeOrAvailable && (Rand() % 10 ) < 3){
+  if(freeOrAvailable && (Rand() % 100 ) < 25){
 
   	Set(applicationClerkState, myLine, ONBREAK);
 
