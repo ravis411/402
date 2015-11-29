@@ -342,6 +342,7 @@ int checkIfLockIsMineAndGetMyIndex(int lockID){
     if(print)printf("In checkIfLockIsMineAndGetMyIndex...lockID: %i\n", lockID);
     int index = lockID % (postOffice->getNetworkAddress() * lockTableSize);
     //postOffice->getNetworkAddress() * lockTableSize + index;
+    if(print)printf("Calculate index: %i\n", index);
     int machineID = (lockID - index) / lockTableSize;
 
     if(print)printf("CheckIFLockIsMine: lockID: %i \n\tindex: %i \n\t machineID: %i \n\t", lockID, index, machineID);
