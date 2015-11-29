@@ -1200,7 +1200,7 @@ void Server(){
                     //Server request message
                     //Need to send a reply of some kind...possibly handle the request...
                     
-                    if(findLockNamed(lockName)){
+                    if(findLockNamed(lockName) != -1){
                         //If this lock is ours reply YES and handle the request.
                         printf("\t\tThis lock is ours...I'll handle the request.\n");
                         stringstream rs;
