@@ -665,7 +665,7 @@ void startPass(){
   Exec("../test/PManager", sizeof("../test/PManager"));
   Yield();
   Yield();
-  Delay(5);
+  Sleep(5);
   passportDestroy();
 }
 
