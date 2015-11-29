@@ -724,7 +724,6 @@ void startPasClerks(int count){
   int i;
   for(i = 0; i < count; i++){
     Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
-    Exec("../test/PCashier", sizeof("../test/PCashier"));
   }
 }
 
@@ -734,3 +733,4 @@ void startCashiers(int count){
     Exec("../test/PCashier", sizeof("../test/PCashier"));
   }
 }
+
