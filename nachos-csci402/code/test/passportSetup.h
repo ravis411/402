@@ -287,7 +287,10 @@ void passportSetup(){
 	THEEND = CreateMV("THEEND", sizeof("THEEND"), 1);
   STARTPASSPORT = CreateMV("STARTPASS", sizeof("STARTPASS"), 1 );
   STOPPASS = CreateMV("STOPPASS", sizeof("STOPPASS"), 1);
-
+  if(Get(STARTPASSPORT, 0))
+    CLERKCOUNT = 5;
+  else 
+    CLERKCOUNT = 1;
   /*Init clerkStates, lineCounts*/
 	/*PrintString("Setup bout to create MAXCLERKS loop.\n", sizeof("Setup bout to create MAXCLERKS loop.\n"));*/
  /* for(i=0; i<MAXCLERKS; i++){
