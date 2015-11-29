@@ -662,7 +662,7 @@ void startPass(){
     Set(passportClerkSharedDataSSN, i, 0);
   }
 
-  Exec("../test/PManager", sizeof("../test/PManager"));
+  /*Exec("../test/PManager", sizeof("../test/PManager"));*/
 
 }
 
