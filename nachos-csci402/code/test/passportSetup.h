@@ -11,7 +11,7 @@
 #define SENATORCOUNT  1
 
 #define MAXCLERKS 5
-#define MAXCUSTOMERS 50
+#define MAXCUSTOMERS 100
 #define MAXSENATORS 50
 
 
