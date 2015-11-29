@@ -261,13 +261,13 @@ void passportSetup(){
 	pictureClerkSharedDataPicture = CreateMV("picSDP", sizeof("picSDP"), MAXCLERKS);
 	passportClerkSharedDataSSN = CreateMV("pasSDS", sizeof("pasSDS"), MAXCLERKS);
 
-	applicationCompletion = CreateMV("appComp", sizeof("appComp"), MAXCLERKS + MAXSENATORS);
-	pictureCompletion = CreateMV("picComp", sizeof("picComp"), MAXCLERKS + MAXSENATORS);
-	passportCompletion = CreateMV("pasComp", sizeof("pasComp"), MAXCLERKS + MAXSENATORS);
-	passportPunishment = CreateMV("pasPun", sizeof("pasPun"), MAXCLERKS + MAXSENATORS);
-	cashierSharedDataSSN = CreateMV("casSDSSN", sizeof("casSDSSN"), MAXCLERKS + MAXSENATORS);
-	cashierRejection = CreateMV("casReject", sizeof("casReject"), MAXCLERKS + MAXSENATORS);
-	doneCompletely = CreateMV("doneComp", sizeof("doneComp"), MAXCLERKS + MAXSENATORS);
+	applicationCompletion = CreateMV("appComp", sizeof("appComp"), (MAXCUSTOMERS + MAXSENATORS));
+	pictureCompletion = CreateMV("picComp", sizeof("picComp"), (MAXCUSTOMERS + MAXSENATORS));
+	passportCompletion = CreateMV("pasComp", sizeof("pasComp"), (MAXCUSTOMERS + MAXSENATORS));
+	passportPunishment = CreateMV("pasPun", sizeof("pasPun"), (MAXCUSTOMERS + MAXSENATORS));
+	cashierSharedDataSSN = CreateMV("casSDSSN", sizeof("casSDSSN"), (MAXCUSTOMERS + MAXSENATORS));
+	cashierRejection = CreateMV("casReject", sizeof("casReject"), (MAXCUSTOMERS + MAXSENATORS);
+	doneCompletely = CreateMV("doneComp", sizeof("doneComp"), (MAXCUSTOMERS + MAXSENATORS);
 
 	SSNCount = CreateMV("SSNCount", sizeof("SSNCount"), 1);
 	ApplicationMyLine = CreateMV("AppMyLine", sizeof("AppMyLine"), 1);
@@ -662,7 +662,7 @@ void startPass(){
     Set(passportClerkSharedDataSSN, i, 0);
   }
 
-  /*Exec("../test/PManager", sizeof("../test/PManager"));*/
+  Exec("../test/PManager", sizeof("../test/PManager"));
 
 }
 
