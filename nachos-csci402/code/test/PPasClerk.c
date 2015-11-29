@@ -42,7 +42,8 @@ void passportClerkcheckAndGoOnBreak(int myLine){
 
   Release(passportClerkLineLock);
   Acquire(managerLock);
-  if(Get(checkedOutCount,0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}
+  /*if(Get(checkedOutCount,0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}*/
+  if(Get(THEEND,0)){Release(managerLock); passportDestroy(); Exit(0);}
   Release(managerLock);
   Yield();
   Acquire(passportClerkLineLock);

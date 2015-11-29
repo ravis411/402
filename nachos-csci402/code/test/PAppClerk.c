@@ -56,7 +56,8 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
   Release(applicationClerkLineLock);
   /*Should we go to sleep?*/
   Acquire(managerLock);
-  if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}
+  /*if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}*/
+  if(Get(THEEND,0)){Release(managerLock); passportDestroy(); Exit(0);}
   Release(managerLock);
   Yield();
   Acquire(applicationClerkLineLock);

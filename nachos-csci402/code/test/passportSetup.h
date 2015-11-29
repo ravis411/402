@@ -11,8 +11,8 @@
 #define SENATORCOUNT  1
 
 #define MAXCLERKS 5
-#define MAXCUSTOMERS 5/*50*/
-#define MAXSENATORS 2 /*10*/
+#define MAXCUSTOMERS 9/*50*/
+#define MAXSENATORS 6 /*10*/
 
 
 #define AVAILABLE 0
@@ -282,7 +282,8 @@ void passportSetup(){
 	senatorPresentWaitOutSide = CreateMV("senPresWOS", sizeof("senPresWOS"), 1);
 
 	THEEND = CreateMV("THEEND", sizeof("THEEND"), 1);
-
+  STARTPASSPORT = CreateMV("STARTPASS", sizeof("STARTPASS"), 1 );
+  STOPPASS = CreateMV("STOPPASS", sizeof("STOPPASS"), 1);
 
   /*Init clerkStates, lineCounts*/
 	/*PrintString("Setup bout to create MAXCLERKS loop.\n", sizeof("Setup bout to create MAXCLERKS loop.\n"));*/
@@ -486,6 +487,8 @@ void passportDestroy(){
   DestroyMV(senatorPresentWaitOutSide);
 
   DestroyMV(THEEND);
+  DestroyMV(STARTPASSPORT);
+  DestroyMV(STOPPASS);
 
   /*Init clerkStates, lineCounts*/
   for(i=0; i<MAXCLERKS; i++){
@@ -514,9 +517,18 @@ void passportDestroy(){
 /*Should be called once to close the passport office.*/
 void initialPassportDestroy(){
 	int i;
-  while(!Get(THEEND, 0)){
-    for(i = 0; i < 400;i++){
-    	Yield();
+
+  if(Get(STARTPASSPORT, 0) == 0){
+    while(!Get(THEEND, 0)){
+      for(i = 0; i < 900;i++){
+      	Yield();
+      }
+    }
+  }else{
+    while(!Get(STOPPASS, 0)){
+      for(i = 0; i < 900;i++){
+        Yield();
+      }
     }
   }
 
@@ -535,6 +547,9 @@ void initialPassportSetup(){
   passportSetup();
 
   Set(THEEND, 0, 0);
+  Set(STARTPASSPORT,0, 0);
+  Set(STOPPASS, 0 , 0);
+
   Set(senatorPresentWaitOutSide, 0, 0);
   Set(senatorSafeToEnter, 0, 0);
   Set(SSNCount, 0, 0);
@@ -597,3 +612,118 @@ void initialPassportSetup(){
 
 }
 
+void startPass(){
+  int i;
+
+  passportSetup();
+
+  Set(THEEND, 0, 0);
+  Set(STARTPASSPORT,0, 1);
+  Set(STOPPASS, 0 , 0);
+
+  Set(senatorPresentWaitOutSide, 0, 0);
+  Set(senatorSafeToEnter, 0, 0);
+  Set(SSNCount, 0, 0);
+  Set(ApplicationMyLine, 0, 0);
+  Set(PictureMyLine, 0, 0);
+  Set(PassportMyLine, 0, 0);
+  Set(CashierMyLine, 0, 0);
+
+  for(i = 0; i < MAXCUSTOMERS + MAXSENATORS; i++){
+    Set(applicationCompletion, i, 0);
+    Set(pictureCompletion, i, 0);
+    Set(passportCompletion, i, 0);
+    Set(passportPunishment, i, 0);
+    Set(cashierSharedDataSSN, i, 0);
+    Set(cashierRejection, i, 0);
+    Set(doneCompletely, i, 0);
+  }
+
+  for(i=0; i<MAXCLERKS; i++){
+    Set(applicationClerkState, i, BUSY);
+    Set(pictureClerkState, i, BUSY);
+    Set(passportClerkState, i, BUSY);
+    Set(cashierState, i, BUSY);
+
+    Set(applicationClerkLineCount, i, 0);     
+    Set(applicationClerkBribeLineCount, i, 0);    
+    Set(pictureClerkLineCount, i, 0);     
+    Set(pictureClerkBribeLineCount, i, 0);    
+    Set(passportClerkLineCount, i, 0);      
+    Set(passportClerkBribeLineCount, i, 0);   
+    Set(cashierLineCount, i, 0);      
+    Set(cashierBribeLineCount, i, 0);
+
+    Set(applicationClerkSharedData, i, 0);
+    Set(pictureClerkSharedDataSSN, i, 0);
+    Set(pictureClerkSharedDataPicture, i, 0);
+    Set(passportClerkSharedDataSSN, i, 0);
+  }
+
+  Exec("../test/PManager", sizeof("../test/PManager"));
+
+}
+
+void stopPass(){
+
+  if(!Get(STARTPASSPORT, 0)){
+    Acquire(printLock);
+    PrintString("StopPass should only be called after startPass.\n", sizeof("StopPass should only be called after startPass.\n"));
+    PrintString("\tThis is probably an error.\n". sizeof("\tThis is probably an error.\n"));
+    Release(printLock);
+  }
+
+  Set(STOPPASS, 0, 1);
+
+  Acquire(printLock);
+  PrintString("Passport Office Closed.\n", sizeof("Passport Office Closed.\n"));
+  Release(printLock);
+
+  passportDestroy();
+}
+
+
+
+
+void startCustomers(int count){
+  int i;
+  for(i = 0; i < count; i++){
+     Exec("../test/PCustomer", sizeof("../test/PCustomer"));
+  }
+}
+
+void startSenators(int count){
+  int i;
+  for(i = 0; i < count; i++){
+    Exec("../test/PSenator", sizeof("../test/PSenator"));
+  }
+}
+
+void startAppClerks(int count){
+  int i;
+  for(i = 0; i < count; i++){
+    Exec("../test/PAppClerk", sizeof("../test/PAppClerk"));
+  }
+}
+
+void startPicClerks(int count){
+  int i;
+  for(i = 0; i < count; i++){
+    Exec("../test/PPicClerk", sizeof("../test/PPicClerk"));
+  }
+}
+
+void startPasClerks(int count){
+  int i;
+  for(i = 0; i < count; i++){
+    Exec("../test/PPasClerk", sizeof("../test/PPasClerk"));
+    Exec("../test/PCashier", sizeof("../test/PCashier"));
+  }
+}
+
+void startCashiers(int count){
+  int i;
+  for(i = 0; i < count; i++){
+    Exec("../test/PCashier", sizeof("../test/PCashier"));
+  }
+}

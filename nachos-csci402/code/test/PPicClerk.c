@@ -51,7 +51,8 @@ void pictureClerkcheckAndGoOnBreak(int myLine){
   /*Check if the day is over...*/
   Release(pictureClerkLineLock);
   Acquire(managerLock);
-  if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}
+  /*if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}*/
+  if(Get(THEEND,0)){Release(managerLock); passportDestroy(); Exit(0);}
   Release(managerLock);
   Yield();
   Acquire(pictureClerkLineLock);

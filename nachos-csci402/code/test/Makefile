@@ -31,7 +31,7 @@ CPP = $(GCCDIR)cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition memoryTestSuite testVirtualMemory testMultipleServers testNetwork passportOffice twoPassportOffices PreNetworkingPassportOffice PAppClerk PCashier PCustomer PManager PPasClerk PPicClerk PSenator
+all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition memoryTestSuite testVirtualMemory testMultipleServers testNetwork passportOffice twoPassportOffices PreNetworkingPassportOffice PAppClerk PCashier PCustomer PManager PPasClerk PPicClerk PSenator startPassportOffice stopPassportOffice
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -179,9 +179,17 @@ testMultipleServers: testMultipleServers.o start.o
 	$(LD) $(LDFLAGS) start.o testMultipleServers.o -o testMultipleServers.coff
 	../bin/coff2noff testMultipleServers.coff testMultipleServers
 
+startPassportOffice.o: startPassportOffice.c
+	$(CC) $(CFLAGS) -c startPassportOffice.c
+startPassportOffice: startPassportOffice.o start.o
+	$(LD) $(LDFLAGS) start.o startPassportOffice.o -o startPassportOffice.coff
+	../bin/coff2noff startPassportOffice.coff startPassportOffice
 
-
-
+stopPassportOffice.o: stopPassportOffice.c
+	$(CC) $(CFLAGS) -c stopPassportOffice.c
+stopPassportOffice: stopPassportOffice.o start.o
+	$(LD) $(LDFLAGS) start.o stopPassportOffice.o -o stopPassportOffice.coff
+	../bin/coff2noff stopPassportOffice.coff stopPassportOffice
 
 
 clean:

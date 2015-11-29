@@ -37,9 +37,19 @@ void managerWakeUpAllClerks(){
 
 /*This will put the clerks and the manager to sleep so everyone can Exit and nachos can clean up*/
 void checkEndOfDay(){
+  int startPass;
   Acquire(managerLock);
-
-  if (Get(checkedOutCount,0) == (CUSTOMERCOUNT + SENATORCOUNT)){
+  startPass = Get(STARTPASSPORT, 0);
+  if(startPass){
+    if(Get(STOPPASS, 0)){
+      Set(THEEND,0, 1);
+      Release(managerLock);
+      managerWakeUpAllClerks();
+      passportDestroy();
+      Exit(0);
+    }
+  }
+  else if (Get(checkedOutCount,0) == (CUSTOMERCOUNT + SENATORCOUNT)){
     /*DEBUG('s', "DEBUG: MANAGER: END OF DAY!\n");
     All the customers are gone
     Lets all EXIT!!!*/
