@@ -11,8 +11,8 @@
 #define SENATORCOUNT  1
 
 #define MAXCLERKS 5
-#define MAXCUSTOMERS 9/*50*/
-#define MAXSENATORS 6 /*10*/
+#define MAXCUSTOMERS 50
+#define MAXSENATORS 50
 
 
 #define AVAILABLE 0

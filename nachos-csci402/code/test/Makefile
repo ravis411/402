@@ -31,7 +31,7 @@ CPP = $(GCCDIR)cpp
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition memoryTestSuite testVirtualMemory testMultipleServers testNetwork passportOffice twoPassportOffices PreNetworkingPassportOffice PAppClerk PCashier PCustomer PManager PPasClerk PPicClerk PSenator startPassportOffice stopPassportOffice
+all: halt matmult sort testfiles testPageTable testFork testExec testLock testCondition memoryTestSuite testVirtualMemory testMultipleServers testNetwork passportOffice twoPassportOffices PreNetworkingPassportOffice PAppClerk PCashier PCustomer PManager PPasClerk PPicClerk PSenator startPassportOffice stopPassportOffice startAppClerks startCashiers startCustomers startPasClerks startPicClerks startSenators
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.s > strt.s
@@ -190,6 +190,42 @@ stopPassportOffice.o: stopPassportOffice.c
 stopPassportOffice: stopPassportOffice.o start.o
 	$(LD) $(LDFLAGS) start.o stopPassportOffice.o -o stopPassportOffice.coff
 	../bin/coff2noff stopPassportOffice.coff stopPassportOffice
+
+startAppClerks.o: startAppClerks.c
+	$(CC) $(CFLAGS) -c startAppClerks.c
+startAppClerks: startAppClerks.o start.o
+	$(LD) $(LDFLAGS) start.o startAppClerks.o -o startAppClerks.coff
+	../bin/coff2noff startAppClerks.coff startAppClerks
+
+startCashiers.o: startCashiers.c
+	$(CC) $(CFLAGS) -c startCashiers.c
+startCashiers: startCashiers.o start.o
+	$(LD) $(LDFLAGS) start.o startCashiers.o -o startCashiers.coff
+	../bin/coff2noff startCashiers.coff startCashiers
+
+startCustomers.o: startCustomers.c
+	$(CC) $(CFLAGS) -c startCustomers.c
+startCustomers: startCustomers.o start.o
+	$(LD) $(LDFLAGS) start.o startCustomers.o -o startCustomers.coff
+	../bin/coff2noff startCustomers.coff startCustomers
+
+startPasClerks.o: startPasClerks.c
+	$(CC) $(CFLAGS) -c startPasClerks.c
+startPasClerks: startPasClerks.o start.o
+	$(LD) $(LDFLAGS) start.o startPasClerks.o -o startPasClerks.coff
+	../bin/coff2noff startPasClerks.coff startPasClerks
+
+startPicClerks.o: startPicClerks.c
+	$(CC) $(CFLAGS) -c startPicClerks.c
+startPicClerks: startPicClerks.o start.o
+	$(LD) $(LDFLAGS) start.o startPicClerks.o -o startPicClerks.coff
+	../bin/coff2noff startPicClerks.coff startPicClerks
+
+startSenators.o: startSenators.c
+	$(CC) $(CFLAGS) -c startSenators.c
+startSenators: startSenators.o start.o
+	$(LD) $(LDFLAGS) start.o startSenators.o -o startSenators.coff
+	../bin/coff2noff startSenators.coff startSenators
 
 
 clean:
