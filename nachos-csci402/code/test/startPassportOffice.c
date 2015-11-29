@@ -22,14 +22,16 @@ main()
 			break;
 		}
 		PrintString(ughh, sizeof(ughh));
-		Sleep(1);
+		Sleep(1);Yield();
 		PrintString(".", 1);
-		Sleep(1);
+		Sleep(1);Yield();
 		PrintString(".", 1);
-		Sleep(1);
+		Sleep(1);Yield();
 		PrintString(".", 1);
-		Sleep(1);
-		PrintString("\r", 1);
+		Sleep(1);Yield();
+		PrintString("\b\b\b", 3);
+		Yield();
+		Yield();
 	}
 
 
