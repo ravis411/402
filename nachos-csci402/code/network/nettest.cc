@@ -395,7 +395,7 @@ void serverCreateLock(string name, int pktHdr, int mailHdr){
     if(findLockNamed(name) != -1){//We have the lock and can handle the create....
         serverDoCreateLock(name, pktHdr, mailHdr);
     }else{
-
+        printf("\t\tThis lock isn't ours...checking with other servers.\n");
         //This isn't our lock and need to check with the other servers...
         PendingRequest* p = new PendingRequest();
         p->pktHdr = pktHdr;

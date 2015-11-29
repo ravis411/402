@@ -32,6 +32,10 @@ int main() {
   PrintString("Got lockID1: ", sizeof("Got lockID: "));
   PrintInt(lock1);
   PrintString("\n", 1);
+  
+
+  Exit(0);
+  
 
   lock2 = CreateLock("Lock2", sizeof("Lock2") );
 
@@ -45,7 +49,7 @@ int main() {
   PrintInt(lock3);
   PrintString("\n", 1);
 
-  Exit(0);
+ 
 
   startCVMVLock = CreateLock("startCVMVLock", sizeof("startCVMVLock"));
   /*startCVMVLockMV = CreateMV("startCVMVLockMV", sizeof("startCVMVLockMV"), 1);*/
