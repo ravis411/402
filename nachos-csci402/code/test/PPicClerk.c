@@ -24,7 +24,7 @@ void pictureClerkcheckAndGoOnBreak(int myLine){
   int tempState;
   int freeOrAvailable = false;
 
-  if(Get(THEEND,0)){Set(passportClerkState, myLine, ONBREAK); Release(passportClerkLineLock); passportDestroy(); Exit(0);}
+  if(Get(THEEND,0)){Set(pictureClerkState, myLine, ONBREAK); Release(pictureClerkLineLock); passportDestroy(); Exit(0);}
 
   for(i = 0; i < CLERKCOUNT; i++){
   	tempState = Get(pictureClerkState, i);
@@ -42,7 +42,7 @@ void pictureClerkcheckAndGoOnBreak(int myLine){
       PrintString(" is going on break.\n", sizeof(" is going on break.\n") );
     Release(printLock);
     Wait(pictureClerkBreakCV, pictureClerkLineLock);
-    if(Get(THEEND,0)){Set(passportClerkState, myLine, ONBREAK); Release(passportClerkLineLock); passportDestroy(); Exit(0);}
+    if(Get(THEEND,0)){Set(pictureClerkState, myLine, ONBREAK); Release(pictureClerkLineLock); passportDestroy(); Exit(0);}
     Set(pictureClerkState, myLine, BUSY);
     Acquire(printLock);
       PrintString("PictureClerk ", sizeof("PictureClerk ") );
