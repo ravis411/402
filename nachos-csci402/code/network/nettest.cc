@@ -130,6 +130,116 @@ public:
 };
 
 
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+//Pending Requests....
+/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+#define SERVERREQUEST 50
+
+
+class PendingRequest{
+public:
+    int pktHdr;
+    int mailHdr;
+    int type;
+    string name;
+    int lockID;
+    int CVID;
+    int MVID;
+    int MVIndex;
+    int sentCount;
+    int noCount;
+
+    PendingRequest(){
+        pktHdr = -1;
+        mailHdr = -1;
+        type = -1;
+        lockID = -1;
+        CVID = -1;
+        MVID = -1;
+        MVIndex = -1;
+        sentCount = 0;
+        noCount = 0;
+    }
+};
+
+vector<PendingRequest*> pendingRequests;
+
+//pendingRequests.erase(pendingRequests.begin() + index);
+
+
+int findPendingRequest(){
+
+}
+
+
+void sendPendingRequest(PendingRequest* p){
+    stringstream ss;
+    PacketHeader outPktHdr;
+    MailHeader outMailHdr;
+    outMailHdr.from = currentThread->getThreadID();
+    outMailHdr.to = 0;
+    
+
+    ss << p->type << " " << p->pktHdr << " " << p->mailHdr << " ";
+
+
+    if(p->type == SC_CreateLock){
+        ss << name;
+    }else if(p->type == SC_Acquire){
+        ss << p->lockID;
+    }else if(p->type == SC_Release){
+        ss << p->lockID;
+    }else if(p->type == SC_DestroyLock){
+        ss << p->lockID;
+    }
+
+    string msg(ss.str());
+    outMailHdr.length = strlen(msg.c_str()) + 1;
+
+    for(int i = 0; i < 5; i++){
+        
+        if(i == postOffice->getNetworkAddress()){
+            //Don't send the request to ourself...
+            continue;
+        }
+        outPktHdr.to = i;
+
+        if( postOffice->Send(outPktHdr, outMailHdr, (char*)msg.c_str()) ){
+            p->sentCount++;
+        }
+
+    }
+
+    if(p->sentCount == 0){
+        //No Servers awake to handle the request...
+        printf("NO SERVERS AWAKE TO HANDLE THE REQUEST!\n");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -252,20 +362,33 @@ int createLockNamed(string name){
 
 
 void serverCreateLock(string name, int pktHdr, int mailHdr){
-    int lockID = createLockNamed(name);//Find or create the lock
 
-    lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
-    
-    printf("\t\tCreateLock named %s lockID %i.\n", name.c_str(), lockID);
-    
-    stringstream rs;
-    rs << (lockID != -1);//status
-    rs << " ";
-    rs << lockID;
+    if(findLockNamed(name) != -1){//We have the lock and can handle the create....
+        int lockID = createLockNamed(name);//Find or create the lock
 
-    char *msg = (char*) rs.str().c_str();
+        lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
+        
+        printf("\t\tCreateLock named %s lockID %i.\n", name.c_str(), lockID);
+        
+        stringstream rs;
+        rs << (lockID != -1);//status
+        rs << " ";
+        rs << lockID;
 
-    sendMail(msg, pktHdr, mailHdr);
+        char *msg = (char*) rs.str().c_str();
+
+        sendMail(msg, pktHdr, mailHdr);
+    }else{
+
+        //This isn't our lock and need to check with the other servers...
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_CreateLock;
+        p->name = name;
+        pendingRequests.push_back(p);
+        sendPendingRequest(p);
+    }
 }
 
 
