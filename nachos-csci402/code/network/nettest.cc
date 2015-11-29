@@ -521,7 +521,9 @@ void serverDoAcquireLock(int lockID, int pktHdr, int mailHdr){
 
 
 void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
+    printf("\t\tDEBUG: serverAcquireLock\n");
     int myIndex = checkIfLockIsMineAndGetMyIndex(lockID);
+    printf("\t\tDEBUG: serverAcquireLock myIndex: %i\n", myIndex);
     if(myIndex == -1){
         printf("\t\tNot my lock...checking with other servers.\n");
         PendingRequest* p = new PendingRequest();
