@@ -133,6 +133,8 @@ int senatorSafeToEnter; /*To tell senators when it is safe to enter*/
 int senatorPresentWaitOutSide;/*Set by the manager to tell customers when a senator is present...*/
 
 int THEEND;
+int STARTPASSPORT;
+int STOPPASS;
 
 /*********************
 *
