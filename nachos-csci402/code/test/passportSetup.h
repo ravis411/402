@@ -671,7 +671,7 @@ void stopPass(){
   if(!Get(STARTPASSPORT, 0)){
     Acquire(printLock);
     PrintString("StopPass should only be called after startPass.\n", sizeof("StopPass should only be called after startPass.\n"));
-    PrintString("\tThis is probably an error.\n". sizeof("\tThis is probably an error.\n"));
+    PrintString("\tThis is probably an error.\n", sizeof("\tThis is probably an error.\n"));
     Release(printLock);
   }
 
