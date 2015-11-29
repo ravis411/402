@@ -338,7 +338,7 @@ vector<ServerLock*> serverLocks; //The table of locks
 
 
 int checkIfLockIsMineAndGetMyIndex(int lockID){
-    bool print = false;
+    bool print = true;
     int index = lockID % (postOffice->getNetworkAddress() * lockTableSize);
     //postOffice->getNetworkAddress() * lockTableSize + index;
     int machineID = (lockID - index) / lockTableSize;
