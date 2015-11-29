@@ -621,7 +621,6 @@ void startPass(){
 
   Set(THEEND, 0, 0);
   Set(STARTPASSPORT,0, 1);
-  Exit(0);
   Set(STOPPASS, 0 , 0);
 
   Set(senatorPresentWaitOutSide, 0, 0);
