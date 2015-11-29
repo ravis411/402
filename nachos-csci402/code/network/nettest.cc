@@ -446,7 +446,7 @@ void serverCreateLock(string name, int pktHdr, int mailHdr){
         p->name = name;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
-            serverDoCreateLock(name, pkthdr, mailHdr);
+            serverDoCreateLock(name, pktHdr, mailHdr);
         }
     }
 }
@@ -531,15 +531,16 @@ void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
         p->lockID = lockID;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
-            serverDoAcquireLock(myIndex, pkthdr, mailHdr);
+            serverDoAcquireLock(myIndex, pktHdr, mailHdr);
         }
     }else{
         //This is my lock
-        serverDoAcquireLock(myIndex, pkthdr, mailHdr);
+        serverDoAcquireLock(myIndex, pktHdr, mailHdr);
     }
 }
 
 void serverDoReleaseLock(int lockID, int pktHdr, int mailHdr){
+    ServerLock* l;
     //Check if lock exists.
     if(!checkIfLockIDExists(lockID)){return;}
 
@@ -565,7 +566,7 @@ void serverDoReleaseLock(int lockID, int pktHdr, int mailHdr){
 }
 
 void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
-    ServerLock* l;
+
     int myIndex = checkIfLockIsMineAndGetMyIndex(lockID);
     if(myIndex == -1){
         printf("\t\tNot my lock...checking with other servers.\n");
@@ -576,11 +577,11 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
         p->lockID = lockID;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
-            serverDoReleaseLock(myIndex, pkthdr, mailHdr);
+            serverDoReleaseLock(myIndex, pktHdr, mailHdr);
         }
     }else{
         //This is my lock
-        serverDoReleaseLock(myIndex, pkthdr, mailHdr);
+        serverDoReleaseLock(myIndex, pktHdr, mailHdr);
     }
    
 }

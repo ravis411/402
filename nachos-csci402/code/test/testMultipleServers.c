@@ -34,7 +34,7 @@ int main() {
   PrintString("\n", 1);
   
 
-  Exit(0);
+
   
 
   lock2 = CreateLock("Lock2", sizeof("Lock2") );
@@ -82,7 +82,7 @@ int main() {
 
   PrintString("\n\nFinished Lock Tests\n\n", sizeof("\n\nFinished Lock Tests\n\n"));
 
-
+  Exit(0);
 
 
   PrintString("\n\nGoing to test CVs and MVs\n\n", sizeof("\n\nGoing to test CVs and MVs\n\n"));
