@@ -1143,11 +1143,11 @@ void Server(){
             int request;
             ss >> request;
             if(request){
-                printf("Server Request.\n");
+                printf("\tServer Request.\n");
                 serverRequest = true;
 
             }else{
-                printf("Server Reply\n");
+                printf("\tServer Reply\n");
                 serverReply = true;
             }
         }

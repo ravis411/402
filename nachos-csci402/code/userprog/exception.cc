@@ -889,6 +889,7 @@ void clientSendMail(char* msg){
 
 	int trys = 0;
 	string wat(msg);
+	srand(time(NULL));
 	do{
 		trys++;
 		outPktHdr.to = rand() % 5;
