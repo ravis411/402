@@ -18,6 +18,7 @@ int lock1;
 
 int main() {
   int lock2;
+  int lock3;
   int CV1;
   int i;
   int MV;
@@ -38,7 +39,14 @@ int main() {
   PrintInt(lock2);
   PrintString("\n", 1);
 
+  lock3 = CreateLock("Lock3", sizeof("Lock3") );
 
+  PrintString("Got lockID3: ", sizeof("Got lockID: "));
+  PrintInt(lock3);
+  PrintString("\n", 1)
+
+  Exit(0);
+  
   startCVMVLock = CreateLock("startCVMVLock", sizeof("startCVMVLock"));
   /*startCVMVLockMV = CreateMV("startCVMVLockMV", sizeof("startCVMVLockMV"), 1);*/
 
@@ -70,9 +78,9 @@ int main() {
 
   PrintString("\n\nFinished Lock Tests\n\n", sizeof("\n\nFinished Lock Tests\n\n"));
 
-  Exit(0);
 
-  
+
+
   PrintString("\n\nGoing to test CVs and MVs\n\n", sizeof("\n\nGoing to test CVs and MVs\n\n"));
 
   CV1 = CreateCondition("CV1", sizeof("CV1"));

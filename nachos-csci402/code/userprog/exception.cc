@@ -891,7 +891,7 @@ void clientSendMail(char* msg){
 	string wat(msg);
 	do{
 		trys++;
-		outPktHdr.to = rand() % 3;
+		outPktHdr.to = rand() % 5;
 		//printf("MSG: %s , to %i\n",wat.c_str(), outPktHdr.to );
  		success = postOffice->Send(outPktHdr, outMailHdr, (char*)wat.c_str());
 	}while(!success && trys < 500);
