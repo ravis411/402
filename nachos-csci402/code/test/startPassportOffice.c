@@ -14,12 +14,12 @@
 int
 main()
 {
-	char input[5];
+	char input[3];
 	startPass();
 
-	Read(input, 5, ConsoleInput);
+	Read(input, 3, ConsoleInput);
 
-	PrintString(input, 5);
+	PrintString(input, 3);
 
 
 	

@@ -663,11 +663,14 @@ void startPass(){
   }
 
   Exec("../test/PManager", sizeof("../test/PManager"));
-
+  Yield();
+  Yield();
+  Delay(5);
+  passportDestroy();
 }
 
 void stopPass(){
-
+  passportSetup();
   if(!Get(STARTPASSPORT, 0)){
     Acquire(printLock);
     PrintString("StopPass should only be called after startPass.\n", sizeof("StopPass should only be called after startPass.\n"));
