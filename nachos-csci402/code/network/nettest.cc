@@ -1323,6 +1323,8 @@ void Server(){
                 ss >> reqMailHdr;
                 ss >> lockID;
 
+                printf("\t\tDEBUG: AcquireFROM SERVER: lockID %i\n", lockID);
+
                 if(serverReply){
                     bool response;
                     ss >> response;
@@ -1350,8 +1352,9 @@ void Server(){
                 }else{
                     //Server request message
                     //Need to send a reply of some kind...possibly handle the request...
-                    
+                    printf("\t\tDEBUG: bout to calc my index...\n");
                     int myIndex = checkIfLockIsMineAndGetMyIndex(lockID);
+                    printf("\t\tDEBUG: MYINDEX: %i\n", myIndex);
 
                     if(myIndex != -1){
                         //If this lock is ours reply YES and handle the request.
