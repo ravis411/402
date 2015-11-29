@@ -177,11 +177,25 @@ public:
 
 vector<PendingRequest*> pendingRequests;
 
-//pendingRequests.erase(pendingRequests.begin() + index);
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingCreateLockRequest(int pkthdr, int mailHdr, string name){
+    for(int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_CreateLock){
+            if(p->pkthdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->name == name){
+                    return i;
+                }
+            }
+        }
+    }
+    return -1;
+}
 
-
-int findPendingRequest(){
-
+void deletePendingRequest(int index){
+    PendingRequest* p = pendingRequests[index];
+    delete p;
+    pendingRequests.erase(pendingRequests.begin() + index);
 }
 
 
@@ -192,8 +206,8 @@ void sendPendingRequest(PendingRequest* p){
     outMailHdr.from = currentThread->getThreadID();
     outMailHdr.to = 0;
     
-
-    ss << p->type << " " << p->pktHdr << " " << p->mailHdr << " ";
+    //type // request/Nreply // pkthdr // mailhdr
+    ss << p->type << " " << true << " " << p->pktHdr << " " << p->mailHdr << " ";
 
 
     if(p->type == SC_CreateLock){
@@ -359,25 +373,27 @@ int createLockNamed(string name){
 }
 
 
+void serverDoCreateLock(string name, int pkthdr, int mailHdr){
+    int lockID = createLockNamed(name);//Find or create the lock
 
+    lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
+        
+    printf("\t\tCreateLock named %s lockID %i.\n", name.c_str(), lockID);
+        
+    stringstream rs;
+    rs << (lockID != -1);//status
+    rs << " ";
+    rs << lockID;
+
+    char *msg = (char*) rs.str().c_str();
+
+    sendMail(msg, pktHdr, mailHdr);
+}
 
 void serverCreateLock(string name, int pktHdr, int mailHdr){
 
     if(findLockNamed(name) != -1){//We have the lock and can handle the create....
-        int lockID = createLockNamed(name);//Find or create the lock
-
-        lockID = postOffice->getNetworkAddress() * lockTableSize + lockID;
-        
-        printf("\t\tCreateLock named %s lockID %i.\n", name.c_str(), lockID);
-        
-        stringstream rs;
-        rs << (lockID != -1);//status
-        rs << " ";
-        rs << lockID;
-
-        char *msg = (char*) rs.str().c_str();
-
-        sendMail(msg, pktHdr, mailHdr);
+        serverDoCreateLock(name, pkthdr, mailHdr);
     }else{
 
         //This isn't our lock and need to check with the other servers...
@@ -1108,6 +1124,9 @@ void Server(){
         //Process msg
         //Reply(maybe)
         stringstream ss;
+        bool fromServer = false;
+        bool serverRequest = false; // If this message is a request
+        bool serverReply = false;   // or a reply to a request
 
         postOffice->Receive(mailBoxNumber, &inPktHdr, &inMailHdr, buffer);
         ss << buffer;
@@ -1119,14 +1138,87 @@ void Server(){
         ss >> which;
 
 
+        fromServer = ( inPktHdr.from < 5 );
+        if( fromServer ){
+            int request;
+            ss >> request;
+            if(request){
+                printf("Server Request.\n");
+                serverRequest = true;
+
+            }else{
+                printf("Server Reply\n");
+                serverReply = true;
+            }
+        }
+
+
+
 
         // SC_CreateLock
         if(which == SC_CreateLock){
-            printf("\tCreateLock\n");
             string lockName;
-            ss >> lockName;
+            if(!fromServer){
+                printf("\tCreateLock\n");
+                
+                ss >> lockName;
 
-            serverCreateLock(lockName, inPktHdr.from, inMailHdr.from);
+                serverCreateLock(lockName, inPktHdr.from, inMailHdr.from);
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> lockName;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingCreateLockRequest(reqPktHdr, reqMailHdr, lockName);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoCreateLock(p->name, p->pkthdr, p->mailHdr);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    
+                    if(findLockNamed(p->name)){
+                        //If this lock is ours reply YES and handle the request.
+                        printf("\t\tThis lock is ours...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoCreateLock(p->name, p->pkthdr, p->mailHdr);
+                    }else{
+                        //If this lock does not belong to us...reply NO
+                        printf("\t\tThis lock is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
+           
 
         }//SC_Acquire
         else if(which == SC_Acquire){
