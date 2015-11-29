@@ -32,7 +32,7 @@ void cashiercheckAndGoOnBreak(int myLine){
     }
   }
 
-  if(freeOrAvailable){
+  if(freeOrAvailable && (Rand() % 10 ) < 3){
     Set(cashierState, myLine, ONBREAK);
     Acquire(printLock);
       PrintString("Cashier ", sizeof("Cashier ") );

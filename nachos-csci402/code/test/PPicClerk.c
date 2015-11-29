@@ -34,7 +34,7 @@ void pictureClerkcheckAndGoOnBreak(int myLine){
     }
   }
 
-  if(freeOrAvailable){
+  if(freeOrAvailable && (Rand() % 10 ) < 3){
     Set(pictureClerkState, myLine, ONBREAK);
     Acquire(printLock);
       PrintString("PictureClerk ", sizeof("PictureClerk ") );
