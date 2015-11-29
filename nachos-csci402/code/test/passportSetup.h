@@ -6,7 +6,7 @@
 
 
 
-#define CLERKCOUNT  1
+/*#define CLERKCOUNT  1*/
 #define CUSTOMERCOUNT 2
 #define SENATORCOUNT  1
 
@@ -135,6 +135,7 @@ int senatorPresentWaitOutSide;/*Set by the manager to tell customers when a sena
 int THEEND;
 int STARTPASSPORT;
 int STOPPASS;
+int CLERKCOUNT;
 
 /*********************
 *
@@ -547,7 +548,7 @@ void initialPassportSetup(){
   int i;
 
   passportSetup();
-
+  CLERKCOUNT = 1;
   Set(THEEND, 0, 0);
   Set(STARTPASSPORT,0, 0);
   Set(STOPPASS, 0 , 0);
@@ -618,7 +619,7 @@ void startPass(){
   int i;
 
   passportSetup();
-
+  CLERKCOUNT = 5;
   Set(THEEND, 0, 0);
   Set(STARTPASSPORT,0, 1);
   Set(STOPPASS, 0 , 0);
