@@ -15,7 +15,7 @@ int
 main()
 {
 	
-	startSenators(9);
+	startSenators(8);
 
 
     Exit(0);		/* and then we're done */

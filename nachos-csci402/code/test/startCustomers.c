@@ -15,7 +15,7 @@ int
 main()
 {
 	
-	startCustomers(9);
+	startCustomers(8);
 
 
     Exit(0);		/* and then we're done */
