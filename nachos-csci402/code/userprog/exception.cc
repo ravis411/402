@@ -1415,7 +1415,7 @@ void Set_Syscall(int MVID, int index, int value){
 	rs >> success;
 
 	if(!success){
-		printf("Error during MV Set. Unable to Set.\n");
+		printf("Error during MV Set. Unable to Set MVID: %i, index %i, value %i.\n",MVID, index, value);
 	}
 
 	return;
