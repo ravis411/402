@@ -16,6 +16,9 @@ void passportClerkcheckAndGoOnBreak(int myLine){
 	int tempState;
   int freeOrAvailable = false;
   int i;
+
+  if(Get(THEEND,0)){Set(passportClerkState, myLine, ONBREAK); Release(passportClerkLineLock); passportDestroy(); Exit(0);}
+
   for(i = 0; i < CLERKCOUNT; i++){
   	tempState = Get(passportClerkState, i);
     if(i != myLine && ( tempState == AVAILABLE || tempState == BUSY ) ){
@@ -32,6 +35,7 @@ void passportClerkcheckAndGoOnBreak(int myLine){
       PrintString(" is going on break.\n", sizeof(" is going on break.\n") );
     Release(printLock);
     Wait(passportClerkBreakCV, passportClerkLineLock);
+    if(Get(THEEND,0)){Set(passportClerkState, myLine, ONBREAK); Release(passportClerkLineLock); passportDestroy(); Exit(0);}
     Set(passportClerkState, myLine, BUSY);
     Acquire(printLock);
       PrintString("PassportClerk ", sizeof("PassportClerk ") );
@@ -40,13 +44,14 @@ void passportClerkcheckAndGoOnBreak(int myLine){
     Release(printLock);
   }
 
-  Release(passportClerkLineLock);
-  Acquire(managerLock);
+  /*Release(passportClerkLineLock);*/
+  /*Acquire(managerLock);*/
   /*if(Get(checkedOutCount,0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}*/
-  if(Get(THEEND,0)){Release(managerLock); passportDestroy(); Exit(0);}
-  Release(managerLock);
+  /*if(Get(THEEND,0)){Release(managerLock); passportDestroy(); Exit(0);}*/
+  
+  /*Release(managerLock);*/
   Yield();
-  Acquire(passportClerkLineLock);
+  /*Acquire(passportClerkLineLock);*/
 
   /*passportClerkState[myLine] = AVAILABLE;*/
 }

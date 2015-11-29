@@ -21,6 +21,9 @@ void cashiercheckAndGoOnBreak(int myLine){
   int freeOrAvailable = false;
   int i;
   int tempState;
+
+  if(Get(THEEND,0)){Set(cashierState, myLine, ONBREAK); Release(cashierLineLock); passportDestroy(); Exit(0);}
+
   for(i = 0; i < CLERKCOUNT; i++){
   	tempState = Get(cashierState, i);
     if(i != myLine && ( tempState == AVAILABLE || tempState == BUSY ) ){
@@ -37,6 +40,7 @@ void cashiercheckAndGoOnBreak(int myLine){
       PrintString(" is going on break.\n", sizeof(" is going on break.\n") );
     Release(printLock);
     Wait(cashierBreakCV, cashierLineLock);
+    if(Get(THEEND,0)){Set(cashierState, myLine, ONBREAK); Release(cashierLineLock); passportDestroy(); Exit(0);}
     Set(cashierState, myLine, BUSY);
     Acquire(printLock);
       PrintString("Cashier ", sizeof("Cashier ") );
@@ -45,13 +49,14 @@ void cashiercheckAndGoOnBreak(int myLine){
     Release(printLock);
   }
     
-    Release(cashierLineLock);
-    Acquire(managerLock);
+    /*Release(cashierLineLock);*/
+    /*Acquire(managerLock);*/
     /*if(Get(checkedOutCount,0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}*/
-    if(Get(THEEND,0)){Release(managerLock); passportDestroy(); Exit(0);}
-    Release(managerLock);
+    /*if(Get(THEEND,0)){Release(managerLock); passportDestroy(); Exit(0);}*/
+  
+    /*Release(managerLock);*/
     Yield();
-    Acquire(cashierLineLock);
+    /*Acquire(cashierLineLock);*/
 
 }
 

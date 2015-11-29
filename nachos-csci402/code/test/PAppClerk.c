@@ -24,6 +24,8 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
   int i;
   int tempSate;
 
+  if(Get(THEEND,0)){Set(applicationClerkState, myLine, ONBREAK); Release(applicationClerkLineLock); passportDestroy(); Exit(0);}
+
   for(i = 0; i < CLERKCOUNT; i++){
   	tempSate = Get(applicationClerkState, i);
     if(i != myLine && ( tempSate == AVAILABLE || tempSate == BUSY ) ){
@@ -43,6 +45,7 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
     Release(printLock);
 
     Wait(applicationClerkBreakCV, applicationClerkLineLock);
+    if(Get(THEEND,0)){Set(applicationClerkState, myLine, ONBREAK); Release(applicationClerkLineLock);passportDestroy(); Exit(0);}
     Set(applicationClerkState, myLine, BUSY);
 
     Acquire(printLock);
@@ -53,14 +56,14 @@ void applicationClerkcheckAndGoOnBreak(int myLine){
 
   }
 
-  Release(applicationClerkLineLock);
+  /*Release(applicationClerkLineLock);*/
   /*Should we go to sleep?*/
-  Acquire(managerLock);
+  /*Acquire(managerLock);*/
   /*if(Get(checkedOutCount, 0) == (CUSTOMERCOUNT + SENATORCOUNT)){Release(managerLock); passportDestroy(); Exit(0);}*/
-  if(Get(THEEND,0)){Release(managerLock); passportDestroy(); Exit(0);}
-  Release(managerLock);
+  
+ /* Release(managerLock);*/
   Yield();
-  Acquire(applicationClerkLineLock);
+  /*Acquire(applicationClerkLineLock);*/
 
 }
 
