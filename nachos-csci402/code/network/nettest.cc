@@ -573,7 +573,7 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
         PendingRequest* p = new PendingRequest();
         p->pktHdr = pktHdr;
         p->mailHdr = mailHdr;
-        p->type = SC_Acquire;
+        p->type = SC_Release;
         p->lockID = lockID;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
