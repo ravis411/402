@@ -266,8 +266,8 @@ void passportSetup(){
 	passportCompletion = CreateMV("pasComp", sizeof("pasComp"), (MAXCUSTOMERS + MAXSENATORS));
 	passportPunishment = CreateMV("pasPun", sizeof("pasPun"), (MAXCUSTOMERS + MAXSENATORS));
 	cashierSharedDataSSN = CreateMV("casSDSSN", sizeof("casSDSSN"), (MAXCUSTOMERS + MAXSENATORS));
-	cashierRejection = CreateMV("casReject", sizeof("casReject"), (MAXCUSTOMERS + MAXSENATORS);
-	doneCompletely = CreateMV("doneComp", sizeof("doneComp"), (MAXCUSTOMERS + MAXSENATORS);
+	cashierRejection = CreateMV("casReject", sizeof("casReject"), (MAXCUSTOMERS + MAXSENATORS));
+	doneCompletely = CreateMV("doneComp", sizeof("doneComp"), (MAXCUSTOMERS + MAXSENATORS));
 
 	SSNCount = CreateMV("SSNCount", sizeof("SSNCount"), 1);
 	ApplicationMyLine = CreateMV("AppMyLine", sizeof("AppMyLine"), 1);
