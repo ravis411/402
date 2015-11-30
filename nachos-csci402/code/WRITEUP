@@ -1,174 +1,171 @@
-Title:  Writeup for Project 3, Fall 2015
- Date:  11/08/15
+Title:  Writeup for Project 4, Fall 2015
+ Date:  11/29/15
  Group:	Name	Email	
 		Ryan Davis	ryanwdav@usc.edu	
 
  
 I. Requirements:
-	Project 3 requires the implementation of demand paged virtual memory and nachos networking.
+	Project 4 requires the implementation of a distributed Passport Office.
 
-	DPVM involves software management of the TLB, IPT, and swap file. Project 2 preloaded all pages into memory. For this project pages are only loaded into memory when they are needed. When memory fills up, if the page is dirty, the page is written to the swap file. Nachos was set up to throw a PageFaultException on a TLB miss. This project required the implementation of the TLB miss function as well as IPT miss and handling when memory is full. The default page eviction policy is FIFO, however a user can use the -P option to choose RAND page eviction as well.
+	Part 1 required the Passport Office to run using the new network system calls from project 3. This meant some significant refactoring and some minor changes to the passport office design.
 
-	Networking involved converting all of the Lock and Condition syscalls to work through the server. Instead of using the lock or condition variables from project 1 directly, the client waits for a response from the server which only sends a reply when the client can access the resource, unless there is an error in which case an error value is sent to the client. The networking part also involved the creation of new monitor variable (MV) syscalls. These syscalls are to be used with their corresponding lock.
+	Part2 required the use of multiple servers. The client or passport office was to have no knowledge of the various servers. All servers would coordinate with eachother to properly handle requests. When a request comes into the server the server can handle the request if it owns the resource otherwise, it will forward the request to all other servers and handle the responses.
 
 II. Assumptions:
-	Assumption 1: The swap file for each instance of nachos is large enough to hold all the evicted pages. The size of the swap file can be set with the NumSwapPages compiler directive in system.cc. Currently set to 512 pages.
-	Assumption 2: The userprograms that access networked recourses will always properly give up and destroy resources they created. The client does not keep track of the resources it has created...it is up to the user program to properly manage this.
+	Assumption 1: Each instance has a unique machine id supplied with the -m argument.
+	Assumption 2: The servers are always machine id 0-4 and any clients are 5 and up.
 	Assumption 3: The necessary changes have been made to the machine directory to allow for use of the standard template library. These changes were approved by Professor Crowley.
 
 III. Design:
-	DPVM:
-		Most of the DPVM code resides in exception.cc. A PageFaultException invokes the handleTLBMiss function which contains all of the logic for a TLB miss. Various other functions are used within this function to handle other cases such as the IPT miss and populating the TLB.
+	Passport Office:
+		Most of the differences in the passport office code are changes to the ways the monitor variables are accessed. Before, the MVs were not system calls. Now, a simple increment to a MV requires a Get to get the current value and then a Set to set the new value. This required a significant amount of refactoring. In adition, a passportSetup.h file contains functions with all the setup code for calling the creates and destroys as well as initilizing the values. A version of passportOffice will run the complete simulation on a single terminal window with a reduced number of entities. A larger version can be used by running all of the required start files as described under the Testing section.
 
-	Networking:
-		A Server() function is called when the server is started. All of the code for the server is through this function which is in nettest.cc. To keep track of locks a ServerLock class was created that holds and manages data for locks. Similar are the ServerCV and ServerMV classes.
+	Multiple Servers:
+		The client will randomly pick a server to send a request to. The client will pick a number 0-4 to send the request. If the message fails to send, it will try again up to a certain number of times. This ensures that the contacted server is random and will work correctly with any number of servers 1-5 which are machine id 0-4. When a server recieves a request from a client the server will check to see if it owns the resource. If it does, it can handle the request. Otherwise, such as on a create, the server will add the request to the pending requests table and forward the request to all other active servers. If there are no other active servers, the server will handle the request. When all servers have replied with a 'NO' then the server can handle the request. If any server replies 'YES' then the server will delete the pending request and assume that the server that replied yes will handle it.
 
 IV. Implementation:
 	+ Files Modified
-		/machine/machine.h //To set NumPhysPages to 32
-		/network/Makefile
 		/network/nettest.cc
+		/network/post.h
+		/network/post.cc
 		/test/Makefile
+		/test/passportOffice.c
 		/test/start.s
-		/threads/main.cc
-		/threads/system.h
-		/threads/system.cc
-		/userprog/addrspace.h
-		/userprog/addrspace.cc
 		/userprog/exception.cc
-		/userprog/progtest.cc
 		/userprog/syscall.h
 
-
 	+ Files added
-		/test/testVirtualMemory.c
-		/test/memoryTestSuite.c
-		/test/testNetwork.c
+		/test/PAppClerk.c
+		/test/PCashier.c
+		/test/PCustomer.c
+		/test/PManager.c
+		/test/PPasClerk.c
+		/test/PPicClerk.c
+		/test/PSenator.c
+		/test/PreNetworkingPassportOffice.c
+		/test/passportSetup.h
+		/test/startAppClerks.c
+		/test/startCashiers.c
+		/test/startCustomers.c
+		/test/startSenators.c
+		/test/startPasClerks.c
+		/test/startPicClerks.c
+		/test/startPassportOffice.c
+		/test/stopPassportOffice.c
+		/test/testMultipleServers.c
+
+
 		
 
 	+ Data Structures added, and the file they were added to.
-		class ServerReplyMsg{	--in file nettest.cc
+		class PendingRequest{	-- in file nettest.cc
 			public:
-			int pktHdr;
-			int mailHdr;
-			char* msg;
-		}
-			//Keeps track of messages that are in a queue.
+			    int pktHdr;
+			    int mailHdr;
+			    int type;
+			    string name;
+			    int lockID;
+			    int CVID;
+			    int MVID;
+			    int MVIndex;
+			    int sentCount;
+			    int noCount;
 
-		class ServerLock{...};	--in file nettest.cc
-			//Keeps track of each lock, the queued messages, and the state of the lock
-
-		class ServerCV{...};	--in file nettest.cc
-			//Keeps track of Conditions...
-
-		class ServerMV{...};	....
+			    PendingRequest(){
+			        pktHdr = -1;
+			        mailHdr = -1;
+			        type = -1;
+			        lockID = -1;
+			        CVID = -1;
+			        MVID = -1;
+			        MVIndex = -1;
+			        sentCount = 0;
+			        noCount = 0;
+			    }
+			};
+				// Holds information about a pending request sent to the server from a client and information about replies from other servers regarding that request.
 
 
 	+ Data Structures modified, and the file they were added to.
-		class AddrSpace{...} --in addrspace.h/.cc
-			//Stopped preloading memory
-			//Open and save executable
-			//Modify pagetable to hold more data such as page location and byteoffset
-			//Implemented necessary changes in Fork, Exit, AddrSpace(), ~AddrSpace()...to allow for DPVM
-
+		N/A.
 
 	+ Functions added and in which file.
-		sendMail	--in nettest.cc
-			//Sends the given message to a given machine and mailbox
-
-		checkIfLockIDExists	--in file nettest.cc
-			//Checks if a given lockID is valid.
-
-		getLockNamed()	--in nettest.cc
-			//Gets a lock with the given name or creates one if it doesn't exist.
-
-		checkLockAndDestroy()	-- in nettest.cc
-			//Determines if a lock can be destroyed and deletes it if safe.
-
-		serverAcquireLock	--in nettest.cc
-			//Called by Server() for client to acquire lock.
-
-		serverReleaseLock	--in nettest.cc
-			//For client to release lock
-
-		serverDestroyLock	--in nettest.cc
-			//For client to destroy lock
-
-		checkIfCVIDExists	--in nettest.cc
-			//To validate CVID
-
-		serverCreateCV	--in nettest.cc
-			//For client to CreateCondition
-
-		checkCVAndDestroy	--in nettest.cc
-			//to check and destory CV
-
-		serverDestroyCV	--in nettest.cc
-			//to destroy
-
-		--nettest.cc:
-		serverWait
-		serverSignal
-		serverBroadcast
-		checkIfMVIDExists
-		serverCreateMV
-		serverDestroyMV
-		serverSet
-		serverGet
-		Server()	//The main server function...parses request messages and calls corresponding handler.
-
-		--in file exception.cc
-		//Added syscalls for MVs
-		//Added functions for DPVM
+		--nettest.cc
+		void deletePendingRequest(int index){
+		bool sendPendingRequest(PendingRequest* p);	//To send a pending request to all servers.
+		int findPendingCreateLockRequest(int pkthdr, int mailHdr, string name);	//To find a pending request.
+		int findPendingAcquireLockRequest(int pkthdr, int mailHdr, int lockID);	//To find a pending request.
+		int findPendingReleaseLockRequest(int pkthdr, int mailHdr, int lockID);	//To find a pending request.
+		int checkIfLockIsMineAndGetMyIndex(int lockID){
+		int findLockNamed(string name); // To handle multiple servers.
+		int createLockNamed(string name); // To handle multiple servers.
+		void serverDoCreateLock(string name, int pktHdr, int mailHdr); // To handle multiple servers.
+		void serverDoAcquireLock(int lockID, int pktHdr, int mailHdr); // To handle multiple servers.
+		void serverDoReleaseLock(int lockID, int pktHdr, int mailHdr); // To handle multiple servers.
 
 	+ Functions modified and in which file.
-		main()	--in main.cc
-			//Added command line argument to invoke Server()
 
 		--in file exception.cc
-			//Modified Lock, Condition, Fork, Exit syscalls etc.
+			//Modified clientSendMail() to send mail to a random server.
 
-		Initialize()	-- in system.cc
-			//Added variables for the swap file as well as IPT and requred a netname when NETWORK is defined. Also added command line argument for FIFO/RAND
-
-		StartProcess 	-- in progtest.cc
-			//Pass executable name to AddrSpace constructor instead of creating it.
+		--int file nettest.cc
+			//Modified Server(), serverCreateLock(), serverAcquire(), and serverRelease() to handle multiple servers.
 
 V. Testing:  (For each test case, you must show)
 	+ How to test
-		To test the DPVM one can run nachos -x ../test/memoryTestSuite
-			The -P option can also be used to select RAND or the default FIFO
-			The -d MPTS or a subset may be helpful for printing debug statements...please note they are not garanteed to be nice looking.
-			If this command is run from the /network/ directory a -m option is required. (it does not matter what the number is) Otherwise it is recommended to compile and run from /vm/.
-			This test Execs two testVirtualMemory which each Fork two matmults. It also Execs a sort.
-			Expected output is printed to the console.
-		To test remote procedure calls, one can run "nachos -server -m 0" as well as 'any' number of "nachos -x ../test/testNetwork -m 1" greater than 1
-			For these tests nachos must be compiled from the network directory.
-			The test/ directory should of course be compiled separately.
-			It is required that at least 2 of the clients are run.
-			There is a delay of 3 seconds before trying to acquire locks.
-			Then a 10 second countdown is initiated after having acquired a lock.
-			After all clients have finished the lock test countdown the CV/MV test begins.
-			Each client will take a turn (3 turns each) printing the MV then incrementing MV[0] and decrementing MV[1].
-			Therefore output will vary depending on the number of clients run.
-			All clients should be started before the rest are finshed with the countdown.
-			Again, It is necessary to run at least 2 clients.
+		Passport Office
+			First, run nachos -server -m x where x is any number 0-4. Since I was unable to complete the entire project the passport office will only run properly when a single server is running.
+
+			Option 1: 1 Server and 1 Client
+				With one server running, from network/ run nachos -x ../test/passportOffice -m 5 where 5 is any number greater than or equal to 5. This will run a passport office similuation with one of each clerk, 2 customers, and 1 senator.
+
+			Option 2: 1 Server and a bunch of clients
+				With one server running, run 1 only of the following from /network/:
+					nachos -x ../test/startPassportOffice -m 5
+				Wait untill this console outputs "Initialized Passport Office and 1 manager."
+				Then in any order run only 1 each:
+					nachos -x ../test/startAppClerks -m 6
+					nachos -x ../test/startPicClerks -m 7
+					nachos -x ../test/startPasClerks -m 8
+					nachos -x ../test/startCashiers -m 9
+				Wait untill at least one of each clerk as gone on break.
+				Then run as many of the following as desired. Stop before a SSN of 200, this is the max. These will run either 8 customers or senators. Once these complete they can be run again and in any order and with any number running concurrently.
+					nachos -x ../test/startCustomers -m 10
+					nachos -x ../test/startSenators -m 11
+				When all customers or senators have finished. To close the office and return resources to the server run:
+					nachos -x ../test/stop PassportOffice -m 10
+
+				Note the machine id of all clients do not matter as long as they are unique and not 0-4. The server must have an id 0,1,2,3 or 4.
+
+		Multiple Servers
+			While the passport office does not run with multiple servers, locks can be tested with the following. This test creates a number of locks and then does a mutually exclusive 10 second countdown. Unfortunately, DestroyLock isn't complete and the servers will need to be closed to show different lockIDs. There may also be a race condition if the clients call createLock too quickly right now as the server does not check wether a previous request for that name has been made.
+				run any number of servers greater than 0 up to 5 with machine ids 0-4.
+					nachos -server -m (0-4)
+				run any number of the following with a unique non server machine id
+					nachos -x ../test/testMultipleServer -m 5
+
 	+ Test Output
-		Output for test/memoryTestSuite is given in the output of the test. You may read it while it is running.
-			Expected output (aside from the description statements) is 8 Exit statuses, 3 0s, 4 7220s and 1 1023
-		Output for the test/testNetwork	is some prints to show that locks/conditions have been created.
-			A mutually exclusive countdown.
-			A mutually exclusive output of MV values which are each invremented and decremented.
-			Exact output will vary based on number of clients
+		Passport Office
+			Option 1:
+				The server outputs a large amount of status messages.
+				The client will ouput the passport office.
+			Option 2:
+				The server will output a large amount of status messages.
+				The first client will output that the passport office has been initialized and then will output manager messages.
+				Each client with output the messages for that entitity.
+
+		Multiple Servers
+			Each server will output status messages
+			The clients will output the lockID of the value returned from CreateLock and then proceed with a 10 second mutually exclusive countdown.
+
 
 VI. Discussion:
 	+ Experiment expectation.  (What is supposed to happen.)
-		I was expcted to learn about virtual memory and remote procedure calls.
+		I was expcted to learn about distributed systems and distributed networking. I was to create and convert the passport office to use the networking syscalls and allow for multiple servers.
 	+ Experiment result.  (What actually happened.)
-		I did learn a great deal about DPVM and RPCs.
+		I did learn a great deal about distributed networking. I was able to finish code to enable CreateLock, Release, and Acquire on multiple servers. However, I did not have enough time to get any farther.
 	+ Explanation
-		My code functions as it was designed and as the specifications required. I learned how to implement remote procedure calls and about the swap file, the TLB, and the IPT. I got full credit for the question about the TLB miss on the exam which proves I have learned a sufficient amount.
+		I ran out of time to finish the rest of the distributed networking system calls. DestroyLock, CVs, and MVs, all only work while a single server is running. I know how to complete the implementation of these I just do not have enough time. I spent a significant amount of time working on this project over the Thanksgiving break and unfortunately am out of time.
 
 VIII. Miscellaneous:
-	I did the entire project on my own and have decided to form my own group. I did the entire last project as well. I also did most of project 1. This is the worst team I have ever been in. They no longer deserve to benifit from my hard work.
-	While I had already finished part 1 of the project at the time, it was agreed that Emma would complete parts 1 and 2 and Wynston would complete part 3 networking. As of this writing neither of them have completed their parts. As far as I know, Wynston has no working code. I completed this independently of anything they may have been working on. While I think my project deserves full credit as I have not found any bugs or errors, please take into consideration that I am a group of 1. Thank you.
+	I did the entire project on my own, again, this time by choice. Please take into consideration that I am a group of 1. While I did not manage to complete part 2 which is a majority of the points of the project, I did finish part of it so perhaps I could at least get a few points. Sorry for that. Thank you.
