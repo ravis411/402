@@ -289,6 +289,20 @@ int findPendingReleaseLockRequest(int pkthdr, int mailHdr, int lockID){
     return -1;
 }
 
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingDestroyLockRequest(int pkthdr, int mailHdr, int lockID){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_DestroyLock){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->lockID == lockID){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
 
 
 
@@ -594,11 +608,10 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
    
 }
 
+void serverDoDestroyLock(int lockID){
+    ServerLock* l;
 
-void serverDestroyLock(int lockID){
-     ServerLock* l;
-
-     lockID = checkIfLockIsMineAndGetMyIndex(lockID);
+     
     if(!checkIfLockIDExists(lockID)){return;}
 
     l = serverLocks[lockID];
@@ -610,6 +623,27 @@ void serverDestroyLock(int lockID){
     if(!checkLockAndDestroy(lockID)){
         printf("\t\tNot ready to destroy lock.\n");
     }
+}
+
+void serverDestroyLock(int lockID, int pkthdr, int mailHdr){
+     int myIndex = checkIfLockIsMineAndGetMyIndex(lockID);
+
+     if(myIndex == -1){
+        printf("\t\tNot my lock...checking with other servers.\n");
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_DestroyLock;
+        p->lockID = lockID;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            serverDoDestroyLock(myIndex);
+        }
+    }else{
+        //This is my lock
+        serverDoDestroyLock(myIndex);
+    }
+
 }
 
 
@@ -1448,7 +1482,73 @@ void Server(){
         else if (which == SC_DestroyLock){
             printf("\tDestroyLock:\n");
             int lockID;
-            ss >> lockID;
+            
+
+            if(!fromServer){
+                
+                ss >> lockID;
+                serverDestroyLock(lockID, inPktHdr.from, inMailHdr.from);
+
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> lockID;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingDestroyLockRequest(reqPktHdr, reqMailHdr, lockID);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoDestroyLock(lockID);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    int myIndex = checkIfLockIsMineAndGetMyIndex(lockID);
+
+                    if(myIndex != -1){
+                        //If this lock is ours reply YES and handle the request.
+                        printf("\t\tThis lock is ours...reply YES...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_DestroyLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockID << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoDestroyLock(myIndex);
+                    }else{
+                        //If this lock does not belong to us...reply NO
+                        printf("\t\tThis lock is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_DestroyLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockID << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
+
+
+
+
+
 
             serverDestroyLock(lockID);
 
