@@ -1309,6 +1309,7 @@ void Server(){
                         printf("\t\tGot a YES.\n");
                         //We can delete the request...The other server will handle it.
                         deletePendingRequest(pendingRequestIndex);
+                        //TODO WE need to delete all pending requests for this name... and send out a pending request for each other request with same name
 
                     }else{
                         //Was a NO
@@ -1319,6 +1320,7 @@ void Server(){
                             printf("\t\tAll servers have responded. Handling the request.\n");
                             serverDoCreateLock(p->name, p->pktHdr, p->mailHdr);
                             deletePendingRequest(pendingRequestIndex);
+                            //TODO handle all requests with same name...
                         }
                     }
                 }else{
@@ -1335,10 +1337,23 @@ void Server(){
                         serverDoCreateLock(lockName, reqPktHdr, reqMailHdr);
                     }else{
                         //If this lock does not belong to us...reply NO
+                        
+
+                        //TODO: WHAT IF THERE IS ALREADY A PENDING CREATE FOR THIS LOCK!?
+
+                            //if my machine id lower reply yes
+                                //and add another pending request for this lock...
+
+                            // if my machine id higher reply no
+                                //and send a pending request out again for this lock for each pending request
+
+
                         printf("\t\tThis lock is not ours...reply NO.\n");
                         stringstream rs;
                         rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << false;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+
                     }
                 }
 
