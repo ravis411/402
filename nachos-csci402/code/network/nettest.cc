@@ -218,7 +218,9 @@ bool sendPendingRequest(PendingRequest* p){
         ss << p->lockID;
     }else if(p->type == SC_CreateMV){
         ss << p->MVIndex << " " << p->name;
-    }else if(p->type == SC_Set || p->type == SC_Get){
+    }else if(p->type == SC_Set){
+        ss << p->MVID << " " << p->MVIndex << " " << p->MVValue
+    } else if(p->type == SC_Get){
         ss << p->MVID << " " << p->MVIndex;
     }else if(p->type == SC_DestroyMV){
         ss << p->MVID;
@@ -1216,7 +1218,7 @@ void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
     if(findMVNamed(name) != -1){//We have the MV and can handle the create....
         serverDoCreateMV(name, size, pktHdr, mailHdr);
     }else{
-        printf("\t\tThis lock isn't ours...checking with other servers.\n");
+        printf("\t\tThis MV isn't ours...checking with other servers.\n");
         //This isn't our lock and need to check with the other servers...
         PendingRequest* p = new PendingRequest();
         p->pktHdr = pktHdr;
