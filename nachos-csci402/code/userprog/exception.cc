@@ -33,7 +33,7 @@
 	#include "network.h"
 	#include "post.h"
 	#include <sstream>
-	#include <time> // For srand...
+	#include <time.h> // For srand...
 #endif
 
 using namespace std;
