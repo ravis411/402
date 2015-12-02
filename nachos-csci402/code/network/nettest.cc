@@ -170,6 +170,7 @@ public:
     int CVID;
     int MVID;
     int MVIndex;
+    int MVValue;
     int sentCount;
     int noCount;
 
@@ -181,6 +182,7 @@ public:
         CVID = -1;
         MVID = -1;
         MVIndex = -1;
+        MVValue = 0;
         sentCount = 0;
         noCount = 0;
     }
@@ -214,6 +216,12 @@ bool sendPendingRequest(PendingRequest* p){
         ss << p->lockID;
     }else if(p->type == SC_DestroyLock){
         ss << p->lockID;
+    }else if(p->type == SC_CreateMV){
+        ss << p->MVIndex << " " << p->name;
+    }else if(p->type == SC_Set || p->type == SC_Get){
+        ss << p->MVID << " " << p->MVIndex;
+    }else if(p->type == SC_DestroyMV){
+        ss << p->MVID;
     }
 
     string msg(ss.str());
@@ -309,6 +317,79 @@ int findPendingDestroyLockRequest(int pkthdr, int mailHdr, int lockID){
         if(p->type == SC_DestroyLock){
             if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
                 if(p->lockID == lockID){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingCreateMVRequest(int pkthdr, int mailHdr, string name){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_CreateMV){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->name == name){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingCreateMVRequestNamed(string name){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_CreateMV){
+            if(p->name == name){
+                return (int)i;
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingSetMVRequest(int pkthdr, int mailHdr, int MVID){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_Set){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->MVID == MVID){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingGetMVRequest(int pkthdr, int mailHdr, int MVID){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_Get){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->MVID == MVID){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingDestroyMVRequest(int pkthdr, int mailHdr, int MVID){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_DestroyMV){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->MVID == MVID){
                     return (int)i;
                 }
             }
@@ -1021,6 +1102,31 @@ vector<ServerMV*> serverMVs; //The table of MVs
 
 
 
+int checkIfMVIsMineAndGetMyIndex(int MVID){
+    //lockID = postOffice->getNetworkAddress() * lockTableSize + index;
+    
+    bool print = false;
+    int index;
+    int machineID;
+
+    
+
+    index = MVID % MVTableSize;
+    machineID = (MVID - index) / MVTableSize;
+
+
+    if(print)printf("CheckIFMVIsMine: MVID: %i \n\tindex: %i \n\t machineID: %i \n\t", MVID, index, machineID);
+
+    if(machineID == postOffice->getNetworkAddress() ){
+        if(print)printf("MVID IS mine.\n");
+        return index;
+    }else{
+        if(print)printf("MVID is NOT mine.\n");
+        return -1;
+    }
+}
+
+
 ////////////////////
 bool checkIfMVIDExists(int MVID){
     //Check if MV exists.
@@ -1035,15 +1141,8 @@ bool checkIfMVIDExists(int MVID){
 }
 
 
-
-
-///////////////////////////
-void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
-    //printf("\n\nMONITOR VARIABLE: SIZE %i\n\n", size);
+int findMVNamed(string name){
     int MVID = -1;
-    bool status = TRUE;
-
-    //See if MV name exists
     for(unsigned int i = 0; i < serverMVs.size(); i++){
         if(serverMVs[i] != NULL){
             if(serverMVs[i]->name == name){
@@ -1052,17 +1151,25 @@ void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
             }
         }
     }
+    return MVID;
+}
+
+
+int createMV(string name, int size){
+    
+    int MVID = findMVNamed(name);
 
     if(MVID == -1){
         //MV doesn't exist
-        ServerMV* m = new ServerMV(name, size);
+        ServerMV* m;
 
         MVID = serverMVTableBitMap.Find();
 
         if(MVID == -1){
             printf("\t\tMax Number of MVs created. MVTableSize: %i\n", lockTableSize);
-            status = FALSE;
+            return -1;
         }else{
+            m = new ServerMV(name, size);
             if(MVID == (int)serverMVs.size()){
                 serverMVs.push_back(m);
             }else if(MVID < (int)serverMVs.size()){
@@ -1074,12 +1181,24 @@ void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
         //MV name exists
         if(serverMVs[MVID]->size != size){
             printf("\t\tMV with this name already exists...but with a different size! Returning an error.\n");
-            status = FALSE;
-            MVID = -1;
+            return -1;
         }else{
             serverMVs[MVID]->createMVCount++;
             printf("\t\tMV already Exists.\n");
         }
+    }
+
+    return MVID;
+}
+
+int serverDoCreateMV(string name, int size, int pktHdr, int mailHdr){
+    int MVID = -1;
+    bool status = TRUE;
+
+    MVID = createMV(name, size);
+
+    if(MVID == -1){
+        status = FALSE;
     }
 
     stringstream rs;
@@ -1091,12 +1210,35 @@ void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
 }
 
 
+///////////////////////////
+void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
+    
+    if(findMVNamed(name) != -1){//We have the MV and can handle the create....
+        serverDoCreateMV(name, size, pktHdr, mailHdr);
+    }else{
+        printf("\t\tThis lock isn't ours...checking with other servers.\n");
+        //This isn't our lock and need to check with the other servers...
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_CreateMV;
+        p->name = name;
+        p->MVIndex = size;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            serverDoCreateMV(name, size, pktHdr, mailHdr);
+        }
+    }
+}
 
 ////////////////////////////
-void serverDestroyMV(int MVID){
+void serverDoDestroyMV(int MVID){
     ServerMV* m;
 
-    if(!checkIfMVIDExists(MVID)){return;}
+    if(!checkIfMVIDExists(MVID)){
+        printf("MVID not found. Unable to destroy.\n");
+        return;
+    }
 
     m = serverMVs[MVID];
 
@@ -1111,24 +1253,51 @@ void serverDestroyMV(int MVID){
         printf("\t\tNot ready to destroy MVID %i.\n", MVID);
     }
 }
-//////////////////////////////////
-void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
+
+
+////////////////////////////
+void serverDestroyMV(int MVID, int pktHdr, int mailHdr){
+    int myIndex = checkIfMVIsMineAndGetMyIndex(MVID);
+
+     if(myIndex == -1){
+        printf("\t\tNot my MV...checking with other servers.\n");
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_DestroyMV;
+        p->MVID = MVID;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            serverDoDestroyMV(myIndex);
+        }
+    }else{
+        //This is my MV
+        serverDoDestroyMV(myIndex);
+    }
+}
+
+
+///////////////////////////////
+void serverDoSet(int MVID, int index, int value, int pktHdr, int mailHdr){
     ServerMV* m;
     bool status = TRUE;
 
-    if(!checkIfMVIDExists(MVID)){return;}
-
-    m = serverMVs[MVID];
-    printf("\t\tMV: %s\n", m->name.c_str());
-
-    //Bounds Check for index
-    if(index < 0 || index >= m->size){
-        printf("\t\tInvalid index %i passed to Set.\n", index);
+    if(!checkIfMVIDExists(MVID)){
         status = FALSE;
-    }
+    }else{
 
-    if(status){
-        m->v[index] = value;
+        m = serverMVs[MVID];
+        printf("\t\tMV: %s\n", m->name.c_str());
+
+        //Bounds Check for index
+        if(index < 0 || index >= m->size){
+            printf("\t\tInvalid index %i passed to Set.\n", index);
+            status = FALSE;
+        }
+
+        if(status){
+            m->v[index] = value;
+        }
     }
 
     stringstream rs;
@@ -1144,25 +1313,51 @@ void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
 
 
 //////////////////////////////////
-void serverGet(int MVID, int index, int pktHdr, int mailHdr){
+void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
+    int myIndex = checkIfMVIsMineAndGetMyIndex(MVID);
+
+     if(myIndex == -1){
+        printf("\t\tNot my MV...checking with other servers.\n");
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_Set;
+        p->MVID = MVID;
+        p->MVIndex = index;
+        p->MVValue = value;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            serverDoSet(myIndex, index, value, pktHdr, mailHdr);
+        }
+    }else{
+        //This is my MV
+        serverDoSet(myIndex, index, value, pktHdr, mailHdr);
+    }
+}
+
+//////////////////////////////////
+void serverDoGet(int MVID, int index, int pktHdr, int mailHdr){
     ServerMV* m;
     bool status = TRUE;
     int value = 0;
 
-    if(!checkIfMVIDExists(MVID)){return;}
-
-    m = serverMVs[MVID];
-    printf("\t\tMV: %s\n", m->name.c_str());
-
-    //Bounds Check for index
-    if(index < 0 || index >= m->size){
-        printf("\t\tInvalid index %i passed to Set.\n", index);
+    if(!checkIfMVIDExists(MVID)){
         status = FALSE;
-    }
+    }else{
 
-    if(status){
-        value = m->v[index];
-        printf("\t\tReturning MVID(%i)[%i]: %i.\n", MVID, index, value);
+        m = serverMVs[MVID];
+        printf("\t\tMV: %s\n", m->name.c_str());
+
+        //Bounds Check for index
+        if(index < 0 || index >= m->size){
+            printf("\t\tInvalid index %i passed to Get.\n", index);
+            status = FALSE;
+        }
+
+        if(status){
+            value = m->v[index];
+            printf("\t\tReturning MVID(%i)[%i]: %i.\n", MVID, index, value);
+        }
     }
 
     stringstream rs;
@@ -1171,6 +1366,29 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
     rs << value;
 
     sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+}
+
+//////////////////////////////////
+void serverGet(int MVID, int index, int pktHdr, int mailHdr){
+    int myIndex = checkIfMVIsMineAndGetMyIndex(MVID);
+
+     if(myIndex == -1){
+        printf("\t\tNot my MV...checking with other servers.\n");
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_Set;
+        p->MVID = MVID;
+        p->MVIndex = index;
+        p->MVValue = value;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            serverDoGet(myIndex, index, pktHdr, mailHdr);
+        }
+    }else{
+        //This is my MV
+        serverDoGet(myIndex, index, pktHdr, mailHdr);
+    }
 }
 
 
@@ -1297,7 +1515,6 @@ void Server(){
             string lockName;
 
             if(!fromServer){
-                printf("\tCreateLock\n");
                 
                 ss >> lockName;
 
@@ -1681,21 +1898,190 @@ void Server(){
             string name;
             int size;
 
-            ss >> size >> name;
-            //ss >> size;
+            //ss >> size >> name;
             //printf("\n\n\t\tSIZE: %i NAME:%s.\n\n", size, name.c_str());
+            //serverCreateMV(name, size, inPktHdr.from, inMailHdr.from);
 
-            serverCreateMV(name, size, inPktHdr.from, inMailHdr.from);
+            if(!fromServer){
+                
+                ss >> size >> name;
 
+                serverCreateMV(name, size, inPktHdr.from, inMailHdr.from);
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> size;
+                ss >> name;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingCreateMVRequest(reqPktHdr, reqMailHdr, name);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. It was propbably already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                        //We need to delete all pending requests for this name... 
+                        while(true){
+                            pendingRequestIndex = findPendingCreateMVRequestNamed(name);
+                            if(pendingRequestIndex == -1){
+                                break;
+                            }else{
+                                deletePendingRequest(pendingRequestIndex);
+                            }
+                        }
+                        
+                        //and send out a pending request for each other request with same name//No we don't
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoCreateMV(p->name, p->MVIndex, p->pktHdr, p->mailHdr);
+                            deletePendingRequest(pendingRequestIndex);
+                            //handle all requests with same name...
+                            while(true){
+                                pendingRequestIndex = findPendingCreateLockRequestNamed(lockName);
+                                if(pendingRequestIndex == -1){
+                                    break;
+                                }else{
+                                    printf("\tFound another pending request with same name. Handling the request.\n");
+                                    p = pendingRequests[pendingRequestIndex];
+                                    serverDoCreateMV(p->name, p->MVIndex, p->pktHdr, p->mailHdr);
+                                    deletePendingRequest(pendingRequestIndex);
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    
+                    if(findMVNamed(name) != -1){
+                        //If this MV is ours reply YES and handle the request.
+                        printf("\t\tThis MV is ours...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_CreateMV << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << size << " " << name << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoCreateMV(name, size, reqPktHdr, reqMailHdr);
+                    }else{
+                        //If this lock does not belong to us...reply NO(or YES)
+                        
+
+                        //WHAT IF THERE IS ALREADY A PENDING CREATE FOR THIS LOCK!?
+                        if(findPendingCreateMVRequestNamed(name) != -1){
+                            //if my machine id lower reply YES
+                            if(postOffice->getNetworkAddress() < inPktHdr.from){
+                                printf("\t\tPending request found for this MV, and our machineID is lower...reply YES.\n");
+                                stringstream rs;
+                                rs << SC_CreateMV << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << size << " " << name << " " << true;
+                                sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                                
+                                //and add another pending request for this lock...
+                                PendingRequest* p = new PendingRequest();
+                                p->pktHdr = reqPktHdr;
+                                p->mailHdr = reqMailHdr;
+                                p->type = SC_CreateMV;
+                                p->name = name;
+                                p->MVIndex = size;
+                                pendingRequests.push_back(p);
+                            }else{
+                                printf("\t\tPending request for this MV found but they have a lower machine ID...reply NO.\n");
+                                // if my machine id higher reply NO
+                                stringstream rs;
+                                rs << SC_CreateMV << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << size << " " << name << " " << false;
+                                sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                            }
+                        }else{
+                            printf("\t\tThis MV is not ours and no pending requests...reply NO.\n");
+                            stringstream rs;
+                            rs << SC_CreateMV << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << size << " " << name << " " << false;
+                            sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                        }
+
+                    }
+                }
+
+            }
 
         }
         else if(which == SC_DestroyMV){
             printf("\tDestroyMV:\n");
 
             int MVID;
-            ss >> MVID;
 
-            serverDestroyMV(MVID);
+
+            if(!fromServer){
+                ss >> MVID;
+                serverDestroyMV(MVID, inPktHdr.from, inMailHdr.from);
+
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> MVID;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingDestroyMVRequest(reqPktHdr, reqMailHdr, MVID);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. It was most likely already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoDestroyMV(MVID);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    int myIndex = checkIfMVIsMineAndGetMyIndex(MVID);
+
+                    if(myIndex != -1){
+                        //If this lock is ours reply YES and handle the request.
+                        printf("\t\tThis MV is ours...reply YES...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_DestroyMV << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << MVID << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoDestroyMV(myIndex);
+                    }else{
+                        //If this lock does not belong to us...reply NO
+                        printf("\t\tThis MV is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_DestroyMV << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << MVID << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
 
         }
         else if(which == SC_Set){
@@ -1703,9 +2089,69 @@ void Server(){
 
             int MVID, index, value;
 
-            ss >> MVID >> index >> value;
+            if(!fromServer){
+                
+                ss >> MVID >> index >> value;
+                serverSet(MVID, index, value, inPktHdr.from, inMailHdr.from);
 
-            serverSet(MVID, index, value, inPktHdr.from, inMailHdr.from);
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> MVID;
+                ss >> index;
+                ss >> value;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingSetRequest(reqPktHdr, reqMailHdr, MVID);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoSet(MVID, index, value, p->pktHdr, p->mailHdr);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    int myIndex = checkIfMVIsMineAndGetMyIndex(MVID);
+
+                    if(myIndex != -1){
+                        //If this MV is ours reply YES and handle the request.
+                        printf("\t\tThis MV is ours...reply YES...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_Set << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << MVID << " " << index << " " << value << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoSet(myIndex, index, value, reqPktHdr, reqMailHdr);
+                    }else{
+                        //If this MV does not belong to us...reply NO
+                        printf("\t\tThis MV is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_Set << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << MVID << " " << index << " " << value << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
+
 
         }
         else if(which == SC_Get){
@@ -1713,10 +2159,76 @@ void Server(){
 
             int MVID, index;
 
-            ss >> MVID;
-            ss >> index;
 
-            serverGet(MVID, index, inPktHdr.from, inMailHdr.from);
+            if(!fromServer){
+                
+                ss >> MVID >> index;
+                serverGet(MVID, index, inPktHdr.from, inMailHdr.from);
+
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> MVID;
+                ss >> index;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingSetRequest(reqPktHdr, reqMailHdr, MVID);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoGet(MVID, index, p->pktHdr, p->mailHdr);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    int myIndex = checkIfMVIsMineAndGetMyIndex(MVID);
+
+                    if(myIndex != -1){
+                        //If this MV is ours reply YES and handle the request.
+                        printf("\t\tThis MV is ours...reply YES...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_Get << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << MVID << " " << index  << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoGet(myIndex, index, value, reqPktHdr, reqMailHdr);
+                    }else{
+                        //If this MV does not belong to us...reply NO
+                        printf("\t\tThis MV is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_Get << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << MVID << " " << index  << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
+
+
+
+
+
+
+
+
 
         }
         else{
