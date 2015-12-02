@@ -52,11 +52,13 @@ int main() {
  
 
   startCVMVLock = CreateLock("startCVMVLock", sizeof("startCVMVLock"));
-  /*startCVMVLockMV = CreateMV("startCVMVLockMV", sizeof("startCVMVLockMV"), 1);*/
+  startCVMVLockMV = CreateMV("startCVMVLockMV", sizeof("startCVMVLockMV"), 1);
 
   Acquire(startCVMVLock);
 
-  PrintString("Acquired a lock.\n", sizeof("Acquired a lock.\n"));
+  i = Get(startCVMVLockMV, 0); /*This will allow us to count how many have been started...So we can wait before the CV section.*/
+  i++;
+  Set(startCVMVLockMV, 0, i);
 
   Release(startCVMVLock);
 
@@ -88,12 +90,10 @@ int main() {
 
   PrintString("\n\nFinished Lock Tests\n\n", sizeof("\n\nFinished Lock Tests\n\n"));
 
-  Exit(0);
-
 
   PrintString("\n\nGoing to test CVs and MVs\n\n", sizeof("\n\nGoing to test CVs and MVs\n\n"));
 
-  CV1 = CreateCondition("CV1", sizeof("CV1"));
+  /*CV1 = CreateCondition("CV1", sizeof("CV1"));*/
   MV = CreateMV("MV1", sizeof("MV1"), 2);
 
   PrintString("Got CVID: ", sizeof("Got CVID: "));
@@ -110,7 +110,7 @@ int main() {
     PrintString("I was last to finsh waking them all up.\n", sizeof("I was last to finsh waking them all up.\n"));
     /*Wake them all up...*/
     Acquire(lock2);
-    Broadcast(CV1, lock2);
+    /*Broadcast(CV1, lock2);*/
     Release(startCVMVLock);
     Release(lock2);
     Acquire(lock2);
@@ -120,7 +120,7 @@ int main() {
     PrintString("Waiting for everyone to catch up.\n", sizeof("Waiting for everyone to catch up.\n"));
     Acquire(lock2);
     Release(startCVMVLock);
-    Wait(CV1, lock2);
+    /*Wait(CV1, lock2);*/
   }
   
 
@@ -139,8 +139,8 @@ int main() {
   PrintString("\n", 1);
 
   Sleep(1);
-  Signal(CV1, lock2);
-  Wait(CV1, lock2);
+  /*Signal(CV1, lock2);*/
+  /*Wait(CV1, lock2);*/
 
   PrintString("Second.\n", sizeof("Second.\n"));
   PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
@@ -155,8 +155,8 @@ int main() {
 
 
   Sleep(1);
-  Signal(CV1, lock2);
-  Wait(CV1, lock2);
+  /*Signal(CV1, lock2);*/
+  /*Wait(CV1, lock2);*/
 
   PrintString("Third.\n", sizeof("Third.\n"));
   PrintString("\tMV[0]: ", sizeof("\tMV[0]: "));
@@ -170,16 +170,16 @@ int main() {
   PrintString("\n", 1);
   
   Sleep(1);
-  Signal(CV1, lock2);
-  Wait(CV1, lock2);
-  Broadcast(CV1, lock2);
+  /*Signal(CV1, lock2);*/
+  /*Wait(CV1, lock2);*/
+  /*Broadcast(CV1, lock2);*/
 
   Release(lock2);
 
 
   DestroyLock(lock1);
   DestroyLock(lock2);
-  DestroyCondition(CV1);
+  /*DestroyCondition(CV1);*/
   DestroyMV(MV);
 
 	PrintString("Done.\n", sizeof("Done.\n"));
