@@ -638,7 +638,7 @@ void serverDoDestroyLock(int lockID){
     }
 }
 
-void serverDestroyLock(int lockID, int pkthdr, int mailHdr){
+void serverDestroyLock(int lockID, int pktHdr, int mailHdr){
      int myIndex = checkIfLockIsMineAndGetMyIndex(lockID);
 
      if(myIndex == -1){
