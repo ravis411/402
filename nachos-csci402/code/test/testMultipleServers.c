@@ -80,6 +80,12 @@ int main() {
 
   Release(lock2); /*We don't own lock2...*/
 
+  DestroyLock(lock1);
+  DestroyLock(lock2);
+  DestroyLock(lock3);
+  DestroyLock(startCVMVLock);
+
+
   PrintString("\n\nFinished Lock Tests\n\n", sizeof("\n\nFinished Lock Tests\n\n"));
 
   Exit(0);
