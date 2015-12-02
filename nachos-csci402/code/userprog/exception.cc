@@ -890,7 +890,7 @@ void clientSendMail(char* msg){
 
 	int trys = 0;
 	string wat(msg);
-	srand(time(NULL));
+	//srand(time(NULL));looks like this messes with -rs and what not...
 	do{
 		trys++;
 		outPktHdr.to = rand() % 5;
