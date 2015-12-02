@@ -260,6 +260,19 @@ int findPendingCreateLockRequest(int pkthdr, int mailHdr, string name){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingCreateLockRequestNamed(string name){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_CreateLock){
+            if(p->name == name){
+                return (int)i;
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
 int findPendingAcquireLockRequest(int pkthdr, int mailHdr, int lockID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
@@ -1309,7 +1322,18 @@ void Server(){
                         printf("\t\tGot a YES.\n");
                         //We can delete the request...The other server will handle it.
                         deletePendingRequest(pendingRequestIndex);
-                        //TODO WE need to delete all pending requests for this name... and send out a pending request for each other request with same name
+
+                        //We need to delete all pending requests for this name... 
+                        while(true){
+                            pendingRequestIndex = findPendingCreateLockRequestNamed(lockName);
+                            if(pendingRequestIndex == -1){
+                                break;
+                            }else{
+                                deletePendingRequest(pendingRequestIndex);
+                            }
+                        }
+                        
+                        //and send out a pending request for each other request with same name//No we don't
 
                     }else{
                         //Was a NO
@@ -1320,7 +1344,18 @@ void Server(){
                             printf("\t\tAll servers have responded. Handling the request.\n");
                             serverDoCreateLock(p->name, p->pktHdr, p->mailHdr);
                             deletePendingRequest(pendingRequestIndex);
-                            //TODO handle all requests with same name...
+                            //handle all requests with same name...
+                            while(true){
+                                pendingRequestIndex = findPendingCreateLockRequestNamed(lockName);
+                                if(pendingRequestIndex == -1){
+                                    break;
+                                }else{
+                                    printf("\tFound another pending request with same name. Handling the request.\n");
+                                    p = pendingRequests[pendingRequestIndex];
+                                    serverDoCreateLock(p->name, p->pktHdr, p->mailHdr);
+                                    deletePendingRequest(pendingRequestIndex);
+                                }
+                            }
                         }
                     }
                 }else{
@@ -1336,23 +1371,38 @@ void Server(){
 
                         serverDoCreateLock(lockName, reqPktHdr, reqMailHdr);
                     }else{
-                        //If this lock does not belong to us...reply NO
+                        //If this lock does not belong to us...reply NO(or YES)
                         
 
-                        //TODO: WHAT IF THERE IS ALREADY A PENDING CREATE FOR THIS LOCK!?
-
-                            //if my machine id lower reply yes
+                        //WHAT IF THERE IS ALREADY A PENDING CREATE FOR THIS LOCK!?
+                        if(findPendingCreateLockRequestNamed(lockName) != -1){
+                            //if my machine id lower reply YES
+                            if(postOffice->getNetworkAddress() < inPktHdr.from){
+                                printf("\t\tPending request found for this lock, and our machineID is lower...reply YES.\n");
+                                stringstream rs;
+                                rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << true;
+                                sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                                
                                 //and add another pending request for this lock...
-
-                            // if my machine id higher reply no
-                                //and send a pending request out again for this lock for each pending request
-
-
-                        printf("\t\tThis lock is not ours...reply NO.\n");
-                        stringstream rs;
-                        rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << false;
-                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
-
+                                PendingRequest* p = new PendingRequest();
+                                p->pktHdr = reqPktHdr;
+                                p->mailHdr = reqMailHdr;
+                                p->type = SC_CreateLock;
+                                p->name = lockName;
+                                pendingRequests.push_back(p);
+                            }else{
+                                printf("\t\tPending request for this lock found but they have a lower machine ID...reply NO.\n");
+                                // if my machine id higher reply NO
+                                stringstream rs;
+                                rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << false;
+                                sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                            }
+                        }else{
+                            printf("\t\tThis lock is not ours and no pending requests...reply NO.\n");
+                            stringstream rs;
+                            rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << false;
+                            sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                        }
 
                     }
                 }
