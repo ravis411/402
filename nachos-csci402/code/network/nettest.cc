@@ -1191,7 +1191,7 @@ int createMV(string name, int size){
     return MVID;
 }
 
-int serverDoCreateMV(string name, int size, int pktHdr, int mailHdr){
+void serverDoCreateMV(string name, int size, int pktHdr, int mailHdr){
     int MVID = -1;
     bool status = TRUE;
 
@@ -1380,7 +1380,6 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
         p->type = SC_Set;
         p->MVID = MVID;
         p->MVIndex = index;
-        p->MVValue = value;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
             serverDoGet(myIndex, index, pktHdr, mailHdr);
@@ -1952,7 +1951,7 @@ void Server(){
                             deletePendingRequest(pendingRequestIndex);
                             //handle all requests with same name...
                             while(true){
-                                pendingRequestIndex = findPendingCreateLockRequestNamed(lockName);
+                                pendingRequestIndex = findPendingCreateMVRequestNamed(name);
                                 if(pendingRequestIndex == -1){
                                     break;
                                 }else{
@@ -2108,7 +2107,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingSetRequest(reqPktHdr, reqMailHdr, MVID);
+                    int pendingRequestIndex = findPendingSetMVRequest(reqPktHdr, reqMailHdr, MVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2178,7 +2177,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingSetRequest(reqPktHdr, reqMailHdr, MVID);
+                    int pendingRequestIndex = findPendingGetMVRequest(reqPktHdr, reqMailHdr, MVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2210,7 +2209,7 @@ void Server(){
                         rs << SC_Get << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << MVID << " " << index  << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
-                        serverDoGet(myIndex, index, value, reqPktHdr, reqMailHdr);
+                        serverDoGet(myIndex, index, reqPktHdr, reqMailHdr);
                     }else{
                         //If this MV does not belong to us...reply NO
                         printf("\t\tThis MV is not ours...reply NO.\n");
