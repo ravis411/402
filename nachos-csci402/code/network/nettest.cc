@@ -186,6 +186,22 @@ public:
         sentCount = 0;
         noCount = 0;
     }
+
+
+    string toString(){
+        string s;
+        s += "\n\tPkthdr: \t" + pktHdr;
+        s += "\n\tMailHdr: \t" + mailHdr;
+        s += "\n\tType:\t " + type;
+        s += "\n\tName: \t" + name;
+        s += "\n\tLockID: \t" + lockID;
+        s += "\n\tCVID: \t" + CVID;
+        s += "\n\tMVID: \t" + MVID;
+        s += "\n\tMVIndex: \t" + MVIndex;
+        s += "\n\tMVValue: \t" + MVValue;
+        s += "\n\tsentCount: \t" + sentCount;
+        s += "\n\tnoCound: \t" + noCount;
+    }
 };
 
 vector<PendingRequest*> pendingRequests;
@@ -1580,6 +1596,7 @@ void Server(){
                             }
                         }else{
                             printf("Waiting for more NOs or a YES.\n");
+                            printf("%s\n", p->toString().c_str());
                         }
                     }
                 }else{
