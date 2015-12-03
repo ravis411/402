@@ -1080,7 +1080,7 @@ void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
 
 
 
-#define MVTableSize 200
+#define MVTableSize 100
 BitMap serverMVTableBitMap(MVTableSize);
 
 class ServerMV{
@@ -1168,7 +1168,7 @@ int createMV(string name, int size){
         MVID = serverMVTableBitMap.Find();
 
         if(MVID == -1){
-            printf("\t\tMax Number of MVs created. MVTableSize: %i\n", lockTableSize);
+            printf("\t\tMax Number of MVs created. MVTableSize: %i\n", MVTableSize);
             return -1;
         }else{
             m = new ServerMV(name, size);
@@ -1201,6 +1201,8 @@ void serverDoCreateMV(string name, int size, int pktHdr, int mailHdr){
 
     if(MVID == -1){
         status = FALSE;
+    }else{
+        MVID = postOffice->getNetworkAddress() * MVTableSize + lockID;
     }
 
     stringstream rs;
