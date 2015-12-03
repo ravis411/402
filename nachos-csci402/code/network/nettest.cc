@@ -189,19 +189,19 @@ public:
 
 
     string toString(){
-        string s;
-        s = "\n\tPkthdr: " + pktHdr;
-        s += "\n\tMailHdr: " + mailHdr;
-        s += "\n\tType: " + type;
-        s += "\n\tName: " + name;
-        s += "\n\tLockID: " + lockID;
-        s += "\n\tCVID: " + CVID;
-        s += "\n\tMVID: " + MVID;
-        s += "\n\tMVIndex: " + MVIndex;
-        s += "\n\tMVValue: " + MVValue;
-        s += "\n\tsentCount: " + sentCount;
-        s += "\n\tnoCound: " + noCount;
-        return s;
+        stringstream s;
+        s << "\n\tPkthdr: " << pktHdr;
+        s << "\n\tMailHdr: "<< mailHdr;
+        s<< "\n\tType: "<< type;
+        s << "\n\tName: "<< name;
+        s << "\n\tLockID: "<< lockID;
+        s << "\n\tCVID: "<< CVID;
+        s<< "\n\tMVID: "<< MVID;
+        s << "\n\tMVIndex: "<< MVIndex;
+        s << "\n\tMVValue: "<< MVValue;
+        s << "\n\tsentCount: "<< sentCount;
+        s << "\n\tnoCount: "<< noCount;
+        return s.str();
     }
 };
 
