@@ -268,6 +268,8 @@ bool sendPendingRequest(PendingRequest* p){
         printf("\t\tRequest sent to %i servers.\n", p->sentCount);
         return true;
     }
+
+    printf("%s\n", p->toString().c_str());
 }
 
 
