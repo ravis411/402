@@ -54,6 +54,11 @@ int main() {
   startCVMVLock = CreateLock("startCVMVLock", sizeof("startCVMVLock"));
   startCVMVLockMV = CreateMV("startCVMVLockMV", sizeof("startCVMVLockMV"), 1);
 
+  PrintString("Got startCVMVID: ", sizeof("Got startCVMVID: "));
+  PrintInt(startCVMVLockMV);
+  PrintString("\n", 1);
+
+
   Acquire(startCVMVLock);
 
   i = Get(startCVMVLockMV, 0); /*This will allow us to count how many have been started...So we can wait before the CV section.*/
@@ -82,12 +87,6 @@ int main() {
 
   Release(lock2); /*We don't own lock2...*/
 
-  DestroyLock(lock1);
-  DestroyLock(lock2);
-  DestroyLock(lock3);
-  DestroyLock(startCVMVLock);
-
-
   PrintString("\n\nFinished Lock Tests\n\n", sizeof("\n\nFinished Lock Tests\n\n"));
 
 
@@ -95,6 +94,10 @@ int main() {
 
   /*CV1 = CreateCondition("CV1", sizeof("CV1"));*/
   MV = CreateMV("MV1", sizeof("MV1"), 2);
+
+  PrintString("Got MVID1: ", sizeof("Got MVID1: "));
+  PrintInt(MV);
+  PrintString("\n", 1);
 
   PrintString("Got CVID: ", sizeof("Got CVID: "));
   PrintInt(CV1);
@@ -179,6 +182,8 @@ int main() {
 
   DestroyLock(lock1);
   DestroyLock(lock2);
+  DestroyLock(lock3);
+  DestroyLock(startCVMVLock);
   /*DestroyCondition(CV1);*/
   DestroyMV(MV);
 
