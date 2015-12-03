@@ -1202,7 +1202,7 @@ void serverDoCreateMV(string name, int size, int pktHdr, int mailHdr){
     if(MVID == -1){
         status = FALSE;
     }else{
-        MVID = postOffice->getNetworkAddress() * MVTableSize + lockID;
+        MVID = postOffice->getNetworkAddress() * MVTableSize + MVID;
     }
 
     stringstream rs;
