@@ -1562,6 +1562,7 @@ void Server(){
                     int pendingRequestIndex = findPendingCreateLockRequest(reqPktHdr, reqMailHdr, lockName);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
+                    printf("%s\n", p->toString().c_str());
                     if(response){
                         //Was a YES
                         printf("\t\tGot a YES.\n");
