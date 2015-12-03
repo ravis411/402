@@ -208,13 +208,19 @@ public:
 vector<PendingRequest*> pendingRequests;
 
 void deletePendingRequest(int index){
-    printf("Delete pending request.\n");
     PendingRequest* p = pendingRequests[index];
-    printf("%s\n", p->toString().c_str());
-    printf("Pending requests: %i \n", pendingRequests.size());
     delete p;
     pendingRequests.erase(pendingRequests.begin() + index);
-    printf("Pending requests: %i \n", pendingRequests.size());
+}
+
+void deletePendingRequestPointer(PendingRequest* p){
+    int i;
+    for( i = 0; i < pendingRequests.size(); i++){
+        if(pendingRequests[i] == p){
+            deletePendingRequest(i);
+            return;
+        }
+    }
 }
 
 
@@ -588,6 +594,7 @@ void serverCreateLock(string name, int pktHdr, int mailHdr){
         p->name = name;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
             serverDoCreateLock(name, pktHdr, mailHdr);
         }
     }
@@ -674,6 +681,7 @@ void serverAcquireLock(int lockID, int pktHdr, int mailHdr){
         p->lockID = lockID;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
             serverDoAcquireLock(myIndex, pktHdr, mailHdr);
         }
     }else{
@@ -720,6 +728,7 @@ void serverReleaseLock(int lockID, int pktHdr, int mailHdr){
         p->lockID = lockID;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
             serverDoReleaseLock(myIndex, pktHdr, mailHdr);
         }
     }else{
@@ -758,6 +767,7 @@ void serverDestroyLock(int lockID, int pktHdr, int mailHdr){
         p->lockID = lockID;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
             serverDoDestroyLock(myIndex);
         }
     }else{
@@ -1255,6 +1265,7 @@ void serverCreateMV(string name, int size, int pktHdr, int mailHdr){
         p->MVIndex = size;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
             serverDoCreateMV(name, size, pktHdr, mailHdr);
         }
     }
@@ -1297,6 +1308,7 @@ void serverDestroyMV(int MVID, int pktHdr, int mailHdr){
         p->MVID = MVID;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
             serverDoDestroyMV(myIndex);
         }
     }else{
@@ -1356,6 +1368,7 @@ void serverSet(int MVID, int index, int value, int pktHdr, int mailHdr){
         p->MVValue = value;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
             serverDoSet(myIndex, index, value, pktHdr, mailHdr);
         }
     }else{
@@ -1411,6 +1424,7 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
         p->MVIndex = index;
         pendingRequests.push_back(p);
         if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
             serverDoGet(myIndex, index, pktHdr, mailHdr);
         }
     }else{
