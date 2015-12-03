@@ -214,10 +214,9 @@ void deletePendingRequest(int index){
 }
 
 void deletePendingRequestPointer(PendingRequest* p){
-    int i;
-    for( i = 0; i < pendingRequests.size(); i++){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
         if(pendingRequests[i] == p){
-            deletePendingRequest(i);
+            deletePendingRequest((int)i);
             return;
         }
     }
@@ -1576,7 +1575,7 @@ void Server(){
                     int pendingRequestIndex = findPendingCreateLockRequest(reqPktHdr, reqMailHdr, lockName);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
-                    printf("%s\n", p->toString().c_str());
+                    //printf("%s\n", p->toString().c_str());
                     if(response){
                         //Was a YES
                         printf("\t\tGot a YES.\n");
@@ -1599,7 +1598,6 @@ void Server(){
                         //Was a NO
                         printf("\t\tGot a NO.\n");
                         p->noCount++;
-                        printf("\t\tNO count: %i out of: %i\n", p->noCount, p->sentCount);
                         if(p->noCount == p->sentCount){
                             //All servers replied NO...we need to handle the request.
                             printf("\t\tAll servers have responded. Handling the request.\n");
@@ -1617,9 +1615,6 @@ void Server(){
                                     deletePendingRequest(pendingRequestIndex);
                                 }
                             }
-                        }else{
-                            printf("Waiting for more NOs or a YES.\n");
-                            printf("%s\n", p->toString().c_str());
                         }
                     }
                 }else{
