@@ -1560,7 +1560,7 @@ void Server(){
                         //Was a NO
                         printf("\t\tGot a NO.\n");
                         p->noCount++;
-                        printf("\t\tNO count: %i\n", p->noCount);
+                        printf("\t\tNO count: %i out of: %i\n", p->noCount, p->sentCount);
                         if(p->noCount == p->sentCount){
                             //All servers replied NO...we need to handle the request.
                             printf("\t\tAll servers have responded. Handling the request.\n");
@@ -1578,6 +1578,8 @@ void Server(){
                                     deletePendingRequest(pendingRequestIndex);
                                 }
                             }
+                        }else{
+                            printf("Waiting for more NOs or a YES.\n");
                         }
                     }
                 }else{
