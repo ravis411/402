@@ -183,7 +183,7 @@ public:
         MVID = -1;
         MVIndex = -1;
         MVValue = 0;
-        sentCount = 0;
+        sentCount = -1;
         noCount = 0;
     }
 
@@ -245,7 +245,7 @@ bool sendPendingRequest(PendingRequest* p){
 
     string msg(ss.str());
     outMailHdr.length = strlen(msg.c_str()) + 1;
-
+    p->sentCount = 0;
     for(int i = 0; i < 5; i++){
         
         if(i == postOffice->getNetworkAddress()){
@@ -255,7 +255,7 @@ bool sendPendingRequest(PendingRequest* p){
         outPktHdr.to = i;
 
         if( postOffice->Send(outPktHdr, outMailHdr, (char*)msg.c_str()) ){
-            p->sentCount++;
+            (p->sentCount)++;
         }
 
     }
