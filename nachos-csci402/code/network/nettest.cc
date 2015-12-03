@@ -201,6 +201,7 @@ public:
         s += "\n\tMVValue: \t" + MVValue;
         s += "\n\tsentCount: \t" + sentCount;
         s += "\n\tnoCound: \t" + noCount;
+        return s;
     }
 };
 
