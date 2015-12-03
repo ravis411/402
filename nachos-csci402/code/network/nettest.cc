@@ -1381,7 +1381,7 @@ void serverGet(int MVID, int index, int pktHdr, int mailHdr){
         PendingRequest* p = new PendingRequest();
         p->pktHdr = pktHdr;
         p->mailHdr = mailHdr;
-        p->type = SC_Set;
+        p->type = SC_Get;
         p->MVID = MVID;
         p->MVIndex = index;
         pendingRequests.push_back(p);
