@@ -189,7 +189,7 @@ public:
 
 
     string toString(){
-        stringstream s;
+        string s;
         s = "\n\tPkthdr: " + pktHdr;
         s += "\n\tMailHdr: " + mailHdr;
         s += "\n\tType: " + type;
