@@ -219,7 +219,7 @@ bool sendPendingRequest(PendingRequest* p){
     }else if(p->type == SC_CreateMV){
         ss << p->MVIndex << " " << p->name;
     }else if(p->type == SC_Set){
-        ss << p->MVID << " " << p->MVIndex << " " << p->MVValue
+        ss << p->MVID << " " << p->MVIndex << " " << p->MVValue;
     } else if(p->type == SC_Get){
         ss << p->MVID << " " << p->MVIndex;
     }else if(p->type == SC_DestroyMV){
