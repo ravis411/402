@@ -208,9 +208,13 @@ public:
 vector<PendingRequest*> pendingRequests;
 
 void deletePendingRequest(int index){
+    printf("Delete pending request.\n");
     PendingRequest* p = pendingRequests[index];
+    printf("%s\n", p->toString().c_str());
+    printf("Pending requests: %i \n", pendingRequests.size());
     delete p;
     pendingRequests.erase(pendingRequests.begin() + index);
+    printf("Pending requests: %i \n", pendingRequests.size());
 }
 
 
@@ -266,7 +270,7 @@ bool sendPendingRequest(PendingRequest* p){
         return false;
     }else{
         printf("\t\tRequest sent to %i servers.\n", p->sentCount);
-        printf("%s\n", p->toString().c_str());
+        if(false)printf("%s\n", p->toString().c_str());
         return true;
     }
 
