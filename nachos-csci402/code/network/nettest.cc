@@ -248,6 +248,7 @@ bool sendPendingRequest(PendingRequest* p){
         printf("NO SERVERS AWAKE TO HANDLE THE REQUEST!\n");
         return false;
     }else{
+        printf("\t\tRequest sent to %i servers.\n", p->sentCount);
         return true;
     }
 }
