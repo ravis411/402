@@ -76,7 +76,7 @@ int main() {
   
 
 
-  for(i = 9; i >= 0; i--){
+  for(i = 4; i >= 0; i--){
     PrintInt(i);
     PrintString(" ", 1);
     /*Delay*/

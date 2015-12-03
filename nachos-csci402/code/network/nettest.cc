@@ -189,18 +189,18 @@ public:
 
 
     string toString(){
-        string s;
-        s += "\n\tPkthdr: \t" + pktHdr;
-        s += "\n\tMailHdr: \t" + mailHdr;
-        s += "\n\tType:\t " + type;
-        s += "\n\tName: \t" + name;
-        s += "\n\tLockID: \t" + lockID;
-        s += "\n\tCVID: \t" + CVID;
-        s += "\n\tMVID: \t" + MVID;
-        s += "\n\tMVIndex: \t" + MVIndex;
-        s += "\n\tMVValue: \t" + MVValue;
-        s += "\n\tsentCount: \t" + sentCount;
-        s += "\n\tnoCound: \t" + noCount;
+        stringstream s;
+        s = "\n\tPkthdr: " + pktHdr;
+        s += "\n\tMailHdr: " + mailHdr;
+        s += "\n\tType: " + type;
+        s += "\n\tName: " + name;
+        s += "\n\tLockID: " + lockID;
+        s += "\n\tCVID: " + CVID;
+        s += "\n\tMVID: " + MVID;
+        s += "\n\tMVIndex: " + MVIndex;
+        s += "\n\tMVValue: " + MVValue;
+        s += "\n\tsentCount: " + sentCount;
+        s += "\n\tnoCound: " + noCount;
         return s;
     }
 };
