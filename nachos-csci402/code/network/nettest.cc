@@ -297,13 +297,15 @@ bool sendPendingRequest(PendingRequest* p){
 
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingCreateLockRequest(int pkthdr, int mailHdr, string name){
+int findPendingCreateLockRequest(int pkthdr, int mailHdr, int requestID, string name){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_CreateLock){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->name == name){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_CreateLock){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->name == name){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -325,13 +327,15 @@ int findPendingCreateLockRequestNamed(string name){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingAcquireLockRequest(int pkthdr, int mailHdr, int lockID){
+int findPendingAcquireLockRequest(int pkthdr, int mailHdr, int requestID, int lockID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_Acquire){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->lockID == lockID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_Acquire){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->lockID == lockID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -340,13 +344,15 @@ int findPendingAcquireLockRequest(int pkthdr, int mailHdr, int lockID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingReleaseLockRequest(int pkthdr, int mailHdr, int lockID){
+int findPendingReleaseLockRequest(int pkthdr, int mailHdr, int requestID, int lockID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_Release){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->lockID == lockID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_Release){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->lockID == lockID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -355,13 +361,15 @@ int findPendingReleaseLockRequest(int pkthdr, int mailHdr, int lockID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingDestroyLockRequest(int pkthdr, int mailHdr, int lockID){
+int findPendingDestroyLockRequest(int pkthdr, int mailHdr, int requestID, int lockID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_DestroyLock){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->lockID == lockID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_DestroyLock){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->lockID == lockID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -370,13 +378,15 @@ int findPendingDestroyLockRequest(int pkthdr, int mailHdr, int lockID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingCreateMVRequest(int pkthdr, int mailHdr, string name){
+int findPendingCreateMVRequest(int pkthdr, int mailHdr, int requestID, string name){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_CreateMV){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->name == name){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_CreateMV){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->name == name){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -398,13 +408,15 @@ int findPendingCreateMVRequestNamed(string name){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingSetMVRequest(int pkthdr, int mailHdr, int MVID){
+int findPendingSetMVRequest(int pkthdr, int mailHdr, int requestID, int MVID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_Set){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->MVID == MVID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_Set){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->MVID == MVID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -413,13 +425,15 @@ int findPendingSetMVRequest(int pkthdr, int mailHdr, int MVID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingGetMVRequest(int pkthdr, int mailHdr, int MVID){
+int findPendingGetMVRequest(int pkthdr, int mailHdr, int requestID, int MVID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_Get){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->MVID == MVID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_Get){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->MVID == MVID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -428,13 +442,15 @@ int findPendingGetMVRequest(int pkthdr, int mailHdr, int MVID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingDestroyMVRequest(int pkthdr, int mailHdr, int MVID){
+int findPendingDestroyMVRequest(int pkthdr, int mailHdr, int requestID, int MVID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_DestroyMV){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->MVID == MVID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_DestroyMV){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->MVID == MVID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -443,13 +459,15 @@ int findPendingDestroyMVRequest(int pkthdr, int mailHdr, int MVID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingCreateCVRequest(int pkthdr, int mailHdr, string name){
+int findPendingCreateCVRequest(int pkthdr, int mailHdr, int requestID, string name){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_CreateCondition){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->name == name){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_CreateCondition){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->name == name){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -471,13 +489,15 @@ int findPendingCreateCVRequestNamed(string name){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingWaitRequest(int pkthdr, int mailHdr, int CVID){
+int findPendingWaitRequest(int pkthdr, int mailHdr, int requestID, int CVID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_Wait){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->CVID == CVID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_Wait){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->CVID == CVID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -486,13 +506,15 @@ int findPendingWaitRequest(int pkthdr, int mailHdr, int CVID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingSignalRequest(int pkthdr, int mailHdr, int CVID){
+int findPendingSignalRequest(int pkthdr, int mailHdr, int requestID, int CVID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_Signal){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->CVID == CVID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_Signal){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->CVID == CVID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -501,13 +523,15 @@ int findPendingSignalRequest(int pkthdr, int mailHdr, int CVID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingBroadcastRequest(int pkthdr, int mailHdr, int CVID){
+int findPendingBroadcastRequest(int pkthdr, int mailHdr, int requestID, int CVID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_Broadcast){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->CVID == CVID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_Broadcast){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->CVID == CVID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -516,13 +540,15 @@ int findPendingBroadcastRequest(int pkthdr, int mailHdr, int CVID){
 }
 
 //Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
-int findPendingDestroyCVRequest(int pkthdr, int mailHdr, int CVID){
+int findPendingDestroyCVRequest(int pkthdr, int mailHdr, int requestID, int CVID){
     for(unsigned int i = 0; i < pendingRequests.size(); i++){
         PendingRequest* p = pendingRequests[i];
-        if(p->type == SC_DestroyCondition){
-            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
-                if(p->CVID == CVID){
-                    return (int)i;
+        if(p->requestID == requestID){
+            if(p->type == SC_DestroyCondition){
+                if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                    if(p->CVID == CVID){
+                        return (int)i;
+                    }
                 }
             }
         }
@@ -1964,7 +1990,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingCreateLockRequest(reqPktHdr, reqMailHdr, lockName);
+                    int pendingRequestIndex = findPendingCreateLockRequest(reqPktHdr, reqMailHdr, requestID, lockName);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     //printf("%s\n", p->toString().c_str());
@@ -2083,7 +2109,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingAcquireLockRequest(reqPktHdr, reqMailHdr, lockID);
+                    int pendingRequestIndex = findPendingAcquireLockRequest(reqPktHdr, reqMailHdr, requestID, lockID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2149,7 +2175,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingReleaseLockRequest(reqPktHdr, reqMailHdr, lockID);
+                    int pendingRequestIndex = findPendingReleaseLockRequest(reqPktHdr, reqMailHdr, requestID, lockID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2217,7 +2243,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingDestroyLockRequest(reqPktHdr, reqMailHdr, lockID);
+                    int pendingRequestIndex = findPendingDestroyLockRequest(reqPktHdr, reqMailHdr, requestID, lockID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2291,7 +2317,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingCreateCVRequest(reqPktHdr, reqMailHdr, name);
+                    int pendingRequestIndex = findPendingCreateCVRequest(reqPktHdr, reqMailHdr, requestID, name);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     //printf("%s\n", p->toString().c_str());
@@ -2413,7 +2439,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingWaitRequest(reqPktHdr, reqMailHdr, CVID);
+                    int pendingRequestIndex = findPendingWaitRequest(reqPktHdr, reqMailHdr, requestID, CVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2483,7 +2509,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingSignalRequest(reqPktHdr, reqMailHdr, CVID);
+                    int pendingRequestIndex = findPendingSignalRequest(reqPktHdr, reqMailHdr, requestID, CVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2553,7 +2579,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingBroadcastRequest(reqPktHdr, reqMailHdr, CVID);
+                    int pendingRequestIndex = findPendingBroadcastRequest(reqPktHdr, reqMailHdr, requestID, CVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2620,7 +2646,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingDestroyCVRequest(reqPktHdr, reqMailHdr, CVID);
+                    int pendingRequestIndex = findPendingDestroyCVRequest(reqPktHdr, reqMailHdr, requestID, CVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2693,7 +2719,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingCreateMVRequest(reqPktHdr, reqMailHdr, name);
+                    int pendingRequestIndex = findPendingCreateMVRequest(reqPktHdr, reqMailHdr, requestID, name);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. It was propbably already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2812,7 +2838,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingDestroyMVRequest(reqPktHdr, reqMailHdr, MVID);
+                    int pendingRequestIndex = findPendingDestroyMVRequest(reqPktHdr, reqMailHdr, requestID, MVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. It was most likely already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2881,7 +2907,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingSetMVRequest(reqPktHdr, reqMailHdr, MVID);
+                    int pendingRequestIndex = findPendingSetMVRequest(reqPktHdr, reqMailHdr, requestID, MVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
@@ -2951,7 +2977,7 @@ void Server(){
                     bool response;
                     ss >> response;
                     PendingRequest* p;
-                    int pendingRequestIndex = findPendingGetMVRequest(reqPktHdr, reqMailHdr, MVID);
+                    int pendingRequestIndex = findPendingGetMVRequest(reqPktHdr, reqMailHdr, requestID, MVID);
                     if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
                     p = pendingRequests[pendingRequestIndex];
                     if(response){
