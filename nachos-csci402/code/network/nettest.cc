@@ -242,6 +242,16 @@ bool sendPendingRequest(PendingRequest* p){
         ss << p->lockID;
     }else if(p->type == SC_DestroyLock){
         ss << p->lockID;
+    }else if(p->type == SC_CreateCondition){
+        ss << p->name;
+    }else if(p->type == SC_Wait){
+        ss << p->CVID << " " << p->lockID;
+    }else if(p->type == SC_Signal){
+        ss << p->CVID << " " << p->lockID;
+    }else if(p->type == SC_Broadcast){
+        ss << p->CVID << " " << p->lockID;
+    }else if(p->type == SC_DestroyCondition){
+        ss << p->CVID;
     }else if(p->type == SC_CreateMV){
         ss << p->MVIndex << " " << p->name;
     }else if(p->type == SC_Set){
@@ -1138,6 +1148,28 @@ void serverDoWait(int CVID, int lockID, int pktHdr, int mailHdr){
 
 }
 
+void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
+    int myIndex = checkIfCVIsMineAndGetMyIndex(CVID);
+
+    if(myIndex == -1){
+        printf("\t\tNot my CV...checking with other servers.\n");
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_Wait;
+        p->CVID = CVID;
+        p->lockID = lockID;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
+            serverDoWait(myIndex, lockID, pktHdr, mailHdr);
+        }
+    }else{
+        //This is my MV
+        serverDoWait(myIndex, lockID, pktHdr, mailHdr);
+    }
+}
+
 
 /*/////////////////// OLD PRE-MULTIPLE SERVER CODE
 void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
@@ -1197,13 +1229,89 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
     serverReleaseLock(lockID, pktHdr, mailHdr);
 }*/
 
+/////////////////////////
+void serverDoSignal(int CVID, int lockID, int pktHdr, int mailHdr){
+    ServerCV* c;
+    stringstream rs;
+
+    if(!checkIfCVIDExists(CVID)){//Return error...
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
 
 
-//////////////////////
+    c = serverCVs[CVID];
+    printf("\t\tCV: %s\n", c->name.c_str());
+
+    if(c->waitingLock == -1){ //if no thread waiting
+        if(!c->q->IsEmpty()){
+            printf("\t\tERROR Q is not empty but waitingLock is NULL\n");
+        }
+        printf("\t\tNo waiting threads.\n");
+        rs << TRUE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+    if(c->waitingLock != lockID){
+        printf("\t\tCV lockID %i != signal lockID %i\n", c->waitingLock, lockID);
+        //Return error....
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+    //Wakeup 1 waiting thread
+    ServerReplyMsg* r = (ServerReplyMsg *)c->q->Remove();
+
+    if(c->q->IsEmpty()){
+        c->waitingLock = -1;
+    }
+
+    //We need to have the 'woken up' thread acquire the lock
+    serverAcquireLock(lockID, r->pktHdr, r->mailHdr);
+
+    printf("\t\tSignalled %i:%i.\n",r->pktHdr, r->mailHdr);
+    delete r;
+    
+    rs << TRUE;
+    sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+    return;
+}
+
+
+
+//////////////////
+void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
+    int myIndex = checkIfCVIsMineAndGetMyIndex(CVID);
+
+    if(myIndex == -1){
+        printf("\t\tNot my CV...checking with other servers.\n");
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_Signal;
+        p->CVID = CVID;
+        p->lockID = lockID;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
+            serverDoSignal(myIndex, lockID, pktHdr, mailHdr);
+        }
+    }else{
+        //This is my MV
+        serverDoSignal(myIndex, lockID, pktHdr, mailHdr);
+    }
+}
+
+
+
+/*///////////////////// OLD serverSignal PREMultiptleServers
 void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
     ServerCV* c;
     ServerLock* l;
     stringstream rs;
+
 
     if(!checkIfCVIDExists(CVID)){//Return error...
         rs << FALSE;
@@ -1264,11 +1372,67 @@ void serverSignal(int CVID, int lockID, int pktHdr, int mailHdr){
     rs << TRUE;
     sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
     return;
+}*/
+
+
+void serverDoBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
+    ServerCV* c;
+    stringstream rs;
+
+    if(!checkIfCVIDExists(CVID)){//Return error...
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+    c = serverCVs[CVID];
+
+    printf("\t\tCV: %s\n", c->name.c_str());
+
+    while( !( c->q->IsEmpty() ) ){
+        //Wakeup 1 waiting thread
+        ServerReplyMsg* r = (ServerReplyMsg *)c->q->Remove();
+
+        if(c->q->IsEmpty()){
+            c->waitingLock = -1;
+        }
+
+        //We need to have the 'woken up' thread acquire the lock
+        serverAcquireLock(lockID, r->pktHdr, r->mailHdr);
+    }
+
+    rs << TRUE;
+    sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+    return;
 }
 
 
 
-//////////////////////
+//////////////////
+void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
+    int myIndex = checkIfCVIsMineAndGetMyIndex(CVID);
+
+    if(myIndex == -1){
+        printf("\t\tNot my CV...checking with other servers.\n");
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_Broadcast;
+        p->CVID = CVID;
+        p->lockID = lockID;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
+            serverDoBroadcast(myIndex, lockID, pktHdr, mailHdr);
+        }
+    }else{
+        //This is my MV
+        serverDoBroadcast(myIndex, lockID, pktHdr, mailHdr);
+    }
+}
+
+
+/*///////////////////// PREMultiServers
 void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
 
     ServerCV* c;
@@ -1314,7 +1478,7 @@ void serverBroadcast(int CVID, int lockID, int pktHdr, int mailHdr){
     rs << TRUE;
     sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
     return;
-}
+}*/
 
 
 
@@ -2104,11 +2268,119 @@ void Server(){
         else if( which == SC_CreateCondition){
             printf("\tCreateCondition:\n");
             string name;
-            ss >> name;
 
-            serverCreateCV(name, inPktHdr.from, inMailHdr.from);
+            if(!fromServer){
+                
+                ss >> name;
+                serverCreateCV(name, inPktHdr.from, inMailHdr.from);
 
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> name;
 
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingCreateCVRequest(reqPktHdr, reqMailHdr, name);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    //printf("%s\n", p->toString().c_str());
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                        //We need to delete all pending requests for this name... 
+                        while(true){
+                            pendingRequestIndex = findPendingCreateCVRequestNamed(name);
+                            if(pendingRequestIndex == -1){
+                                break;
+                            }else{
+                                deletePendingRequest(pendingRequestIndex);
+                            }
+                        }
+                        
+                        //and send out a pending request for each other request with same name//No we don't
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoCreateCV(p->name, p->pktHdr, p->mailHdr);
+                            deletePendingRequest(pendingRequestIndex);
+                            //handle all requests with same name...
+                            while(true){
+                                pendingRequestIndex = findPendingCreateCVRequestNamed(name);
+                                if(pendingRequestIndex == -1){
+                                    break;
+                                }else{
+                                    printf("\tFound another pending request with same name. Handling the request.\n");
+                                    p = pendingRequests[pendingRequestIndex];
+                                    serverDoCreateCV(p->name, p->pktHdr, p->mailHdr);
+                                    deletePendingRequest(pendingRequestIndex);
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    
+                    if(findCVNamed(name) != -1){
+                        //If this lock is ours reply YES and handle the request.
+                        printf("\t\tThis CV is ours...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_CreateCondition << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoCreateCV(name, reqPktHdr, reqMailHdr);
+                    }else{
+                        //If this lock does not belong to us...reply NO(or YES)
+                        
+
+                        //WHAT IF THERE IS ALREADY A PENDING CREATE FOR THIS LOCK!?
+                        if(findPendingCreateCVRequestNamed(name) != -1){
+                            //if my machine id lower reply YES
+                            if(postOffice->getNetworkAddress() < inPktHdr.from){
+                                printf("\t\tPending request found for this CV, and our machineID is lower...reply YES.\n");
+                                stringstream rs;
+                                rs << SC_CreateCondition << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << true;
+                                sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                                
+                                //and add another pending request for this lock...
+                                PendingRequest* p = new PendingRequest();
+                                p->pktHdr = reqPktHdr;
+                                p->mailHdr = reqMailHdr;
+                                p->type = SC_CreateCondition;
+                                p->name = name;
+                                pendingRequests.push_back(p);
+                            }else{
+                                printf("\t\tPending request for this CV found but they have a lower machine ID...reply NO.\n");
+                                // if my machine id higher reply NO
+                                stringstream rs;
+                                rs << SC_CreateCondition << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << false;
+                                sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                            }
+                        }else{
+                            printf("\t\tThis CV is not ours and no pending requests...reply NO.\n");
+                            stringstream rs;
+                            rs << SC_CreateCondition << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << false;
+                            sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                        }
+
+                    }
+                }
+
+            }
 
         }
         else if(which == SC_Wait){
@@ -2116,12 +2388,69 @@ void Server(){
 
             int CVID;
             int lockID;
-            ss >> CVID;
-            ss >> lockID;
+            
+            if(!fromServer){
+                
+                ss >> CVID;
+                ss >> lockID;
+                serverWait(CVID, lockID, inPktHdr.from, inMailHdr.from);
 
-            serverWait(CVID, lockID, inPktHdr.from, inMailHdr.from);
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> CVID;
+                ss >> lockID;
 
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingWaitRequest(reqPktHdr, reqMailHdr, CVID);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
 
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoWait(CVID, lockID, p->pktHdr, p->mailHdr);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    int myIndex = checkIfCVIsMineAndGetMyIndex(CVID);
+
+                    if(myIndex != -1){
+                        //If this lock is ours reply YES and handle the request.
+                        printf("\t\tThis CV is ours...reply YES...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_Wait << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << lockID << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoWait(myIndex, lockID, reqPktHdr, reqMailHdr);
+                    }else{
+                        //If this lock does not belong to us...reply NO
+                        printf("\t\tThis CV is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_Wait << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << lockID << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
 
         }
         else if(which == SC_Signal){
@@ -2129,10 +2458,69 @@ void Server(){
 
             int CVID;
             int lockID;
-            ss >> CVID;
-            ss >> lockID;
 
-            serverSignal(CVID, lockID, inPktHdr.from, inMailHdr.from);
+            if(!fromServer){
+                
+                ss >> CVID;
+                ss >> lockID;
+                serverSignal(CVID, lockID, inPktHdr.from, inMailHdr.from);
+
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> CVID;
+                ss >> lockID;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingSignalRequest(reqPktHdr, reqMailHdr, CVID);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoSignal(CVID, lockID, p->pktHdr, p->mailHdr);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    int myIndex = checkIfCVIsMineAndGetMyIndex(CVID);
+
+                    if(myIndex != -1){
+                        //If this lock is ours reply YES and handle the request.
+                        printf("\t\tThis CV is ours...reply YES...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_Signal << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << lockID << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoWait(myIndex, lockID, reqPktHdr, reqMailHdr);
+                    }else{
+                        //If this lock does not belong to us...reply NO
+                        printf("\t\tThis CV is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_Signal << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << lockID << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
 
         }
         else if(which == SC_Broadcast){
@@ -2140,21 +2528,136 @@ void Server(){
 
             int CVID;
             int lockID;
-            ss >> CVID;
-            ss >> lockID;
 
-            serverBroadcast(CVID, lockID, inPktHdr.from, inMailHdr.from);
+            if(!fromServer){
+                
+                ss >> CVID;
+                ss >> lockID;
+                serverBroadcast(CVID, lockID, inPktHdr.from, inMailHdr.from);
 
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> CVID;
+                ss >> lockID;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingBroadcastRequest(reqPktHdr, reqMailHdr, CVID);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoBroadcast(CVID, lockID, p->pktHdr, p->mailHdr);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    int myIndex = checkIfCVIsMineAndGetMyIndex(CVID);
+
+                    if(myIndex != -1){
+                        //If this lock is ours reply YES and handle the request.
+                        printf("\t\tThis CV is ours...reply YES...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_Broadcast << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << lockID << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoWait(myIndex, lockID, reqPktHdr, reqMailHdr);
+                    }else{
+                        //If this lock does not belong to us...reply NO
+                        printf("\t\tThis CV is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_Broadcast << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << lockID << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
 
         }
         else if(which == SC_DestroyCondition){
             printf("\tDestroyCondition:\n");
 
             int CVID;
-            ss >> CVID;
 
-            serverDestroyCV(CVID);
+            if(!fromServer){
+                
+                ss >> CVID;
+                serverDestroyCV(CVID, inPktHdr.from, inMailHdr.from);
 
+            }else{
+                //This message came from a server...
+                int reqPktHdr;
+                int reqMailHdr;
+                ss >> reqPktHdr;
+                ss >> reqMailHdr;
+                ss >> CVID;
+
+                if(serverReply){
+                    bool response;
+                    ss >> response;
+                    PendingRequest* p;
+                    int pendingRequestIndex = findPendingDestroyCVRequest(reqPktHdr, reqMailHdr, CVID);
+                    if(pendingRequestIndex == -1){printf("\t\tThis request was not found. Hopefully it was already handled.\n"); continue;}
+                    p = pendingRequests[pendingRequestIndex];
+                    if(response){
+                        //Was a YES
+                        printf("\t\tGot a YES.\n");
+                        //We can delete the request...The other server will handle it.
+                        deletePendingRequest(pendingRequestIndex);
+
+                    }else{
+                        //Was a NO
+                        printf("\t\tGot a NO.\n");
+                        p->noCount++;
+                        if(p->noCount == p->sentCount){
+                            //All servers replied NO...we need to handle the request.
+                            printf("\t\tAll servers have responded. Handling the request.\n");
+                            serverDoDestroyCV(CVID);
+                            deletePendingRequest(pendingRequestIndex);
+                        }
+                    }
+                }else{
+                    //Server request message
+                    //Need to send a reply of some kind...possibly handle the request...
+                    int myIndex = checkIfCVIsMineAndGetMyIndex(CVID);
+
+                    if(myIndex != -1){
+                        //If this lock is ours reply YES and handle the request.
+                        printf("\t\tThis CV is ours...reply YES...I'll handle the request.\n");
+                        stringstream rs;
+                        rs << SC_DestroyCondition << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << true;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+
+                        serverDoDestroyCV(CVID);
+                    }else{
+                        //If this lock does not belong to us...reply NO
+                        printf("\t\tThis CV is not ours...reply NO.\n");
+                        stringstream rs;
+                        rs << SC_DestroyCondition << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << false;
+                        sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
+                    }
+                }
+
+            }
 
         }
         else if(which == SC_CreateMV){
