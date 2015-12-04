@@ -2043,7 +2043,7 @@ void Server(){
                         //If this lock is ours reply YES and handle the request.
                         printf("\t\tThis lock is ours...I'll handle the request.\n");
                         stringstream rs;
-                        rs << SC_CreateLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << true;
+                        rs << SC_CreateLock << " " << false << " " << requestID << " " << reqPktHdr << " " << reqMailHdr << " " << lockName << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
                         serverDoCreateLock(lockName, reqPktHdr, reqMailHdr);
@@ -2204,7 +2204,7 @@ void Server(){
                         //If this lock is ours reply YES and handle the request.
                         printf("\t\tThis lock is ours...reply YES...I'll handle the request.\n");
                         stringstream rs;
-                        rs << SC_Release << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockID << " " << true;
+                        rs << SC_Release << " " << false << " " << requestID << " " << reqPktHdr << " " << reqMailHdr << " " << lockID << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
                         serverDoReleaseLock(myIndex, reqPktHdr, reqMailHdr);
@@ -2272,7 +2272,7 @@ void Server(){
                         //If this lock is ours reply YES and handle the request.
                         printf("\t\tThis lock is ours...reply YES...I'll handle the request.\n");
                         stringstream rs;
-                        rs << SC_DestroyLock << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << lockID << " " << true;
+                        rs << SC_DestroyLock << " " << false << " " << requestID << " " << reqPktHdr << " " << reqMailHdr << " " << lockID << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
                         serverDoDestroyLock(myIndex);
@@ -2384,7 +2384,7 @@ void Server(){
                             if(postOffice->getNetworkAddress() < inPktHdr.from){
                                 printf("\t\tPending request found for this CV, and our machineID is lower...reply YES.\n");
                                 stringstream rs;
-                                rs << SC_CreateCondition << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << true;
+                                rs << SC_CreateCondition << " " << false << " " << requestID << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << true;
                                 sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
                                 
                                 //and add another pending request for this lock...
@@ -2398,13 +2398,13 @@ void Server(){
                                 printf("\t\tPending request for this CV found but they have a lower machine ID...reply NO.\n");
                                 // if my machine id higher reply NO
                                 stringstream rs;
-                                rs << SC_CreateCondition << " " << requestID << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << false;
+                                rs << SC_CreateCondition << " " << false << " " << requestID << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << false;
                                 sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
                             }
                         }else{
                             printf("\t\tThis CV is not ours and no pending requests...reply NO.\n");
                             stringstream rs;
-                            rs << SC_CreateCondition << " " << requestID << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << false;
+                            rs << SC_CreateCondition << " " << false << " " << requestID << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << false;
                             sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
                         }
 
@@ -2771,7 +2771,7 @@ void Server(){
                         //If this MV is ours reply YES and handle the request.
                         printf("\t\tThis MV is ours...I'll handle the request.\n");
                         stringstream rs;
-                        rs << SC_CreateMV << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << size << " " << name << " " << true;
+                        rs << SC_CreateMV << " " << false << " " << requestID << " " << reqPktHdr << " " << reqMailHdr << " " << size << " " << name << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
                         serverDoCreateMV(name, size, reqPktHdr, reqMailHdr);
