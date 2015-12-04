@@ -430,6 +430,94 @@ int findPendingDestroyMVRequest(int pkthdr, int mailHdr, int MVID){
     return -1;
 }
 
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingCreateCVRequest(int pkthdr, int mailHdr, string name){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_CreateCondition){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->name == name){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingCreateCVRequestNamed(string name){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_CreateCondition){
+            if(p->name == name){
+                return (int)i;
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingWaitRequest(int pkthdr, int mailHdr, int CVID){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_Wait){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->CVID == CVID){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingSignalRequest(int pkthdr, int mailHdr, int CVID){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_Signal){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->CVID == CVID){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingBroadcastRequest(int pkthdr, int mailHdr, int CVID){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_Broadcast){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->CVID == CVID){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+//Retuns the index into the pendingRequests table of the matching entry or -1 if not found.
+int findPendingDestroyCVRequest(int pkthdr, int mailHdr, int CVID){
+    for(unsigned int i = 0; i < pendingRequests.size(); i++){
+        PendingRequest* p = pendingRequests[i];
+        if(p->type == SC_DestroyCondition){
+            if(p->pktHdr == pkthdr && p->mailHdr == mailHdr){
+                if(p->CVID == CVID){
+                    return (int)i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
 
 
 
@@ -800,7 +888,7 @@ void serverDestroyLock(int lockID, int pktHdr, int mailHdr){
 //////////////////////////////////////////////////////////////////////////////
 
 
-#define CVTableSize 200
+#define CVTableSize 100
 BitMap serverCVTableBitMap(CVTableSize);
 
 class ServerCV{
@@ -819,8 +907,34 @@ public:
     }
 };
 
-vector<ServerCV*> serverCVs; //The table of locks
+vector<ServerCV*> serverCVs; //The table of CVs
 
+
+
+////////////////////
+int checkIfMVIsMineAndGetMyIndex(int CVID){
+    //lockID = postOffice->getNetworkAddress() * lockTableSize + index;
+    
+    bool print = false;
+    int index;
+    int machineID;
+
+    
+
+    index = CVID % CVTableSize;
+    machineID = (CVID - index) / CVTableSize;
+
+
+    if(print)printf("CheckIFCVIsMine: CVID: %i \n\tindex: %i \n\t machineID: %i \n\t", CVID, index, machineID);
+
+    if(machineID == postOffice->getNetworkAddress() ){
+        if(print)printf("CVID IS mine.\n");
+        return index;
+    }else{
+        if(print)printf("CVID is NOT mine.\n");
+        return -1;
+    }
+}
 
 ////////////////////
 bool checkIfCVIDExists(int CVID){
@@ -836,55 +950,97 @@ bool checkIfCVIDExists(int CVID){
 }
 
 
-////////////////
-void serverCreateCV(string name, int pktHdr, int mailHdr){
-    int index = -1;
-    bool status = TRUE;
-
-    //See if CV name exists
+///////////////////
+int findCVNamed(string name){
+    int CVID = -1;
     for(unsigned int i = 0; i < serverCVs.size(); i++){
         if(serverCVs[i] != NULL){
             if(serverCVs[i]->name == name){
-                index = (int)i;
+                CVID = (int)i;
                 break;
             }
         }
     }
+    return CVID;
+}
 
-    if(index == -1){
+////////////////////
+int createCVNamed(string name){
+    int CVID = findCVNamed(name);
+
+    if(CVID == -1){
         //CV doesn't exist
         ServerCV* c = new ServerCV();
         c->name = name;
 
-        index = serverCVTableBitMap.Find();
+        CVID = serverCVTableBitMap.Find();
 
-        if(index == -1){
+        if(CVID == -1){
             printf("\t\tMax Number of CVs created. CVTableSize: %i\n", CVTableSize);
-            status = FALSE;
+            return -1;
         }else{
-            if(index == (int)serverCVs.size()){
+            if(CVID == (int)serverCVs.size()){
                 serverCVs.push_back(c);
-            }else if(index < (int)serverCVs.size()){
-                serverCVs[index] = c;
+            }else if(CVID < (int)serverCVs.size()){
+                serverCVs[CVID] = c;
             }else{ASSERT(FALSE);}
-            printf("\t\tCreated CV\n");
+            printf("\t\tCreated CV named %s.\n", name.c_str());
         }
     }else{
         //CV exists
-        serverCVs[index]->createCVCount++;
-        printf("\t\tCV already Exists.\n");
+        serverCVs[CVID]->createCVCount++;
+        printf("\t\tCV %s already Exists.\n", name.c_str());
+    }
+
+    return CVID;
+}
+
+/////////////////////
+void serverDoCreateCV(string name, int pktHdr, int mailHdr){
+    int CVID = -1;
+    bool status = TRUE;
+
+    CVID = createCVNamed(name);
+
+    if(CVID == -1){
+        status = FALSE;
+    }else{
+        CVID = postOffice->getNetworkAddress() * CVTableSize + CVID;
     }
 
     stringstream rs;
     rs << status;
     rs << " ";
-    rs << index;
+    rs << CVID;
 
     sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
 }
 
 
+/////////////////////
+void serverCreateCV(string name, int pktHdr, int mailHdr){
+    if(findCVNamed(name) != -1){//We have the MV and can handle the create....
+        printf("\t\tThis CV belongs to me. Handling the create.\n");
+        serverDoCreateCV(name, pktHdr, mailHdr);
+    }else{
+        printf("\t\tThis CV isn't ours...checking with other servers.\n");
+        //This isn't our lock and need to check with the other servers...
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_CreateCondition;
+        p->name = name;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
+            serverDoCreateCV(name, pktHdr, mailHdr);
+        }
+    }
+}
 
+
+
+/////////////
 bool checkCVAndDestroy(int CVID){
     ServerCV* c;
 
@@ -904,10 +1060,13 @@ bool checkCVAndDestroy(int CVID){
     }
 }
 
-/////////////////
-void serverDestroyCV(int CVID){
 
-    if(!checkIfCVIDExists(CVID)){return;}
+
+void serverDoDestroyCV(int CVID){
+    if(!checkIfCVIDExists(CVID)){
+        printf("\t\tUnable to destroy.\n");
+        return;
+    }
 
     serverCVs[CVID]->createCVCount--;
     if(!checkCVAndDestroy(CVID)){
@@ -915,8 +1074,72 @@ void serverDestroyCV(int CVID){
     }
 }
 
+/////////////////
+void serverDestroyCV(int CVID, int pktHdr, int mailHdr){
+    int myIndex = checkIfCVIsMineAndGetMyIndex(CVID);
 
-///////////////////
+    if(myIndex == -1){
+        printf("\t\tNot my CV...checking with other servers.\n");
+        PendingRequest* p = new PendingRequest();
+        p->pktHdr = pktHdr;
+        p->mailHdr = mailHdr;
+        p->type = SC_DestroyCondition;
+        p->CVID = CVID;
+        pendingRequests.push_back(p);
+        if(!sendPendingRequest(p)){
+            deletePendingRequestPointer(p);
+            serverDoDestroyCV(myIndex);
+        }
+    }else{
+        //This is my MV
+        serverDoDestroyCV(myIndex);
+    }
+}
+
+
+void serverDoWait(int CVID, int lockID, int pktHdr, int mailHdr){
+    ServerCV* c;
+    stringstream rs;
+
+    if(!checkIfCVIDExists(CVID)){//Return error...
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+    c = serverCVs[CVID];
+    printf("\t\tCV: %s\n", c->name.c_str());
+
+    if(c->waitingLock == -1){
+        printf("\t\tNo threads waiting. Setting CV lockID %i.\n", lockID);
+        c->waitingLock = lockID;
+    }
+
+    if(c->waitingLock != lockID){
+        printf("\t\tCV lockID %i does not match lockID %i passed to Wait.\n",c->waitingLock, lockID);
+        //return error
+        rs << FALSE;
+        sendMail((char*)rs.str().c_str(), pktHdr, mailHdr);
+        return;
+    }
+
+    rs << TRUE;
+
+    ServerReplyMsg* r = new ServerReplyMsg();
+
+    r->pktHdr = pktHdr;
+    r->mailHdr = mailHdr;
+    r->msg = (char*)rs.str().c_str();
+
+    c->q->Append((void*)r);
+    printf("\t\tMID: %i MB: %i added to waitQ.\n", pktHdr, mailHdr );
+    //Release waiting lock...
+    serverReleaseLock(lockID, pktHdr, mailHdr);
+
+}
+
+
+/*/////////////////// OLD PRE-MULTIPLE SERVER CODE
 void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
     ServerCV* c;
     ServerLock* l;
@@ -972,7 +1195,7 @@ void serverWait(int CVID, int lockID, int pktHdr, int mailHdr){
     printf("\t\tMID: %i MB: %i added to waitQ.\n", pktHdr, mailHdr );
     //Release waiting lock...
     serverReleaseLock(lockID, pktHdr, mailHdr);
-}
+}*/
 
 
 
