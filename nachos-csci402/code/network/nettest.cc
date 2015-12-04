@@ -922,7 +922,7 @@ vector<ServerCV*> serverCVs; //The table of CVs
 
 
 ////////////////////
-int checkIfMVIsMineAndGetMyIndex(int CVID){
+int checkIfCVIsMineAndGetMyIndex(int CVID){
     //lockID = postOffice->getNetworkAddress() * lockTableSize + index;
     
     bool print = false;
