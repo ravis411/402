@@ -2510,7 +2510,7 @@ void Server(){
                         rs << SC_Signal << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << lockID << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
-                        serverDoWait(myIndex, lockID, reqPktHdr, reqMailHdr);
+                        serverDoSignal(myIndex, lockID, reqPktHdr, reqMailHdr);
                     }else{
                         //If this lock does not belong to us...reply NO
                         printf("\t\tThis CV is not ours...reply NO.\n");
