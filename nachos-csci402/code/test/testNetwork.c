@@ -161,6 +161,8 @@ int main() {
   DestroyLock(lock2);
   DestroyCondition(CV1);
   DestroyMV(MV);
+  DestroyLock(startCVMVLock);
+  DestroyMV(startCVMVLockMV);
 
 	PrintString("Done.\n", sizeof("Done.\n"));
   Exit(0);
