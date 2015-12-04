@@ -2370,7 +2370,7 @@ void Server(){
                         //If this lock is ours reply YES and handle the request.
                         printf("\t\tThis CV is ours...I'll handle the request.\n");
                         stringstream rs;
-                        rs << SC_CreateCondition << " " << false << requestID << " " << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << true;
+                        rs << SC_CreateCondition << " " << false << " " << requestID << " " << reqPktHdr << " " << reqMailHdr << " " << name << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
                         serverDoCreateCV(name, reqPktHdr, reqMailHdr);
