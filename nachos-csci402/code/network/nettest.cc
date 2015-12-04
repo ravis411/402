@@ -2647,7 +2647,7 @@ void Server(){
                         rs << SC_DestroyCondition << " " << false << " " << reqPktHdr << " " << reqMailHdr << " " << CVID << " " << true;
                         sendMail((char*)rs.str().c_str(), inPktHdr.from, inMailHdr.from);
 
-                        serverDoDestroyCV(CVID);
+                        serverDoDestroyCV(myIndex);
                     }else{
                         //If this lock does not belong to us...reply NO
                         printf("\t\tThis CV is not ours...reply NO.\n");

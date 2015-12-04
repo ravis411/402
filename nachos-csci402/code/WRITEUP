@@ -96,12 +96,14 @@ IV. Implementation:
 		int findPendingCreateLockRequest(int pkthdr, int mailHdr, string name);	//To find a pending request.
 		int findPendingAcquireLockRequest(int pkthdr, int mailHdr, int lockID);	//To find a pending request.
 		int findPendingReleaseLockRequest(int pkthdr, int mailHdr, int lockID);	//To find a pending request.
+			...
 		int checkIfLockIsMineAndGetMyIndex(int lockID){
 		int findLockNamed(string name); // To handle multiple servers.
 		int createLockNamed(string name); // To handle multiple servers.
 		void serverDoCreateLock(string name, int pktHdr, int mailHdr); // To handle multiple servers.
 		void serverDoAcquireLock(int lockID, int pktHdr, int mailHdr); // To handle multiple servers.
 		void serverDoReleaseLock(int lockID, int pktHdr, int mailHdr); // To handle multiple servers.
+			...
 
 	+ Functions modified and in which file.
 
@@ -109,7 +111,7 @@ IV. Implementation:
 			//Modified clientSendMail() to send mail to a random server.
 
 		--int file nettest.cc
-			//Modified Server(), serverCreateLock(), serverAcquire(), and serverRelease() to handle multiple servers.
+			//Modified Server(), serverCreateLock(), serverAcquire(), and serverRelease() ... to handle multiple servers.
 
 V. Testing:  (For each test case, you must show)
 	+ How to test
@@ -163,9 +165,9 @@ VI. Discussion:
 	+ Experiment expectation.  (What is supposed to happen.)
 		I was expcted to learn about distributed systems and distributed networking. I was to create and convert the passport office to use the networking syscalls and allow for multiple servers.
 	+ Experiment result.  (What actually happened.)
-		I did learn a great deal about distributed networking. I was able to finish code to enable CreateLock, Release, and Acquire on multiple servers. However, I did not have enough time to get any farther.
+		I did learn a great deal about distributed networking. I was able to complete the project and understand the intricacies of RPCs and distributed operating systems or networking. 
 	+ Explanation
-		I ran out of time to finish the rest of the distributed networking system calls. DestroyLock, CVs, and MVs, all only work while a single server is running. I know how to complete the implementation of these I just do not have enough time. I spent a significant amount of time working on this project over the Thanksgiving break and unfortunately am out of time.
+		The passport office runs as expected with one server, 5 or any number in between.
 
 VIII. Miscellaneous:
-	I did the entire project on my own, again, this time by choice. Please take into consideration that I am a group of 1. While I did not manage to complete part 2 which is a majority of the points of the project, I did finish part of it so perhaps I could at least get a few points. Sorry for that. Thank you.
+	I did the entire project on my own, again, this time by choice. Please take into consideration that I am a group of 1. Thank you.
