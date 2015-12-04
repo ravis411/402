@@ -9,12 +9,13 @@ I. Requirements:
 
 	Part 1 required the Passport Office to run using the new network system calls from project 3. This meant some significant refactoring and some minor changes to the passport office design.
 
-	Part2 required the use of multiple servers. The client or passport office was to have no knowledge of the various servers. All servers would coordinate with eachother to properly handle requests. When a request comes into the server the server can handle the request if it owns the resource otherwise, it will forward the request to all other servers and handle the responses.
+	Part 2 required the use of multiple servers. The client or passport office was to have no knowledge of the various servers. All servers would coordinate with eachother to properly handle requests. When a request comes into the server the server can handle the request if it owns the resource otherwise, it will forward the request to all other servers and handle the responses.
 
 II. Assumptions:
 	Assumption 1: Each instance has a unique machine id supplied with the -m argument.
 	Assumption 2: The servers are always machine id 0-4 and any clients are 5 and up.
 	Assumption 3: The necessary changes have been made to the machine directory to allow for use of the standard template library. These changes were approved by Professor Crowley.
+	Assumption 4: User programs will not try to break the server and a server will not terminate while user programs are running.
 
 III. Design:
 	Passport Office:
@@ -113,16 +114,16 @@ IV. Implementation:
 		--int file nettest.cc
 			//Modified Server(), serverCreateLock(), serverAcquire(), and serverRelease() ... to handle multiple servers.
 
-V. Testing:  (For each test case, you must show)
+V. Testing:
 	+ How to test
 		Passport Office
-			First, run nachos -server -m x where x is any number 0-4. Since I was unable to complete the entire project the passport office will only run properly when a single server is running.
+			First, run nachos -server -m x where x is any number 0-4. Be sure to have at least 1 server running and a maximum of 5.
 
-			Option 1: 1 Server and 1 Client
-				With one server running, from network/ run nachos -x ../test/passportOffice -m 5 where 5 is any number greater than or equal to 5. This will run a passport office similuation with one of each clerk, 2 customers, and 1 senator.
+			Option 1: 1-5 Servers and 1 Client
+				With at least one server running, from /network/ run nachos -x ../test/passportOffice -m 5 where 5 is any number greater than or equal to 5. This will run a passport office similuation with one of each clerk, 2 customers, and 1 senator.
 
-			Option 2: 1 Server and a bunch of clients
-				With one server running, run 1 only of the following from /network/:
+			Option 2: 1-5 Servers and a bunch of clients
+				With at least one server running, run 1 only of the following from /network/:
 					nachos -x ../test/startPassportOffice -m 5
 				Wait untill this console outputs "Initialized Passport Office and 1 manager."
 				Then in any order run only 1 each:
@@ -135,36 +136,26 @@ V. Testing:  (For each test case, you must show)
 					nachos -x ../test/startCustomers -m 10
 					nachos -x ../test/startSenators -m 11
 				When all customers or senators have finished. To close the office and return resources to the server run:
-					nachos -x ../test/stop PassportOffice -m 10
+					nachos -x ../test/stopPassportOffice -m 10
 
-				Note the machine id of all clients do not matter as long as they are unique and not 0-4. The server must have an id 0,1,2,3 or 4.
+				Note the machine id of all clients do not matter as long as they are unique and not 0-4. The servers must have an id 0,1,2,3 or 4.
 
-		Multiple Servers
-			While the passport office does not run with multiple servers, locks can be tested with the following. This test creates a number of locks and then does a mutually exclusive 10 second countdown. Unfortunately, DestroyLock isn't complete and the servers will need to be closed to show different lockIDs. There may also be a race condition if the clients call createLock too quickly right now as the server does not check wether a previous request for that name has been made.
-				run any number of servers greater than 0 up to 5 with machine ids 0-4.
-					nachos -server -m (0-4)
-				run any number of the following with a unique non server machine id
-					nachos -x ../test/testMultipleServer -m 5
 
 	+ Test Output
 		Passport Office
 			Option 1:
-				The server outputs a large amount of status messages.
+				The servers output a large amount of status messages.
 				The client will ouput the passport office.
 			Option 2:
-				The server will output a large amount of status messages.
+				The servers will output a large amount of status messages.
 				The first client will output that the passport office has been initialized and then will output manager messages.
-				Each client with output the messages for that entitity.
-
-		Multiple Servers
-			Each server will output status messages
-			The clients will output the lockID of the value returned from CreateLock and then proceed with a 10 second mutually exclusive countdown.
+				Each client will output the messages for that entitity.
 
 
 VI. Discussion:
-	+ Experiment expectation.  (What is supposed to happen.)
+	+ Experiment expectation.
 		I was expcted to learn about distributed systems and distributed networking. I was to create and convert the passport office to use the networking syscalls and allow for multiple servers.
-	+ Experiment result.  (What actually happened.)
+	+ Experiment result.
 		I did learn a great deal about distributed networking. I was able to complete the project and understand the intricacies of RPCs and distributed operating systems or networking. 
 	+ Explanation
 		The passport office runs as expected with one server, 5 or any number in between.
