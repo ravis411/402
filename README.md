@@ -72,6 +72,3 @@ VI. Discussion:
 		I did learn a great deal about distributed networking. I was able to complete the project and understand the intricacies of RPCs and distributed operating systems or networking. Well, I almost completed it...as of the due date Sunday, I was only had time to complete the lock syscalls. Now I've mostly got all of them working. The passport office has mixed results with more servers running. That was before I squashed a couple bugs...might still be one or two though?
 	+ Explanation
 		The passport office runs as expected with one server, mostly as expected with 2 servers and sometimes as expected with 5 or any number in between. There were some bugs but I may have squashed them last minute.
-
-VIII. Miscellaneous:
-	I did the entire project on my own, again, this time by choice. Please take into consideration that I am a group of 1. Thank you.
