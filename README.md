@@ -1,29 +1,77 @@
-# CSCI402
-CSCI350/402 Fall 2015 Class Projects
+Title:  Writeup for Project 4, Fall 2015
+ Date:  11/29/15
+ Group:	Name	Email	
+		Ryan Davis	ryanwdav@usc.edu	
 
-# Project 3: Virtual Memory
+ 
+I. Requirements:
+	Project 4 requires the implementation of a distributed Passport Office.
+
+	Part 1 required the Passport Office to run using the new network system calls from project 3. This meant some significant refactoring and some minor changes to the passport office design.
+
+	Part 2 required the use of multiple servers. The client or passport office was to have no knowledge of the various servers. All servers would coordinate with eachother to properly handle requests. When a request comes into the server the server can handle the request if it owns the resource otherwise, it will forward the request to all other servers and handle the responses.
+
+II. Assumptions:
+	Assumption 1: Each instance has a unique machine id supplied with the -m argument.
+	Assumption 2: The servers are always machine id 0-4 and any clients are 5 and up.
+	Assumption 3: The necessary changes have been made to the machine directory to allow for use of the standard template library. These changes were approved by Professor Crowley.
+	Assumption 4: User programs will not try to break the server and a server will not terminate while user programs are running.
+
+III. Design:
+	Passport Office:
+		Most of the differences in the passport office code are changes to the ways the monitor variables are accessed. Before, the MVs were not system calls. Now, a simple increment to a MV requires a Get to get the current value and then a Set to set the new value. This required a significant amount of refactoring. In adition, a passportSetup.h file contains functions with all the setup code for calling the creates and destroys as well as initilizing the values. A version of passportOffice will run the complete simulation on a single terminal window with a reduced number of entities. A larger version can be used by running all of the required start files as described under the Testing section.
+
+	Multiple Servers:
+		The client will randomly pick a server to send a request to. The client will pick a number 0-4 to send the request. If the message fails to send, it will try again up to a certain number of times. This ensures that the contacted server is random and will work correctly with any number of servers 1-5 which are machine id 0-4. When a server recieves a request from a client the server will check to see if it owns the resource. If it does, it can handle the request. Otherwise, such as on a create, the server will add the request to the pending requests table and forward the request to all other active servers. If there are no other active servers, the server will handle the request. When all servers have replied with a 'NO' then the server can handle the request. If any server replies 'YES' then the server will delete the pending request and assume that the server that replied yes will handle it.
+
+IV. Implementation:
+	//See WRITEUP in /code/ directory.
+	
+V. Testing:
+	+ How to test
+		Passport Office
+			First, run nachos -server -m x where x is any number 0-4. Be sure to have at least 1 server running and a maximum of 5.
+
+			Option 1: 1-5 Servers and 1 Client
+				With at least one server running, from /network/ run nachos -x ../test/passportOffice -m 5 where 5 is any number greater than or equal to 5. This will run a passport office similuation with one of each clerk, 2 customers, and 1 senator.
+
+			Option 2: 1-5 Servers and a bunch of clients
+				With at least one server running, run 1 only of the following from /network/:
+					nachos -x ../test/startPassportOffice -m 5
+				Wait untill this console outputs "Initialized Passport Office and 1 manager."
+				Then in any order run only 1 each:
+					nachos -x ../test/startAppClerks -m 6
+					nachos -x ../test/startPicClerks -m 7
+					nachos -x ../test/startPasClerks -m 8
+					nachos -x ../test/startCashiers -m 9
+				Wait untill at least one of each clerk has gone on break.
+				Then run as many of the following as desired. Stop before a SSN of 200, this is the max. These will run either 8 customers or senators. Once these complete they can be run again and in any order and with any number running concurrently.
+					nachos -x ../test/startCustomers -m 10
+					nachos -x ../test/startSenators -m 11
+				When all customers or senators have finished. To close the office and return resources to the server run:
+					nachos -x ../test/stopPassportOffice -m 10
+
+				Note the machine id of all clients do not matter as long as they are unique and not 0-4. The servers must have an id 0,1,2,3 or 4.
 
 
-1.
-Implement TLB. 
-Handle TLB misses.
-Keep track of dirty and use flags.
-matmult should pass 7220 to Exit()
-Have a functioning Exec system call.
+	+ Test Output
+		Passport Office
+			Option 1:
+				The servers output a large amount of status messages.
+				The client will ouput the passport office.
+			Option 2:
+				The servers will output a large amount of status messages.
+				The first client will output that the passport office has been initialized and then will output manager messages.
+				Each client will output the messages for that entitity.
 
-2.
-Implement virtual memory.
-Store and retrieve pages from disk to memory and memory to disk.
-Single swap file organized by pages.
-Nothing is preloaded from executable when a process starts.
-Keep track of whether a virtual page is in memory, swap, or executable.
-When memory is full, select a page to remove from memory.
-Keep track of pages currently in use.
-'core map' or IPT: translates physical page numbers to virtual pages.
-Implement Random page replacement and FIFO
-Be able to Fork or Exec two matmult/sort threads.
 
-3.
-Implement remote procedure calls
-Lock, Condition, integer Monitor variables,
-Create, retreive, set.
+VI. Discussion:
+	+ Experiment expectation.
+		I was expcted to learn about distributed systems and distributed networking. I was to create and convert the passport office to use the networking syscalls and allow for multiple servers.
+	+ Experiment result.
+		I did learn a great deal about distributed networking. I was able to complete the project and understand the intricacies of RPCs and distributed operating systems or networking. Well, I almost completed it...as of the due date Sunday, I was only had time to complete the lock syscalls. Now I've mostly got all of them working. The passport office has mixed results with more servers running. That was before I squashed a couple bugs...might still be one or two though?
+	+ Explanation
+		The passport office runs as expected with one server, mostly as expected with 2 servers and sometimes as expected with 5 or any number in between. There were some bugs but I may have squashed them last minute.
+
+VIII. Miscellaneous:
+	I did the entire project on my own, again, this time by choice. Please take into consideration that I am a group of 1. Thank you.
